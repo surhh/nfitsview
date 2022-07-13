@@ -1,0 +1,61 @@
+#ifndef WORKSPACETABWIDGET_H
+#define WORKSPACETABWIDGET_H
+
+#include <QTabWidget>
+#include <QLabel>
+#include <QScrollBar>
+
+#include "libnfits/hdu.h"
+#include "libnfits/image.h"
+
+#define IMAGE_EXPORT_TYPE_PNG       "PNG"
+#define IMAGE_EXPORT_TYPE_JPG       "JPG"
+#define IMAGE_EXPORT_TYPE_BMP       "BMP"
+
+namespace Ui {
+class WorkspaceTabWidget;
+}
+
+class WorkspaceTabWidget : public QTabWidget
+{
+    Q_OBJECT
+
+public:
+    explicit WorkspaceTabWidget(QWidget *parent = nullptr);
+    ~WorkspaceTabWidget();
+
+    void populateHeaderWidget(const libnfits::HDU& a_hdu);
+    void populateRawDataWidget(const libnfits::HDU& a_hdu);
+    void clearWidgets() const;
+    void setImage(const uint8_t* a_image, uint32_t a_width, uint32_t a_height, int8_t a_bitpix);
+    void reloadImage();
+    void clearImage() const;
+    void scaleImage(int32_t a_factor);
+    QSize getScrollAreaSize() const;
+    void scrollToCenter() const;
+    void convertImage2Grayscale();
+    void restoreImage();
+    void changeChannelLevel(uint8_t a_channel, float a_quatient);
+    uint32_t getImageWidth() const;
+    uint32_t getImageHeight() const;
+    void imageSetVisible(bool a_visible);
+    void backupImage();
+    bool exportImage(const QString& a_fileName, const QString& a_strType = IMAGE_EXPORT_TYPE_PNG, int32_t a_quality = -1);
+
+private slots:
+    void on_WorkspaceTabWidget_currentChanged(int index);
+
+signals:
+    void sendGammaCorrectionTabEnabled(bool a_flag);
+
+private:
+    Ui::WorkspaceTabWidget *ui;
+
+    QLabel              *m_imageLabel;
+    libnfits::Image     *m_fitsImage;
+
+    int32_t              m_zoomFactor;
+
+};
+
+#endif // WORKSPACETABWIDGET_H

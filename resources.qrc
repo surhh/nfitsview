@@ -1,0 +1,43 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/document-close-16x16.svg</file>
+        <file>icons/document-export-16x16.svg</file>
+        <file>icons/document-open-16x16.svg</file>
+        <file>icons/document-close-32x32.svg</file>
+        <file>icons/document-export-32x32.svg</file>
+        <file>icons/document-open-32x32.svg</file>
+        <file>icons/application-exit-16x16.svg</file>
+        <file>icons/application-exit-32x32.svg</file>
+        <file>icons/gradient_blue_48x24.png</file>
+        <file>icons/gradient_green_48x24.png</file>
+        <file>icons/gradient_red_48x24.png</file>
+        <file>icons/edit-redo-16x16.svg</file>
+        <file>icons/edit-redo-32x32.svg</file>
+        <file>icons/edit-undo-16x16.svg</file>
+        <file>icons/edit-undo-32x32.svg</file>
+        <file>icons/zoom-in-16x16.svg</file>
+        <file>icons/zoom-in-32x32.svg</file>
+        <file>icons/zoom-out-16x16.svg</file>
+        <file>icons/zoom-out-32x32.svg</file>
+        <file>icons/zoom-out-22x22.svg</file>
+        <file>icons/zoom-in-22x22.svg</file>
+        <file>icons/document-close-22x22.svg</file>
+        <file>icons/document-export-22x22.svg</file>
+        <file>icons/document-open-22x22.svg</file>
+        <file>icons/edit-redo-22x22.svg</file>
+        <file>icons/edit-undo-22x22.svg</file>
+        <file>icons/application-exit-22x22.svg</file>
+        <file>icons/zoom-fit-best-16x16.svg</file>
+        <file>icons/zoom-fit-best-22x22.svg</file>
+        <file>icons/zoom-fit-best-32x32.svg</file>
+        <file>icons/document-revert-16x16.svg</file>
+        <file>icons/document-revert-22x22.svg</file>
+        <file>icons/document-revert-32x32.svg</file>
+        <file>icons/view-preview-16x16.svg</file>
+        <file>icons/view-preview-22x22.svg</file>
+        <file>icons/view-preview-32x32.svg</file>
+        <file>icons/help-about-16x16.svg</file>
+        <file>icons/help-about-22x22.svg</file>
+        <file>icons/nfitsview.png</file>
+    </qresource>
+</RCC>

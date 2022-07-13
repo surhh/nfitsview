@@ -17,8 +17,10 @@ Currently nFITSview supports the following formats and features:
     
 # How to build under Linux
 
-The easiest way to build is to use Qt Creator. 
-It should be also possible to build using CMake from the command line.
+The original development of nFITSview is done under Linux, so the easiest and the fastest way to build is under Linux.
+
+- just build in Qt Creator. 
+- it should be also possible to build using CMake from the command line.
 
 # How to build under Windows
 

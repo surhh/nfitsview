@@ -1,4 +1,4 @@
-# nfitsview
+# About nFITSview
 nFITSview - A simple FITS image viewer
 
 Currently nFITSview supports the following formats and features:

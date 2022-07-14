@@ -30,3 +30,11 @@ Normally there is no need to build under Windows as the install package is provi
 Anyway, for building under Windows one would need to download/install/build all the dependencies, then fix the
 corresponding pathes for the libraries in the CMakeLists.txt file and then build the project using Qt Creator.
 
+# About FITS format
+
+The details about FITS format and standards can be found here:
+
+https://fits.gsfc.nasa.gov/fits_documentation.html
+
+https://fits.gsfc.nasa.gov/fits_standard.html
+

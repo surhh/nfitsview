@@ -7,6 +7,7 @@
 namespace libnfits
 {
 
+//// This function will be needed in the future, to support command-line interface
 int32_t convertFITS2PNG(const std::string& a_fitsFileName, const std::string& a_pngFileName = "");
 
 }

@@ -27,7 +27,7 @@ The original development of nFITSview is done under Linux, so the easiest and th
 # How to build under Windows
 
 Normally there is no need to build under Windows as the install package is provided. 
-Anyway, for building under Windows one would need to download/install/build all the dependencies, then fix the
+Anyway, for building under Windows one would need to download/install/build all the dependencies (boost, zlib, libpng), then fix the
 corresponding pathes for the libraries in the CMakeLists.txt file and then build the project using Qt Creator.
 
 # About FITS format

@@ -23,9 +23,9 @@
 
 #define IMAGE_EXPORT_HDUS_MESSAGE_ERROR     "Error exporting all image HDUs as image"
 
-#define IMAGE_EXPORT_STATUS_MESSAGE         "Exporting the current image..."
-#define IMAGE_EXPORT_HDUS_STATUS_MESSAGE    "Exporting all image HDUs..."
-
+#define STATUS_MESSAGE_IMAGE_EXPORT         "Exporting the current image..."
+#define STATUS_MESSAGE_IMAGE_EXPORT_HDUS    "Exporting all image HDUs..."
+#define STATUS_MESSAGE_IMAGE_LOAD           "Loading FITS file..."
 #define STATUS_MESSAGE_READY                "Ready"
 
 #define NFITSVIEW_WND_CAPTION               "nFITSview 1.0"
@@ -156,6 +156,7 @@ private:
     void clearWidgets();
 
     void setStatus(const QString& a_statusStr);
+    void setProgress(int32_t a_progress);
 
     QString getFileName() const;
 

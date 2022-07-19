@@ -275,12 +275,14 @@ qint32 MainWindow::openFITSFile()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Open FITS file", "~/", "FITS Files (*.fits)");
 
-    return openFITSFileByName(fileName);
+    return openFITSFileByName(fileName);    
 }
 
 qint32 MainWindow::openFITSFileByName(const QString& a_fileName)
 {
     qint32 result = FITS_GENERAL_ERROR;
+
+    setStatus(STATUS_MESSAGE_IMAGE_LOAD);
 
     if (!a_fileName.isEmpty())
     {
@@ -314,6 +316,8 @@ qint32 MainWindow::openFITSFileByName(const QString& a_fileName)
         QMessageBox messageBox;
         messageBox.critical(this, FITS_MSG_ERROR_TYPE, FITS_MSG_ERROR_OPENING_FILE);
     }
+
+    setStatus(STATUS_MESSAGE_READY);
 
     return resTemp;
 }
@@ -456,9 +460,9 @@ void MainWindow::clearWidgets()
 
 qint32 MainWindow::exportAllImages()
 {
-    setStatus(IMAGE_EXPORT_HDUS_STATUS_MESSAGE);
+    setStatus(STATUS_MESSAGE_IMAGE_EXPORT_HDUS);
 
-    m_progressBar->setValue(5);
+    setProgress(50);
 
     qint32 retVal = m_fitsFile.exportAllImageHDUs();    
 
@@ -469,7 +473,7 @@ qint32 MainWindow::exportAllImages()
     else
         QMessageBox::critical(this, "Error", IMAGE_EXPORT_HDUS_MESSAGE_ERROR);
 
-    m_progressBar->setValue(0);
+    setProgress(0);
 
     return retVal;
 }
@@ -655,6 +659,7 @@ void MainWindow::restoreOriginalImage()
 void MainWindow::setStatus(const QString &a_statusStr)
 {
     statusBar()->showMessage(a_statusStr);
+    statusBar()->repaint();
 }
 
 void MainWindow::enableRestoreWidgets(bool a_flag)
@@ -665,7 +670,7 @@ void MainWindow::enableRestoreWidgets(bool a_flag)
 
 void MainWindow::on_progressChanged(qint32 a_value)
 {
-    m_progressBar->setValue(a_value);
+   setProgress(a_value);
 }
 
 bool MainWindow::exportImage()
@@ -679,7 +684,7 @@ bool MainWindow::exportImage()
     if (fileName.isEmpty())
         return false;
 
-    setStatus(IMAGE_EXPORT_STATUS_MESSAGE);
+    setStatus(STATUS_MESSAGE_IMAGE_EXPORT);
     bool exportRes =  ui->workspaceWidget->exportImage(fileName, m_exportFormat, m_exportQuality);
     setStatus(STATUS_MESSAGE_READY);
 
@@ -898,4 +903,10 @@ void MainWindow::on_workspaceWidget_sendGammaCorrectionTabEnabled(bool a_flag)
 {
     enableGammaWidgets(m_bEnableGammaWidgets & a_flag);
     enableZoomWidgets(m_bEnableZoomWidget & a_flag);
+}
+
+void MainWindow::setProgress(int32_t a_progress)
+{
+    m_progressBar->setValue(a_progress);
+    m_progressBar->repaint();
 }

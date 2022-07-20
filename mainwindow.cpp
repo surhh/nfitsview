@@ -15,7 +15,7 @@
 
 // This function acts as a wrapper over the callback method of signal/slot.
 // "this" pointer of MainWindow is passed to callback function and then it
-// is used in order to emit the signal from MainWindow class
+// is used in order to emit the signal from MainWindow class.
 qint32 progressCallbackFunction(qint32 a_value, void* a_buffer = nullptr)
 {
     MainWindow* mainWnd = static_cast<MainWindow*>(a_buffer);

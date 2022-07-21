@@ -920,6 +920,11 @@ void MainWindow::setProgress(int32_t a_progress)
 
 void MainWindow::resizeEvent(QResizeEvent *event)
 {
-    //// TODO: to decide if to have a different resize behavior or not
+    //// TODO: may be required to change the size adjusting and zooming behavior during rezie
 
+    QSize scrollSize = ui->workspaceWidget->getScrollAreaSize();
+    QSize imageLabelSize = ui->workspaceWidget->getImageLabelSize();
+
+    if (scrollSize.width() > imageLabelSize.width() && scrollSize.height() > imageLabelSize.height())
+        fitToWindow();
 }

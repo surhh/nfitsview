@@ -28,7 +28,8 @@
 #define STATUS_MESSAGE_IMAGE_LOAD           "Loading FITS file..."
 #define STATUS_MESSAGE_READY                "Ready"
 
-#define NFITSVIEW_WND_CAPTION               "nFITSview 1.0"
+#define NFITSVIEW_VERSION                   "1.1"
+#define NFITSVIEW_WND_CAPTION               "nFITSview " NFITSVIEW_VERSION
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -41,6 +42,8 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
+    qint32 openFITSFileByNameFromCmdLine(const QString& a_fileName);
 
 private slots:
     void on_checkBoxGrayscale_stateChanged(int arg1);
@@ -160,6 +163,7 @@ private:
 
     QString getFileName() const;
 
+    void resizeEvent(QResizeEvent *event);
 signals:
     void sendProgressChanged(qint32 a_value);
 };

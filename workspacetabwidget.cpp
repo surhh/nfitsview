@@ -283,3 +283,8 @@ void WorkspaceTabWidget::on_WorkspaceTabWidget_currentChanged(int index)
     else
         sendGammaCorrectionTabEnabled(true);
 }
+
+QSize WorkspaceTabWidget::getImageLabelSize() const
+{
+    return m_imageLabel->size();
+}

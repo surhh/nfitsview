@@ -8,9 +8,9 @@
 #include "libnfits/hdu.h"
 #include "libnfits/image.h"
 
-#define IMAGE_EXPORT_TYPE_PNG       "PNG"
-#define IMAGE_EXPORT_TYPE_JPG       "JPG"
-#define IMAGE_EXPORT_TYPE_BMP       "BMP"
+#define IMAGE_EXPORT_TYPE_PNG       "png"
+#define IMAGE_EXPORT_TYPE_JPG       "jpg"
+#define IMAGE_EXPORT_TYPE_BMP       "bmp"
 
 namespace Ui {
 class WorkspaceTabWidget;
@@ -41,6 +41,7 @@ public:
     void imageSetVisible(bool a_visible);
     void backupImage();
     bool exportImage(const QString& a_fileName, const QString& a_strType = IMAGE_EXPORT_TYPE_PNG, int32_t a_quality = -1);
+    QSize getImageLabelSize() const;
 
 private slots:
     void on_WorkspaceTabWidget_currentChanged(int index);

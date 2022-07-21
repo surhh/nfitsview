@@ -44,7 +44,9 @@ int32_t FitsFile::loadFile(const std::string& a_fileName)
 
     retVal = findAllHDUs();
 
-    return m_HDUs.size();
+    // return m_HDUs.size();  // this was the original way, but the implementation of further ideas requires other approach
+
+    return retVal;
 }
 
 int32_t FitsFile::closeFile()

@@ -278,6 +278,13 @@ qint32 MainWindow::openFITSFile()
     return openFITSFileByName(fileName);    
 }
 
+qint32 MainWindow::openFITSFileByNameFromCmdLine(const QString &a_fileName)
+{
+    qint32 resOpen = openFITSFileByName(a_fileName);
+
+    return resOpen;
+}
+
 qint32 MainWindow::openFITSFileByName(const QString& a_fileName)
 {
     qint32 result = FITS_GENERAL_ERROR;
@@ -304,7 +311,7 @@ qint32 MainWindow::openFITSFileByName(const QString& a_fileName)
 
     m_fitsFile.setCallbackFunction(progressCallbackFunction, (void *)this);
 
-    if (resTemp != FITS_GENERAL_ERROR)
+    if (resTemp == FITS_GENERAL_SUCCESS)
     {
         populateHDUsWidget();
         enableFileOpenRelatedWidgets();
@@ -909,4 +916,10 @@ void MainWindow::setProgress(int32_t a_progress)
 {
     m_progressBar->setValue(a_progress);
     m_progressBar->repaint();
+}
+
+void MainWindow::resizeEvent(QResizeEvent *event)
+{
+    //// TODO: to decide if to have a different resize behavior or not
+
 }

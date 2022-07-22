@@ -13,50 +13,37 @@ namespace libnfits
 {
 
 #if defined(__unix__)
-inline int16_t swap16(int16_t x)
-{
-    return __builtin_bswap16(x);
-}
-
-inline int32_t swap32(int32_t x)
-{
-    return __builtin_bswap32(x);
-}
-
-inline int64_t swap64(int64_t x)
-{
-    return __builtin_bswap64(x);
-}
-
-inline float swap32f(float f)
-{
-    int32_t val = *((int32_t*) &f);
-
-    return swap32(val);
-}
+    #define swap16(x) (__builtin_bswap16(x))
+    #define swap32(x) (__builtin_bswap32(x))
+    #define swap64(x) (__builtin_bswap64(x))
+#elif defined(__WIN64__) || defined(__WIN32__)
+    #define swap16(x) (_byteswap_ushort(x))
+    #define swap32(x) (_byteswap_ulong(x))
+    #define swap64(x) (_byteswap_uint64(x))
 #else
-inline uint16_t swap16(int16_t x)
-{
-    return ((x << 8) & 0xFF00) | ((x >> 8) & 0x00FF);
-}
+    inline uint16_t swap16(uint16_t x)
+    {
+        return ((x << 8) & 0xFF00) | ((x >> 8) & 0x00FF);
+    }
 
-inline uint32_t swap32(uint32_t x)
-{
-    uint32_t t = ((x << 8) & 0xFF00FF00) | ((x >> 8) & 0xFF00FF);
+    inline uint32_t swap32(uint32_t x)
+    {
+        uint32_t t = ((x << 8) & 0xFF00FF00) | ((x >> 8) & 0xFF00FF);
 
-    return (t << 16) | (t >> 16);
-}
+        return (t << 16) | (t >> 16);
+    }
 
-inline uint64_t swap64(uint64_t x)
-{
-    uint64_t t = x;
+    inline uint64_t swap64(uint64_t x)
+    {
+        uint64_t t = x;
 
-    t = ((t & 0x00000000FFFFFFFFull) << 32) | ((t & 0xFFFFFFFF00000000ull) >> 32);
-    t = ((t & 0x0000FFFF0000FFFFull) << 16) | ((t & 0xFFFF0000FFFF0000ull) >> 16);
-    t = ((t & 0x00FF00FF00FF00FFull) << 8)  | ((t & 0xFF00FF00FF00FF00ull) >> 8);
+        t = ((t & 0x00000000FFFFFFFFull) << 32) | ((t & 0xFFFFFFFF00000000ull) >> 32);
+        t = ((t & 0x0000FFFF0000FFFFull) << 16) | ((t & 0xFFFF0000FFFF0000ull) >> 16);
+        t = ((t & 0x00FF00FF00FF00FFull) << 8)  | ((t & 0xFF00FF00FF00FF00ull) >> 8);
 
-    return t;
-}
+        return t;
+    }
+#endif
 
 inline float swap32f(float f)
 {
@@ -64,7 +51,6 @@ inline float swap32f(float f)
 
     return swap32(val);
 }
-#endif
 
 inline uint8_t max256(uint32_t a_value)
 {

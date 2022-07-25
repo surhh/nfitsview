@@ -1,4 +1,4 @@
-# About nFITSview
+# About nFITSview  (next FITS viewer)
 nFITSview - A simple FITS image viewer
 
 ![nfitsview1_1_screenshot_5](https://user-images.githubusercontent.com/109148999/180640402-b17321d1-2002-4112-81db-3fd0c16e0b8f.png)

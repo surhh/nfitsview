@@ -3,6 +3,7 @@ nFITSview - A simple FITS image viewer
 
 ![nfitsview1_1_screenshot_5](https://user-images.githubusercontent.com/109148999/180640402-b17321d1-2002-4112-81db-3fd0c16e0b8f.png)
 ![nfitsview1_1_screenshot_6](https://user-images.githubusercontent.com/109148999/180640403-01bed71b-ae8b-4fdd-aa3b-2d104e64ea56.png)
+![nfitsview1_1_screenshot_7](https://user-images.githubusercontent.com/109148999/180741392-779ce687-e1a1-4937-a806-0b9de9a6c3c7.png)
 
 
 Currently nFITSview supports the following formats and features:

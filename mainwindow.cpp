@@ -68,7 +68,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->actionZoomIn->setShortcut(QKeySequence::ZoomIn);
 
-    setWindowTitle(NFITSVIEW_WND_CAPTION);
+    setWindowTitle(NFITSVIEW_APP_NAME);
 }
 
 MainWindow::~MainWindow()
@@ -316,7 +316,7 @@ qint32 MainWindow::openFITSFileByName(const QString& a_fileName)
         populateHDUsWidget();
         enableFileOpenRelatedWidgets();
 
-        setWindowTitle(QString(NFITSVIEW_WND_CAPTION) + " - " + getFileName());
+        setWindowTitle(QString(NFITSVIEW_APP_NAME) + " - " + getFileName());
     }
     else
     {
@@ -348,7 +348,7 @@ qint32 MainWindow::closeFITSFile()
     m_exportFormat = ui->comboBoxFormat->currentText();
     m_exportQuality = ui->horizontalSliderQuality->value();
 
-    setWindowTitle(NFITSVIEW_WND_CAPTION);
+    setWindowTitle(NFITSVIEW_APP_NAME);
 
     return FITS_GENERAL_SUCCESS;
 }
@@ -825,7 +825,7 @@ void MainWindow::on_actionAbout_triggered()
 {
     AboutDialog dlg;
 
-    dlg.setAppVersion(NFITSVIEW_WND_CAPTION);
+    dlg.setAppVersion(NFITSVIEW_APP_FULL_NAME);
 
     dlg.exec();
 }

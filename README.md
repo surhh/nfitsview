@@ -34,7 +34,7 @@ corresponding pathes for the libraries in the CMakeLists.txt file and then build
 
 The details about FITS format and standards can be found here:
 
-https://fits.gsfc.nasa.gov/fits_documentation.html
+[FITS docs](https://fits.gsfc.nasa.gov/fits_documentation.html)
 
-https://fits.gsfc.nasa.gov/fits_standard.html
+[FITS standard](https://fits.gsfc.nasa.gov/fits_standard.html)
 

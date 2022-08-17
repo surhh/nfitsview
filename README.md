@@ -30,6 +30,10 @@ Normally there is no need to build under Windows as the install package is provi
 Anyway, for building under Windows one would need to download/install/build all the dependencies (boost, zlib, libpng), then fix the
 corresponding pathes for the libraries in the CMakeLists.txt file and then build the project using Qt Creator.
 
+Latest version (1.1) of nFITSview for Windows 64-bit to download:
+
+[nfitsview1_1-setup-x64.exe](https://github.com/surhh/nfitsview/releases/download/v1.1/nfitsview1_1-setup-x64.exe)
+
 # About FITS format
 
 The details about FITS format and standards can be found here:

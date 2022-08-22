@@ -425,6 +425,8 @@ int32_t Image::createRGB32Data()
 
             if (bytesNum == 4)
                 convertBufferFloat2RGB(tmpRow, tmpBufRowSize);
+            else if (bytesNum = 8)
+                convertBufferDouble2RGB(tmpRow, tmpBufRowSize);
 
             if (bytesNum == 4 || bytesNum == 3)
                 for (uint32_t x = 0; x < m_width; ++x)

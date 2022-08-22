@@ -139,14 +139,6 @@ template<typename T> std::string int2hex(T a_value)
 //// color normalization functions
 template<typename T> T normalizeValue(T a_value, T a_min, T a_max, T a_minNew, T a_maxNew)
 {
-    /*
-    float diff = (a_max - a_min);
-    float diffNew = (a_maxNew - a_minNew);
-    float valMin = (a_value - a_min);
-    float retVal = valMin*(diffNew/diff) + a_minNew;
-
-    return retVal;
-    */
     return (a_value - a_min)*((a_maxNew - a_minNew)/(a_max - a_min)) + a_minNew;
 }
 

@@ -145,7 +145,6 @@ void WorkspaceTabWidget::setImage(const uint8_t* a_image, uint32_t a_width, uint
 
     m_fitsImage->setParameters(a_width, a_height, FITS_PNG_DEFAULT_PIXEL_DEPTH, a_bitpix);
     m_fitsImage->setData(a_image);
-    //m_fitsImage->normalize(-442.0638, 98850.3, -1, 1);
     m_fitsImage->createRGB32FlatData();
 
     //// image float data dumping for debugging purposes

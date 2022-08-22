@@ -551,9 +551,6 @@ void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size)
 #endif
         float f = *((float *)&s);
 
-        //f = normalizeValue<float>(f, -442.0638, 98850.3, 0.0, 1.0);
-        //if (f > 200.0)
-        //    std::cout << "[f: " << f << "] , ";
         uint8_t red, green, blue;
 
         convertFloat2RGB(f, red, green, blue);

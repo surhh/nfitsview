@@ -148,6 +148,8 @@ void MainWindow::enableFileOpenRelatedWidgets(bool a_flag)
     ui->actionExportToolBar->setEnabled(a_flag);
     ui->actionUndoToolBar->setEnabled(a_flag);
     ui->actionRedoToolBar->setEnabled(a_flag);
+
+    ui->workspaceWidget->enableTabs(a_flag);
 }
 
 void MainWindow::on_checkBoxGrayscale_stateChanged(int arg1)

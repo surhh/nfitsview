@@ -287,3 +287,8 @@ QSize WorkspaceTabWidget::getImageLabelSize() const
 {
     return m_imageLabel->size();
 }
+
+void WorkspaceTabWidget::enableTabs(bool a_flag)
+{
+    setEnabled(a_flag);
+}

@@ -42,6 +42,7 @@ public:
     void backupImage();
     bool exportImage(const QString& a_fileName, const QString& a_strType = IMAGE_EXPORT_TYPE_PNG, int32_t a_quality = -1);
     QSize getImageLabelSize() const;
+    void enableTabs(bool a_flag = true);
 
 private slots:
     void on_WorkspaceTabWidget_currentChanged(int index);

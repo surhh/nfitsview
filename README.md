@@ -1,9 +1,9 @@
 # About nFITSview  (next FITS viewer)
 nFITSview - A simple and user-friendly FITS image viewer
 
-![nfitsview1_1_screenshot_5](https://user-images.githubusercontent.com/109148999/180640402-b17321d1-2002-4112-81db-3fd0c16e0b8f.png)
-![nfitsview1_1_screenshot_6](https://user-images.githubusercontent.com/109148999/180640403-01bed71b-ae8b-4fdd-aa3b-2d104e64ea56.png)
-![nfitsview1_1_screenshot_7](https://user-images.githubusercontent.com/109148999/180741392-779ce687-e1a1-4937-a806-0b9de9a6c3c7.png)
+![nfitsview1_2_screenshot_1](https://user-images.githubusercontent.com/109148999/189863673-95bae9c0-0a9f-4d1a-8cbe-db80a276a623.png)
+![nfitsview1_2_screenshot_2](https://user-images.githubusercontent.com/109148999/189863690-7321a797-b92a-4ad3-ae87-1c04b896c842.png)
+![nfitsview1_2_screenshot_3](https://user-images.githubusercontent.com/109148999/189863700-1610f79c-fa03-471e-8619-888ae8559e22.png)
 
 
 Currently nFITSview supports the following formats and features:
@@ -24,15 +24,23 @@ The original development of nFITSview is done under Linux, so the easiest and th
 - just build in Qt Creator. 
 - it should be also possible to build using CMake from the command line.
 
+The latest build for Linux (Debian-based) is now available for download as well. The dependencies for install are:
+
+libboost-iostreams1.74.0 (>= 1.74.0), libc6 (>= 2.34), libgcc-s1 (>= 3.0), libpng16-16 (>= 1.6.2-1)
+
+libqt5core5a (>= 5.15.1), libqt5gui5 (>= 5.0.2), libqt5gui5-gles (>= 5.0.2), libqt5widgets5 (>= 5.15.1), libstdc++6 (>= 11)
+
+[nfitsview-1_2.deb](https://github.com/surhh/nfitsview/releases/download/v1.2/nfitsview-1_2.deb)
+
 # How to build under Windows
 
 Normally there is no need to build under Windows as the install package is provided. 
 Anyway, for building under Windows one would need to download/install/build all the dependencies (boost, zlib, libpng), then fix the
 corresponding pathes for the libraries in the CMakeLists.txt file and then build the project using Qt Creator.
 
-The latest version (1.1) of nFITSview for Windows 64-bit to download:
+The latest version (1.2) of nFITSview for Windows 64-bit to download:
 
-[nfitsview1_1-setup-x64.exe](https://github.com/surhh/nfitsview/releases/download/v1.1/nfitsview1_1-setup-x64.exe)
+[nfitsview1_2-setup-x64.exe](https://github.com/surhh/nfitsview/releases/download/v1.2/nfitsview1_2-setup-x64.exe)
 
 # About FITS format
 

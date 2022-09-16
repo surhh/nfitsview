@@ -30,7 +30,7 @@ libboost-iostreams1.74.0 (>= 1.74.0), libc6 (>= 2.34), libgcc-s1 (>= 3.0), libpn
 
 libqt5core5a (>= 5.15.1), libqt5gui5 (>= 5.0.2), libqt5gui5-gles (>= 5.0.2), libqt5widgets5 (>= 5.15.1), libstdc++6 (>= 11)
 
-[nfitsview-1_2.deb](https://github.com/surhh/nfitsview/releases/download/v1.2/nfitsview-1_2.deb)
+[nfitsview1_2-x64.deb](https://github.com/surhh/nfitsview/releases/download/v1.2/nfitsview1_2-x64.deb)
 
 # How to build under Windows
 

@@ -12,6 +12,29 @@
 namespace libnfits
 {
 
+struct ImageColorStats
+{
+    uint64_t    sumR;
+    uint64_t    sumG;
+    uint64_t    sumB;
+
+    uint64_t    countR;
+    uint64_t    countG;
+    uint64_t    countB;
+
+    uint8_t     avgR;
+    uint8_t     avgG;
+    uint8_t     avgB;
+
+    uint8_t     minR;
+    uint8_t     minG;
+    uint8_t     minB;
+
+    uint8_t     maxR;
+    uint8_t     maxG;
+    uint8_t     maxB;
+};
+
 class Image
 {
 private:
@@ -45,6 +68,8 @@ private:
     void _deleteRGBData(uint8_t**& a_rgbDataBuffer);
     void _deleteRGB32Data(uint8_t**& a_rgb32DataBuffer);
     void _deleteRGB32FlatData(uint8_t*& a_rgb32FlatDataBuffer);
+
+    ImageColorStats _getRGBDataColorStats(uint8_t** a_rgbBuffer, uint8_t a_size) const;
 
 public:
     Image();
@@ -116,6 +141,10 @@ public:
     void deleteAllBackupRGBData();
 
     void normalize(float a_min, float a_max, float a_minNew, float a_maxNew);
+
+    ImageColorStats getRGBDataColorStats() const;
+    ImageColorStats getRGB32DataColorStats() const;
+    ImageColorStats getRGB32FlatDataColorStats() const;
 
     //// this function is for debug purposes only, is slow
     int32_t dumpFloatDataBuffer(const std::string& a_filename, uint32_t a_rowSize);

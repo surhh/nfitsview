@@ -741,6 +741,109 @@ void Image::normalize(float a_min, float a_max, float a_minNew, float a_maxNew)
     */
 }
 
+ImageColorStats Image::_getRGBDataColorStats(uint8_t **a_rgbBuffer, uint8_t a_size) const
+{
+    uint64_t sumR = 0, sumG = 0, sumB = 0;
+    uint64_t countR = 0, countG = 0, countB = 0;
+    uint8_t avgR = 0, avgG = 0, avgB = 0;
+    uint8_t minR = 0xff, minG = 0xff, minB = 0xff;
+    uint8_t maxR = 0, maxG = 0, maxB = 0;
+
+    ImageColorStats retStats = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+    if (a_rgbBuffer != nullptr)
+    {
+        for (uint32_t y = 0; y < m_height; ++y)
+            for (uint32_t x = 0; x < m_width; ++x)
+            {
+                uint8_t val;
+
+                val = m_rgbDataBuffer[y][x*a_size];
+                if (val > 0) ++countR;
+                if (val > maxR) maxR = val;
+                if (val < minR) minR = val;
+                sumR += val;
+
+                val = m_rgbDataBuffer[y][x*a_size + 1];
+                if (val > 0) ++countG;
+                if (val > maxG) maxG = val;
+                if (val < minG) minG = val;
+                sumG += val;
+
+                val = m_rgbDataBuffer[y][x*a_size + 2];
+                if (val > 0) ++countB;
+                if (val > maxB) maxB = val;
+                if (val < minB) minB = val;
+                sumB == val;
+            }
+
+        if (countR > 0) avgR = sumR / countR;
+        if (countG > 0) avgG = sumG / countG;
+        if (countB > 0) avgB = sumB / countB;
+    }
+
+    retStats = { sumR, sumG, sumB, countR, countG, countB, avgR, avgG, avgB, minR, minG, minB, maxR, maxG, maxB };
+
+    return retStats;
+
+}
+
+ImageColorStats Image::getRGBDataColorStats() const
+{
+    return _getRGBDataColorStats(m_rgbDataBuffer, 3);
+}
+
+ImageColorStats Image::getRGB32DataColorStats() const
+{
+    return _getRGBDataColorStats(m_rgb32DataBuffer, 4);
+}
+
+ImageColorStats Image::getRGB32FlatDataColorStats() const
+{
+    uint64_t sumR = 0, sumG = 0, sumB = 0;
+    uint64_t countR = 0, countG = 0, countB = 0;
+    uint8_t avgR = 0, avgG = 0, avgB = 0;
+    uint8_t minR = 0xff, minG = 0xff, minB = 0xff;
+    uint8_t maxR = 0, maxG = 0, maxB = 0;
+
+    ImageColorStats retStats = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+    if (m_rgb32FlatDataBuffer != nullptr)
+    {
+        for (uint32_t y = 0; y < m_height; ++y)
+            for (uint32_t x = 0; x < m_width; ++x)
+            {
+                uint8_t val;
+
+                val = m_rgb32FlatDataBuffer[4*(y*m_width + x)];
+                if (val > 0) ++countR;
+                if (val > maxR) maxR = val;
+                if (val < minR) minR = val;
+                sumR += val;
+
+                val = m_rgb32FlatDataBuffer[4*(y*m_width + x) + 1];
+                if (val > 0) ++countG;
+                if (val > maxG) maxG = val;
+                if (val < minG) minG = val;
+                sumG += val;
+
+                val = m_rgb32FlatDataBuffer[4*(y*m_width + x) + 2];
+                if (val > 0) ++countB;
+                if (val > maxB) maxB = val;
+                if (val < minB) minB = val;
+                sumB += val;
+            }
+
+        if (countR > 0) avgR = sumR / countR;
+        if (countG > 0) avgG = sumG / countG;
+        if (countB > 0) avgB = sumB / countB;
+    }
+
+    retStats = { sumR, sumG, sumB, countR, countG, countB, avgR, avgG, avgB, minR, minG, minB, maxR, maxG, maxB };
+
+    return retStats;
+}
+
 //// this function is for debug purposes only, is slow
 int32_t Image::dumpFloatDataBuffer(const std::string &a_filename, uint32_t a_rowSize)
 {

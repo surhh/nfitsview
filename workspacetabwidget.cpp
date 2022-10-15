@@ -48,6 +48,9 @@ WorkspaceTabWidget::~WorkspaceTabWidget()
     if (m_fitsImage != nullptr)
         delete m_fitsImage;
 
+    //clearImage();
+    clearImages();
+
     delete ui;
 }
 
@@ -139,18 +142,22 @@ void WorkspaceTabWidget::clearWidgets() const
     m_imageLabel->clear();
 }
 
-void WorkspaceTabWidget::setImage(const uint8_t* a_image, uint32_t a_width, uint32_t a_height, int8_t a_bitpix)
+void WorkspaceTabWidget::setImage(const uint8_t* a_image, uint32_t a_width, uint32_t a_height, size_t a_HDUBaseOffset,
+                                  size_t a_maxDataBufferSize, int8_t a_bitpix)
 {
-    QImage *image = nullptr;
+//    QImage *image = nullptr;
 
+    m_fitsImage->reset(); // this is for showing correctly images from different image HDUs
     m_fitsImage->setParameters(a_width, a_height, FITS_PNG_DEFAULT_PIXEL_DEPTH, a_bitpix);
+    m_fitsImage->setMaxDataBufferSize(a_maxDataBufferSize);
+    m_fitsImage->setBaseOffset(a_HDUBaseOffset);
     m_fitsImage->setData(a_image);
     m_fitsImage->createRGB32FlatData();
 
     //// image float data dumping for debugging purposes
     //// m_fitsImage->dumpFloatDataBuffer("./image_dump.txt", 8);
     //// end of debugging dump
-
+/*
     QImage::Format format = QImage::Format_RGB32;
 
     image = new QImage(m_fitsImage->getRGB32FlatData(), a_width, a_height, format);
@@ -162,6 +169,27 @@ void WorkspaceTabWidget::setImage(const uint8_t* a_image, uint32_t a_width, uint
 
     if (image != nullptr)
         delete image;
+*/
+    reloadImage();
+}
+
+void WorkspaceTabWidget::insertImage(const uint8_t* a_image, uint32_t a_width, uint32_t a_height, size_t a_HDUBaseOffset,
+                                        size_t a_maxDataBufferSize, int8_t a_bitpix, uint32_t a_hduIndex)
+{
+    FITSImageHDU imageHDU;
+
+    libnfits::Image *image = new libnfits::Image;
+
+    image->setParameters(a_width, a_height, FITS_PNG_DEFAULT_PIXEL_DEPTH, a_bitpix);
+    image->setMaxDataBufferSize(a_maxDataBufferSize);
+    image->setBaseOffset(a_HDUBaseOffset);
+    image->setData(a_image);
+    image->createRGB32FlatData();
+
+    imageHDU.index = a_hduIndex;
+    imageHDU.image = image;
+
+    m_vecFitsImages.push_back(imageHDU);
 }
 
 void WorkspaceTabWidget::reloadImage()
@@ -226,6 +254,7 @@ void WorkspaceTabWidget::convertImage2Grayscale()
     backupImage();
 
     m_fitsImage->convertRGB32Flat2Grayscale();
+    //m_fitsImage->convertRGB32Flat2EyeComfortColors();
 }
 
 void WorkspaceTabWidget::backupImage()
@@ -291,4 +320,28 @@ QSize WorkspaceTabWidget::getImageLabelSize() const
 void WorkspaceTabWidget::enableTabs(bool a_flag)
 {
     setEnabled(a_flag);
+}
+
+void WorkspaceTabWidget::clearImages()
+{
+    for (auto it = m_vecFitsImages.begin(); it < m_vecFitsImages.end(); ++it)
+    {
+        it->image->reset();
+
+        delete it->image;
+    }
+
+    m_vecFitsImages.clear();
+}
+
+void WorkspaceTabWidget::setImage(uint32_t a_hduIndex)
+{
+    for (auto it = m_vecFitsImages.begin(); it < m_vecFitsImages.end(); ++it)
+        if (it->index == a_hduIndex)
+        {
+
+            m_fitsImage = it->image;
+
+            reloadImage();
+        }
 }

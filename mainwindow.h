@@ -21,6 +21,8 @@
                                             "The exported images are located in the same directory where\n" \
                                             "the original FITS file is located."
 
+#define IMAGE_EXPORT_NO_HDUS_MESSAGE        "No image HDUs available for converting!"
+
 #define IMAGE_EXPORT_HDUS_MESSAGE_ERROR     "Error exporting all image HDUs as image."
 
 #define STATUS_MESSAGE_IMAGE_EXPORT         "Exporting the current image..."
@@ -29,7 +31,7 @@
 #define STATUS_MESSAGE_READY                "Ready"
 
 #define NFITSVIEW_APP_NAME                  "nFITSview"
-#define NFITSVIEW_VERSION                   "1.2"
+#define NFITSVIEW_VERSION                   "1.3"
 #define NFITSVIEW_APP_FULL_NAME             NFITSVIEW_APP_NAME " " NFITSVIEW_VERSION
 
 QT_BEGIN_NAMESPACE
@@ -150,6 +152,7 @@ private:
     qint32 closeFITSFile();
     qint32 exportAllImages();
     bool   exportImage();
+    qint32 setAllWorkspaceImages();
 
     void populateHDUsWidget();
     void populateHeaderWidget(int32_t a_hduIndex);

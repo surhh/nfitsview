@@ -198,6 +198,7 @@ void MainWindow::populateHDUsWidget()
     int32_t             resTemp = FITS_GENERAL_ERROR;
     libnfits::HDU       hdu;
 
+    m_fitsFile.setOffset(0);
     numberOfHDUs = m_fitsFile.getNumberOfHDUs();
 
     for (uint32_t i = 0; i < numberOfHDUs; ++i)
@@ -240,13 +241,24 @@ void MainWindow::populateHDUsWidget()
             if (HDUtype & FITS_HDU_TYPE_RANDOM_GROUP_RECORDS)
                 HDUtypeStr += "R";
 
-            ui->tableWidgetHDUs->setItem(ui->tableWidgetHDUs->rowCount()-1, 0, new QTableWidgetItem(HDUtypeStr));
-            ui->tableWidgetHDUs->setItem(ui->tableWidgetHDUs->rowCount()-1, 1, new QTableWidgetItem(QString::number(sizeHDU)));
-            ui->tableWidgetHDUs->setItem(ui->tableWidgetHDUs->rowCount()-1, 2, new QTableWidgetItem(bitpixStr));
+            QTableWidgetItem *itemType, *itemSize, *itemBitpix;
+
+            itemType = new QTableWidgetItem(HDUtypeStr);
+            itemSize = new QTableWidgetItem(QString::number(sizeHDU));
+            itemBitpix = new QTableWidgetItem(bitpixStr);
+
+            itemType->setFlags(itemType->flags() & ~Qt::ItemIsEditable);
+            itemSize->setFlags(itemSize->flags() & ~Qt::ItemIsEditable);
+            itemBitpix->setFlags(itemBitpix->flags() & ~Qt::ItemIsEditable);
+
+            ui->tableWidgetHDUs->setItem(ui->tableWidgetHDUs->rowCount()-1, 0, itemType);
+            ui->tableWidgetHDUs->setItem(ui->tableWidgetHDUs->rowCount()-1, 1, itemSize);
+            ui->tableWidgetHDUs->setItem(ui->tableWidgetHDUs->rowCount()-1, 2, itemBitpix);
         }
     }
 
     int32_t rowCount = ui->tableWidgetHDUs->rowCount();
+
     if (rowCount > 0)
         ui->tableWidgetHDUs->selectRow(rowCount - 1);
 }
@@ -315,6 +327,9 @@ qint32 MainWindow::openFITSFileByName(const QString& a_fileName)
 
     if (resTemp == FITS_GENERAL_SUCCESS)
     {
+        // this function loads all the image HDUs into the corresponding Image objects
+        setAllWorkspaceImages();
+
         populateHDUsWidget();
         enableFileOpenRelatedWidgets();
 
@@ -341,7 +356,8 @@ qint32 MainWindow::closeFITSFile()
     enableImageExportWidgets(false);
     enableImageExportSettigsWidgets(false);
 
-    ui->workspaceWidget->clearImage();
+    //ui->workspaceWidget->clearImage();
+    ui->workspaceWidget->clearImages();
 
     m_scaleFactor = 100;
 
@@ -477,8 +493,14 @@ qint32 MainWindow::exportAllImages()
 
     setStatus(STATUS_MESSAGE_READY);
 
-    if (retVal == FITS_GENERAL_SUCCESS)
-        QMessageBox::information(this, "Success", IMAGE_EXPORT_HDUS_MESSAGE_SUCCESS);
+    //if (retVal == FITS_GENERAL_SUCCESS)
+    if (retVal > FITS_PNG_EXPORT_ERROR)
+    {
+        if (retVal > 0)
+            QMessageBox::information(this, "Success", IMAGE_EXPORT_HDUS_MESSAGE_SUCCESS);
+        else if (retVal == 0)
+            QMessageBox::warning(this, "Warning", IMAGE_EXPORT_NO_HDUS_MESSAGE);
+    }
     else
         QMessageBox::critical(this, "Error", IMAGE_EXPORT_HDUS_MESSAGE_ERROR);
 
@@ -747,7 +769,7 @@ void MainWindow::enableImageExportSettigsWidgets(bool a_flag)
     ui->comboBoxFormat->setEnabled(a_flag);
 
     QString currentItem = ui->comboBoxFormat->currentText();
-    if (currentItem == IMAGE_EXPORT_TYPE_PNG || currentItem == IMAGE_EXPORT_TYPE_BMP)
+    if (currentItem != QString(IMAGE_EXPORT_TYPE_JPG).toUpper())
     {
         ui->horizontalSliderQuality->setEnabled(false);
         ui->labelQualityValue->setEnabled(false);
@@ -766,7 +788,7 @@ void MainWindow::on_comboBoxFormat_currentIndexChanged(const QString &arg1)
     m_exportFormat = arg1;
     m_exportQuality = ui->horizontalSliderQuality->value();
 
-    if (arg1 == IMAGE_EXPORT_TYPE_PNG || arg1 == IMAGE_EXPORT_TYPE_BMP)
+    if (arg1 != QString(IMAGE_EXPORT_TYPE_JPG).toUpper())
     {
         ui->horizontalSliderQuality->setEnabled(false);
         ui->labelQualityValue->setEnabled(false);
@@ -870,8 +892,8 @@ void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current
             if (bSuccess)
             {
                 ui->workspaceWidget->imageSetVisible(true);
-
-                ui->workspaceWidget->setImage(hdu.getPayload(), axises[0], axises[1], bitpix);
+                //ui->workspaceWidget->setImage(hdu.getPayload(), axises[0], axises[1], hdu.getPayloadOffset(), m_fitsFile.getSize(), bitpix);
+                ui->workspaceWidget->setImage(row);
 
                 fitToWindow();
 
@@ -930,3 +952,41 @@ void MainWindow::resizeEvent(QResizeEvent *event)
     if (scrollSize.width() > imageLabelSize.width() && scrollSize.height() > imageLabelSize.height())
         fitToWindow();
 }
+
+qint32 MainWindow::setAllWorkspaceImages()
+{
+    libnfits::HDU       hdu;
+
+    int32_t retVal = 0;
+
+    bool bSuccess;
+
+    int32_t countHDU = m_fitsFile.getNumberOfHDUs();
+
+    for (uint32_t h = 0; h < countHDU; ++h)
+    {
+        int32_t resTemp = m_fitsFile.getHDU(h, hdu);
+
+        if (resTemp == FITS_GENERAL_SUCCESS)
+        {
+            uint32_t axisesNumber = hdu.getKeywordValue<uint32_t>(FITS_KEYWORD_NAXIS, bSuccess);
+            std::vector<uint32_t> axises = hdu.getAxises();
+
+            uint8_t HDUType = hdu.getType();
+
+            if ((HDUType == FITS_HDU_TYPE_IMAGE_XTENSION || HDUType == FITS_HDU_TYPE_PRIMARY) && (axisesNumber >= 2 && bSuccess) && (axises.size() >= 2))
+            {
+                int32_t bitpix = hdu.getKeywordValue<int32_t>(FITS_KEYWORD_BITPIX, bSuccess);
+
+                if (bSuccess)
+                {
+                    ui->workspaceWidget->insertImage(hdu.getPayload(), axises[0], axises[1], hdu.getPayloadOffset(), m_fitsFile.getSize(), bitpix, h);
+                    ++retVal;
+                }
+            }
+        }
+    }
+
+    return retVal;
+}
+

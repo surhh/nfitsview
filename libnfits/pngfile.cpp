@@ -276,7 +276,7 @@ int32_t PNGFile::createFromRGBData(const uint8_t** a_rgbBuffer)
     int32_t retVal = FITS_GENERAL_SUCCESS;
 
     if (a_rgbBuffer == nullptr)
-        return FITS_GENERAL_ERROR;
+        return FITS_PNG_EXPORT_ERROR;
 
     pFile = fopen(m_fileName.c_str(), "wb");
     if (pFile == nullptr)

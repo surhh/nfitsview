@@ -96,10 +96,12 @@ int32_t FitsFile::findHDU()
     size_t  recordIndex = 0;
     bool    bEnd = false;
     uint8_t hduType = FITS_HDU_TYPE_PRIMARY;
+    size_t  prevOffset = 0;
 
     Header  header;
     HDU     hdu;
 
+    prevOffset = m_offset;
     hdu.setOffset(m_offset);
 
     while (!bEnd)
@@ -154,7 +156,10 @@ int32_t FitsFile::findHDU()
 
     hdu.setData(m_memoryBuffer + hdu.getOffset());
     if (header.getNAXIS() != 0)
+    {
         hdu.setPaylod(m_memoryBuffer + m_offset);
+        hdu.setPayloadOffset(m_offset);
+    }
 
     // Calculating the amount of real data after the header
     bool bSucess = false;
@@ -171,7 +176,12 @@ int32_t FitsFile::findHDU()
     }
     //
 
-    hdu.setSize(m_offset + size);
+    // added to fix the missing miltiple HDU bug and wrong HDU sizes bug
+    m_offset += size;
+    m_offset = alignOffsetForward(m_offset);
+
+    hdu.setSize(m_offset - prevOffset);
+    // end of bugfixes
 
     m_HDUs.push_back(hdu);
 
@@ -223,8 +233,8 @@ int32_t FitsFile::exportImageHDU(uint32_t a_hduIndex)
     uint32_t axisesNumber = m_HDUs[a_hduIndex].getKeywordValue<uint32_t>(FITS_KEYWORD_NAXIS, bSuccess);
 
     uint8_t HDUtype = m_HDUs[a_hduIndex].getType();
-    if ((HDUtype != FITS_HDU_TYPE_PRIMARY && HDUtype != FITS_HDU_TYPE_IMAGE_XTENSION) || (axisesNumber < 2 && !bSuccess))
-        return FITS_GENERAL_ERROR;
+    if ((HDUtype != FITS_HDU_TYPE_PRIMARY && HDUtype != FITS_HDU_TYPE_IMAGE_XTENSION) || (axisesNumber < 2 || !bSuccess))
+        return FITS_PNG_HDU_NOT_IMAGE_ERROR;
 
     Image           image;
     std::string     fileName;
@@ -234,15 +244,17 @@ int32_t FitsFile::exportImageHDU(uint32_t a_hduIndex)
     std::vector<uint32_t> axises = m_HDUs[a_hduIndex].getAxises();
 
     if (axises.size() < 2)
-        return FITS_GENERAL_ERROR;
+        return FITS_PNG_HDU_NOT_IMAGE_ERROR;
 
     int32_t bitpix = m_HDUs[a_hduIndex].getKeywordValue<int32_t>(FITS_KEYWORD_BITPIX, bSuccess); // was int8_t before, int32_t is the right one
 
     if (!bSuccess)
-        return FITS_GENERAL_ERROR;
+        return FITS_PNG_EXPORT_ERROR;
 
     image.setParameters(axises[0], axises[1], FITS_PNG_DEFAULT_PIXEL_DEPTH, bitpix);
     image.setData(m_HDUs[a_hduIndex].getPayload());
+    image.setMaxDataBufferSize(m_fileSize);
+    image.setBaseOffset(m_HDUs[a_hduIndex].getPayloadOffset());
     image.setCallbackFunction(m_callbackFunc, m_callbackFuncParam);
     retVal = image.exportPNG(fileName);
 
@@ -251,13 +263,19 @@ int32_t FitsFile::exportImageHDU(uint32_t a_hduIndex)
 
 int32_t FitsFile::exportAllImageHDUs()
 {
-    int32_t retVal = FITS_GENERAL_ERROR;
+    int32_t retVal = 0, err = 0;
 
     for (uint32_t i = 0; i < m_HDUs.size(); ++i)
-        if (exportImageHDU(i) == FITS_GENERAL_SUCCESS)
-            ++retVal;
+    {
+        int32_t resExport = exportImageHDU(i);
 
-    return retVal;
+        if (resExport == FITS_GENERAL_SUCCESS)
+            ++retVal;
+        else if (resExport == FITS_PNG_EXPORT_ERROR)
+            err = FITS_PNG_EXPORT_ERROR;
+    }
+
+    return (!err) ? retVal : err;
 }
 
 void FitsFile::setCallbackFunction(CallbackFunctionPtr a_callbackFunc, void* a_callbackFuncParam)
@@ -285,4 +303,5 @@ bool FitsFile::isOpen() const
 {
     return m_memoryBuffer != nullptr ? true : false;
 }
+
 }

@@ -10,10 +10,10 @@ namespace libnfits
 Image::Image():
     m_dataBuffer(nullptr),
     m_rgbDataBuffer(nullptr), m_rgb32DataBuffer(nullptr), m_rgb32FlatDataBuffer(nullptr),
-    m_rgbDataBackupBuffer(nullptr), m_rgb32DataBackupBuffer(nullptr), m_rgb32FlatDataBackupBuffer(nullptr),
+    m_rgbDataBackupBuffer(nullptr), m_rgb32DataBackupBuffer(nullptr), m_rgb32FlatDataBackupBuffer(nullptr), m_maxDataBufferSize(0), m_baseOffset(0),
     m_width(0), m_height(0), m_colorDepth(0), m_bitpix(0), m_isCompressed(false), m_title(""), m_callbackFunc(nullptr), m_callbackFuncParam(nullptr)
 {
-
+    m_colorStats = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 }
 
 Image::Image(const uint8_t* a_dataBuffer, uint32_t a_witdth, uint32_t a_height, uint8_t a_colorDepth, int8_t a_bitpix,
@@ -26,6 +26,8 @@ Image::Image(const uint8_t* a_dataBuffer, uint32_t a_witdth, uint32_t a_height, 
     m_bitpix = a_bitpix;
     m_isCompressed = a_isCompressed;
     m_title = a_title;
+    m_maxDataBufferSize = 0;
+    m_baseOffset = 0;
     m_callbackFunc = a_callbackFunc;
     m_callbackFuncParam = nullptr;
     m_rgbDataBuffer = nullptr;
@@ -76,7 +78,7 @@ int32_t Image::exportPNG(const std::string& a_fileName)
     uint8_t colorType = FITS_PNG_DEFAULT_COLOR_TYPE;
 
     if (bytesNum == 0)              // < 8 bits per pixel is not supported
-        return FITS_GENERAL_ERROR;
+        return FITS_PNG_EXPORT_ERROR;
 
     // This block recalculates the new PNG buffer size. The multipliers reflect the number of bytes per pixel.
     // RGB type is the default one
@@ -87,7 +89,7 @@ int32_t Image::exportPNG(const std::string& a_fileName)
     if (bytesNum == 3 || bytesNum == 4)
         colorType = FITS_PNG_COLOR_RGB;  // the FITS_PNG_COLOR_RGB_ALPHA seems not to work as expected on the FITS pixel array
     else
-        return FITS_GENERAL_ERROR;
+        return FITS_PNG_EXPORT_ERROR;
 
     if (m_callbackFunc != nullptr)
         m_callbackFunc(50, m_callbackFuncParam); // sample callback to send info 50% of work is done
@@ -172,9 +174,13 @@ void Image::reset()
     m_height = 0;
     m_colorDepth = 0;
     m_bitpix = 0;
+    m_maxDataBufferSize = 0;
+    m_baseOffset = 0;
     m_isCompressed = false;
     m_callbackFunc = nullptr;
     m_title.clear();
+
+    m_colorStats = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 }
 
 void Image::backupRGBData()
@@ -312,7 +318,7 @@ int32_t Image::createRGBData()
 
     uint8_t bytesNum = std::abs(m_bitpix) / 8;
 
-    if (bytesNum != 3 && bytesNum != 4)   //// TODO: in the future it's needed to support other 8/16/32/64/ bit images
+    if (bytesNum != 4 && bytesNum != 8)   //// TODO: in the future it's needed to support other 8/16/32/64/ bit images
         return FITS_GENERAL_ERROR;
 
     // the image has been converted to RGB already
@@ -334,18 +340,29 @@ int32_t Image::createRGBData()
     // Writing the buffer containing pixel data
     try
     {
-        //for (uint32_t y = 0; y < m_height; ++y)
         for (int64_t y = m_height - 1; y >= 0; --y) //// this loop is for correcting Y-axis upside down showing
         {
             m_rgbDataBuffer[y] = new uint8_t[bufRowSize];
+            std::memset(m_rgbDataBuffer[y] , 0, bufRowSize);
 
+            //// this memcpy is for correcting Y-axis upside down showing
+            size_t offset = (m_height - 1 - y) * tmpBufRowSize;
+
+            //// checking if the memory-mapped file is corrupted and not all data is available
+            //// e.g. data required by the HDUs is bigger then the file itself
+            if ((m_baseOffset + offset + tmpBufRowSize) > m_maxDataBufferSize)
+                continue;
+            ////
+
+            //// This case should not occur as FITS doesn't officially support 24-bit data values.
+            //// Moreover, only bytesNum  is 3 and 4 are checked in this function.
+            //// The (bytesNum == 3) is kept just in case if 24-bit data value support will be added one day.
+            //// Otherwise, ideally this part of code should be removed
+            /*
             if (bytesNum == 3)
             {
-                //std::memcpy(m_rgbDataBuffer[y], m_dataBuffer + (y * bufRowSize), bufRowSize);
                 //// this memcpy is for correcting Y-axis upside down showing
                 std::memcpy(m_rgbDataBuffer[m_height - 1 - y], m_dataBuffer + ((m_height - 1 - y) * bufRowSize), bufRowSize);
-
-                //convertBufferFloat2RGB(m_rgbDataBuffer[y], bufRowSize);  // commented, is changed to the code below, the former code was wrong
 
                 for (uint32_t x = 0; x < m_width; ++x)
                 {
@@ -358,16 +375,24 @@ int32_t Image::createRGBData()
                     m_rgbDataBuffer[y][x*3 + 2] = b;
                 }
             }
-            else if (bytesNum == 4)
+            else if (bytesNum == 4 || bytesNum == 8)
+            */
             {
-                std::memcpy(tmpRow, m_dataBuffer + (y * tmpBufRowSize), tmpBufRowSize);
-                convertBufferFloat2RGB(tmpRow, tmpBufRowSize);
+                //std::memcpy(tmpRow, m_dataBuffer + (y * tmpBufRowSize), tmpBufRowSize);
+                std::memcpy(tmpRow, m_dataBuffer + ((m_height - 1 - y) * tmpBufRowSize), tmpBufRowSize);
+
+                if (m_bitpix == -32)
+                    convertBufferFloat2RGB(tmpRow, tmpBufRowSize);
+                else if (m_bitpix == 32)
+                    convertBufferInt2RGB(tmpRow, tmpBufRowSize);
+                else if (m_bitpix == -64)
+                    convertBufferDouble2RGB(tmpRow, tmpBufRowSize);
 
                 for (uint32_t x = 0; x < m_width; ++x)
                 {
-                    m_rgbDataBuffer[y][x*3]     = tmpRow[x*4];
-                    m_rgbDataBuffer[y][x*3 + 1] = tmpRow[x*4 + 1];
-                    m_rgbDataBuffer[y][x*3 + 2] = tmpRow[x*4 + 2];
+                    m_rgbDataBuffer[y][x*3]     = tmpRow[x*bytesNum];
+                    m_rgbDataBuffer[y][x*3 + 1] = tmpRow[x*bytesNum + 1];
+                    m_rgbDataBuffer[y][x*3 + 2] = tmpRow[x*bytesNum + 2];
                 }
             }
         }
@@ -389,7 +414,7 @@ int32_t Image::createRGB32Data()
 
     uint8_t bytesNum = std::abs(m_bitpix) / 8;
 
-    if (bytesNum != 3 && bytesNum != 4)   //// TODO: in the future it's needed to support other 8/16/32/64/ bit images
+    if (bytesNum != 4 && bytesNum != 8)   //// TODO: in the future it's needed to support other 8/16/32/64/ bit images
         return FITS_GENERAL_ERROR;
 
     // the image has been converted to RGB already
@@ -413,29 +438,37 @@ int32_t Image::createRGB32Data()
     // Writing the buffer containing pixel data
     try
     {
-        //for (uint32_t y = 0; y < m_height; ++y)
         for (int64_t y = m_height - 1; y >= 0; --y) //// this loop is for correcting Y-axis upside down showing
         {
             m_rgb32DataBuffer[y] = new uint8_t[bufRowSize];
+            std::memset(m_rgb32DataBuffer[y] , 0, bufRowSize);
 
-            //std::memcpy(tmpRow, m_dataBuffer + (y * tmpBufRowSize), tmpBufRowSize);
+            //// this memcpy is for correcting Y-axis upside down showing
+            size_t offset = (m_height - 1 - y) * tmpBufRowSize;
+
+            //// checking if the memory-mapped file is corrupted and not all data is available
+            //// e.g. data required by the HDUs is bigger then the file itself
+            if ((m_baseOffset + offset + tmpBufRowSize) > m_maxDataBufferSize)
+                continue;
+            ////
+
             //// this memcpy is for correcting Y-axis upside down showing
             std::memcpy(tmpRow, m_dataBuffer + ((m_height - 1 - y) * tmpBufRowSize), tmpBufRowSize);
 
-
-            if (bytesNum == 4)
+            if (m_bitpix == -32)
                 convertBufferFloat2RGB(tmpRow, tmpBufRowSize);
-            else if (bytesNum = 8)
+            else if (m_bitpix == 32)
+                convertBufferInt2RGB(tmpRow, tmpBufRowSize);
+            else if (m_bitpix == -64)
                 convertBufferDouble2RGB(tmpRow, tmpBufRowSize);
 
-            if (bytesNum == 4 || bytesNum == 3)
-                for (uint32_t x = 0; x < m_width; ++x)
-                {
-                    m_rgb32DataBuffer[y][x*4]     = tmpRow[x*4 + 2];
-                    m_rgb32DataBuffer[y][x*4 + 1] = tmpRow[x*4 + 1];
-                    m_rgb32DataBuffer[y][x*4 + 2] = tmpRow[x*4];
-                    m_rgb32DataBuffer[y][x*4 + 3] = 0;
-                }
+            for (uint32_t x = 0; x < m_width; ++x)
+            {
+                m_rgb32DataBuffer[y][x*4]     = tmpRow[x*bytesNum + 2];
+                m_rgb32DataBuffer[y][x*4 + 1] = tmpRow[x*bytesNum + 1];
+                m_rgb32DataBuffer[y][x*4 + 2] = tmpRow[x*bytesNum];
+                m_rgb32DataBuffer[y][x*4 + 3] = 0xff;
+            }
         }
     }
     catch (...)
@@ -455,7 +488,7 @@ int32_t Image::createRGB32FlatData()
 
     uint8_t bytesNum = std::abs(m_bitpix) / 8;
 
-    if (bytesNum != 3 && bytesNum != 4)   //// TODO: in the future it's needed to support other 8/16/32/64/ bit images
+    if (bytesNum != 4 && bytesNum != 8) ///// TODO: in the future it's needed to support other 8/16/32/64/ bit images
         return FITS_GENERAL_ERROR;
 
     // the image has been converted to RGB already
@@ -468,9 +501,10 @@ int32_t Image::createRGB32FlatData()
 
     size_t tmpBufRowSize = m_width * bytesNum * (m_colorDepth / (sizeof(uint8_t) * 8)) * sizeof(uint8_t);  // 32-bit element buffer for temp ussage
 
-    size_t flatBufSize = m_height*m_width*4;
+    size_t flatBufSize = m_height * m_width * 4;
 
     m_rgb32FlatDataBuffer = new uint8_t[flatBufSize];
+    std::memset(m_rgb32FlatDataBuffer, 0, flatBufSize);
 
     if (m_rgb32FlatDataBuffer == nullptr)
         return FITS_GENERAL_ERROR;
@@ -480,26 +514,32 @@ int32_t Image::createRGB32FlatData()
     // Writing the buffer containing pixel data
     try
     {
-        //for (uint32_t y = 0; y < m_height; ++y)
         for (int64_t y = m_height - 1; y >= 0; --y) //// this loop is for correcting Y-axis upside down showing
         {
-            //std::memcpy(tmpRow, m_dataBuffer + (y * tmpBufRowSize), tmpBufRowSize);
             //// this memcpy is for correcting Y-axis upside down showing
-            std::memcpy(tmpRow, m_dataBuffer + ((m_height - 1 - y) * tmpBufRowSize), tmpBufRowSize);
+            size_t offset = (m_height - 1 - y) * tmpBufRowSize;
 
-            if (bytesNum == 4)
+            //// checking if the memory-mapped file is corrupted and not all data is available
+            //// e.g. data required by the HDUs is bigger then the file itself
+            if ((m_baseOffset + offset + tmpBufRowSize) > m_maxDataBufferSize)
+                break;
+            ////
+            std::memcpy(tmpRow, m_dataBuffer + offset, tmpBufRowSize);
+
+            if (m_bitpix == -32)
                 convertBufferFloat2RGB(tmpRow, tmpBufRowSize);
-            else if (bytesNum = 8)
+            else if (m_bitpix == 32)
+                convertBufferInt2RGB(tmpRow, tmpBufRowSize);
+            else if (m_bitpix == -64)
                 convertBufferDouble2RGB(tmpRow, tmpBufRowSize);
 
-            if (bytesNum == 4 || bytesNum == 3)
-                for (uint32_t x = 0; x < m_width; ++x)
-                {
-                    m_rgb32FlatDataBuffer[4*(y*m_width + x)]     = tmpRow[x*4 + 2];
-                    m_rgb32FlatDataBuffer[4*(y*m_width + x) + 1] = tmpRow[x*4 + 1];
-                    m_rgb32FlatDataBuffer[4*(y*m_width + x) + 2] = tmpRow[x*4];
-                    m_rgb32FlatDataBuffer[4*(y*m_width + x) + 3] = 0;
-                }
+            for (uint32_t x = 0; x < m_width; ++x)
+            {
+                m_rgb32FlatDataBuffer[4*(y*m_width + x)]     = tmpRow[x*bytesNum + 2]; //tmpRow[x*4 + 2];
+                m_rgb32FlatDataBuffer[4*(y*m_width + x) + 1] = tmpRow[x*bytesNum + 1]; //tmpRow[x*4 + 1];
+                m_rgb32FlatDataBuffer[4*(y*m_width + x) + 2] = tmpRow[x*bytesNum];     //tmpRow[x*4];
+                m_rgb32FlatDataBuffer[4*(y*m_width + x) + 3] = 0xff;
+            }
         }
     }
     catch (...)
@@ -511,7 +551,6 @@ int32_t Image::createRGB32FlatData()
         delete [] tmpRow;
 
     return retVal;
-
 }
 
 uint8_t** Image::getRGBData() const
@@ -567,7 +606,7 @@ void Image::copyRGB32FlatData(uint8_t* a_rgb32FlatDataBufferDest, uint8_t* a_rgb
     std::memcpy(a_rgb32FlatDataBufferDest, a_rgb32FlatDataBufferSrc, m_width * m_height * bytesNum);
 }
 
-int32_t Image::changeRGBColorChannelLevel(uint8_t a_channel, float a_quatient)
+int32_t Image::_changeRGBColorChannelLevel(uint8_t a_channel, float a_quatient)
 {
     int32_t retVal = FITS_GENERAL_SUCCESS;
 
@@ -591,7 +630,7 @@ int32_t Image::changeRGBColorChannelLevel(uint8_t a_channel, float a_quatient)
     return retVal;
 }
 
-int32_t Image::changeRGB32ColorChannelLevel(uint8_t a_channel, float a_quatient)
+int32_t Image::_changeRGB32ColorChannelLevel(uint8_t a_channel, float a_quatient)
 {
     int32_t retVal = FITS_GENERAL_SUCCESS;
 
@@ -615,7 +654,7 @@ int32_t Image::changeRGB32ColorChannelLevel(uint8_t a_channel, float a_quatient)
     return retVal;
 }
 
-int32_t Image::changeRGB32FlatColorChannelLevel(uint8_t a_channel, float a_quatient)
+int32_t Image::_changeRGB32FlatColorChannelLevel(uint8_t a_channel, float a_quatient)
 {
     int32_t retVal = FITS_GENERAL_SUCCESS;
 
@@ -641,47 +680,47 @@ int32_t Image::changeRGB32FlatColorChannelLevel(uint8_t a_channel, float a_quati
 
 int32_t Image::changeRLevel(float a_quatient)
 {
-    return changeRGBColorChannelLevel(0, a_quatient);
+    return _changeRGBColorChannelLevel(0, a_quatient);
 }
 
 int32_t Image::changeGLevel(float a_quatient)
 {
-    return changeRGBColorChannelLevel(1, a_quatient);
+    return _changeRGBColorChannelLevel(1, a_quatient);
 }
 
 int32_t Image::changeBLevel(float a_quatient)
 {
-    return changeRGBColorChannelLevel(2, a_quatient);
+    return _changeRGBColorChannelLevel(2, a_quatient);
 }
 
 int32_t Image::change32RLevel(float a_quatient)
 {
-    return changeRGB32ColorChannelLevel(0, a_quatient);
+    return _changeRGB32ColorChannelLevel(0, a_quatient);
 }
 
 int32_t Image::change32GLevel(float a_quatient)
 {
-    return changeRGB32ColorChannelLevel(1, a_quatient);
+    return _changeRGB32ColorChannelLevel(1, a_quatient);
 }
 
 int32_t Image::change32BLevel(float a_quatient)
 {
-    return changeRGB32ColorChannelLevel(2, a_quatient);
+    return _changeRGB32ColorChannelLevel(2, a_quatient);
 }
 
 int32_t Image::change32FlatRLevel(float a_quatient)
 {
-    return changeRGB32FlatColorChannelLevel(0, a_quatient);
+    return _changeRGB32FlatColorChannelLevel(0, a_quatient);
 }
 
 int32_t Image::change32FlatGLevel(float a_quatient)
 {
-    return changeRGB32FlatColorChannelLevel(1, a_quatient);
+    return _changeRGB32FlatColorChannelLevel(1, a_quatient);
 }
 
 int32_t Image::change32FlatBLevel(float a_quatient)
 {
-    return changeRGB32FlatColorChannelLevel(2, a_quatient);
+    return _changeRGB32FlatColorChannelLevel(2, a_quatient);
 }
 
 
@@ -741,7 +780,7 @@ void Image::normalize(float a_min, float a_max, float a_minNew, float a_maxNew)
     */
 }
 
-ImageColorStats Image::_getRGBDataColorStats(uint8_t **a_rgbBuffer, uint8_t a_size) const
+void Image::calcRGBDataColorStats()
 {
     uint64_t sumR = 0, sumG = 0, sumB = 0;
     uint64_t countR = 0, countG = 0, countB = 0;
@@ -749,28 +788,26 @@ ImageColorStats Image::_getRGBDataColorStats(uint8_t **a_rgbBuffer, uint8_t a_si
     uint8_t minR = 0xff, minG = 0xff, minB = 0xff;
     uint8_t maxR = 0, maxG = 0, maxB = 0;
 
-    ImageColorStats retStats = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-
-    if (a_rgbBuffer != nullptr)
+    if (m_rgbDataBuffer != nullptr)
     {
         for (uint32_t y = 0; y < m_height; ++y)
             for (uint32_t x = 0; x < m_width; ++x)
             {
                 uint8_t val;
 
-                val = m_rgbDataBuffer[y][x*a_size];
+                val = m_rgbDataBuffer[y][x*3];
                 if (val > 0) ++countR;
                 if (val > maxR) maxR = val;
                 if (val < minR) minR = val;
                 sumR += val;
 
-                val = m_rgbDataBuffer[y][x*a_size + 1];
+                val = m_rgbDataBuffer[y][x*3 + 1];
                 if (val > 0) ++countG;
                 if (val > maxG) maxG = val;
                 if (val < minG) minG = val;
                 sumG += val;
 
-                val = m_rgbDataBuffer[y][x*a_size + 2];
+                val = m_rgbDataBuffer[y][x*3 + 2];
                 if (val > 0) ++countB;
                 if (val > maxB) maxB = val;
                 if (val < minB) minB = val;
@@ -782,23 +819,10 @@ ImageColorStats Image::_getRGBDataColorStats(uint8_t **a_rgbBuffer, uint8_t a_si
         if (countB > 0) avgB = sumB / countB;
     }
 
-    retStats = { sumR, sumG, sumB, countR, countG, countB, avgR, avgG, avgB, minR, minG, minB, maxR, maxG, maxB };
-
-    return retStats;
-
+    m_colorStats = { sumR, sumG, sumB, countR, countG, countB, avgR, avgG, avgB, minR, minG, minB, maxR, maxG, maxB };
 }
 
-ImageColorStats Image::getRGBDataColorStats() const
-{
-    return _getRGBDataColorStats(m_rgbDataBuffer, 3);
-}
-
-ImageColorStats Image::getRGB32DataColorStats() const
-{
-    return _getRGBDataColorStats(m_rgb32DataBuffer, 4);
-}
-
-ImageColorStats Image::getRGB32FlatDataColorStats() const
+void Image::calcRGB32DataColorStats()
 {
     uint64_t sumR = 0, sumG = 0, sumB = 0;
     uint64_t countR = 0, countG = 0, countB = 0;
@@ -806,7 +830,47 @@ ImageColorStats Image::getRGB32FlatDataColorStats() const
     uint8_t minR = 0xff, minG = 0xff, minB = 0xff;
     uint8_t maxR = 0, maxG = 0, maxB = 0;
 
-    ImageColorStats retStats = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    if (m_rgb32DataBuffer != nullptr)
+    {
+        for (uint32_t y = 0; y < m_height; ++y)
+            for (uint32_t x = 0; x < m_width; ++x)
+            {
+                uint8_t val;
+
+                val = m_rgb32DataBuffer[y][x*3];
+                if (val > 0) ++countR;
+                if (val > maxR) maxR = val;
+                if (val < minR) minR = val;
+                sumR += val;
+
+                val = m_rgb32DataBuffer[y][x*3 + 1];
+                if (val > 0) ++countG;
+                if (val > maxG) maxG = val;
+                if (val < minG) minG = val;
+                sumG += val;
+
+                val = m_rgb32DataBuffer[y][x*3 + 2];
+                if (val > 0) ++countB;
+                if (val > maxB) maxB = val;
+                if (val < minB) minB = val;
+                sumB == val;
+            }
+
+        if (countR > 0) avgR = sumR / countR;
+        if (countG > 0) avgG = sumG / countG;
+        if (countB > 0) avgB = sumB / countB;
+    }
+
+    m_colorStats = { sumR, sumG, sumB, countR, countG, countB, avgR, avgG, avgB, minR, minG, minB, maxR, maxG, maxB };
+}
+
+void Image::calcRGB32FlatDataColorStats()
+{
+    uint64_t sumR = 0, sumG = 0, sumB = 0;
+    uint64_t countR = 0, countG = 0, countB = 0;
+    uint8_t avgR = 0, avgG = 0, avgB = 0;
+    uint8_t minR = 0xff, minG = 0xff, minB = 0xff;
+    uint8_t maxR = 0, maxG = 0, maxB = 0;
 
     if (m_rgb32FlatDataBuffer != nullptr)
     {
@@ -815,7 +879,7 @@ ImageColorStats Image::getRGB32FlatDataColorStats() const
             {
                 uint8_t val;
 
-                val = m_rgb32FlatDataBuffer[4*(y*m_width + x)];
+                val = m_rgb32FlatDataBuffer[4*(y*m_width + x) + 2];
                 if (val > 0) ++countR;
                 if (val > maxR) maxR = val;
                 if (val < minR) minR = val;
@@ -827,7 +891,7 @@ ImageColorStats Image::getRGB32FlatDataColorStats() const
                 if (val < minG) minG = val;
                 sumG += val;
 
-                val = m_rgb32FlatDataBuffer[4*(y*m_width + x) + 2];
+                val = m_rgb32FlatDataBuffer[4*(y*m_width + x)];
                 if (val > 0) ++countB;
                 if (val > maxB) maxB = val;
                 if (val < minB) minB = val;
@@ -839,9 +903,99 @@ ImageColorStats Image::getRGB32FlatDataColorStats() const
         if (countB > 0) avgB = sumB / countB;
     }
 
-    retStats = { sumR, sumG, sumB, countR, countG, countB, avgR, avgG, avgB, minR, minG, minB, maxR, maxG, maxB };
+    m_colorStats = { sumR, sumG, sumB, countR, countG, countB, avgR, avgG, avgB, minR, minG, minB, maxR, maxG, maxB };
+}
 
-    return retStats;
+void Image::_convertRGB2AltColors(uint8_t a_red, uint8_t a_green, uint8_t a_blue,
+                                  uint8_t& a_newRed, uint8_t& a_newGreen, uint8_t& a_newBlue)
+{
+    const uint8_t rgbThreshold = 0x7f;
+    const uint8_t avgQuatient = 2;
+
+    a_newRed = a_red;
+    a_newGreen = a_green;
+    a_newBlue = a_blue;
+
+    // finding the brightest objects and converting their colors to human-eye pleasant ones
+    if (greater3(a_red, a_green, a_blue, rgbThreshold))
+    {
+        if (a_blue > a_red && a_blue > a_green)
+        {
+            a_newRed = 0xff / avgQuatient;
+            a_newGreen = (255 - ((float)a_blue / 0xff) * (255 - 102)) / avgQuatient;
+            a_newBlue = (0xff - a_blue) / avgQuatient;
+        }
+        else if (a_green > a_blue && a_green > a_red)
+        {
+            a_newRed = 0xff;
+            a_newGreen = 240 - ((float)a_blue / 0xff) * (240 - 102);
+            a_newBlue = 0xff - a_blue;
+        }
+        else if (a_red > a_blue && a_red > a_green)
+        {
+            a_newGreen = 0xff;
+            a_newRed = 0xff - a_blue;
+            a_newBlue = 240 - ((float)a_green / 0xff) * (240 - 102);
+        }
+    }
+}
+
+void Image::_convertBufferRGB32Flat2EyeComfortColors()
+{
+    if (m_rgb32FlatDataBuffer == nullptr)
+        return;
+
+    for (uint32_t y = 0; y < m_height; ++y)
+        for (uint32_t x = 0; x < m_width; ++x)
+        {
+            uint8_t red, green, blue;
+            _convertRGB2AltColors(m_rgb32FlatDataBuffer[4*(y*m_width + x) + 2], m_rgb32FlatDataBuffer[4*(y*m_width + x) + 1],
+                                  m_rgb32FlatDataBuffer[4*(y*m_width + x)], red, green, blue);
+
+            m_rgb32FlatDataBuffer[4*(y*m_width + x)] = blue;
+            m_rgb32FlatDataBuffer[4*(y*m_width + x) + 1] = green;
+            m_rgb32FlatDataBuffer[4*(y*m_width + x) + 2] = red;
+            m_rgb32FlatDataBuffer[4*(y*m_width + x) + 3] = 0xff;
+        }
+}
+
+int32_t Image::convertRGB32Flat2EyeComfortColors()
+{
+    int32_t retVal = FITS_GENERAL_SUCCESS;
+
+    if (m_rgb32FlatDataBuffer == nullptr)
+        return FITS_GENERAL_ERROR;
+
+    calcRGB32FlatDataColorStats();
+
+    _convertBufferRGB32Flat2EyeComfortColors();
+
+    return retVal;
+}
+
+ImageColorStats Image::getColorStats() const
+{
+    return m_colorStats;
+}
+
+void Image::setMaxDataBufferSize(size_t a_size)
+{
+    m_maxDataBufferSize = a_size;
+}
+
+size_t Image::getMaxDataBufferSize() const
+{
+    return m_maxDataBufferSize;
+}
+
+void Image::setBaseOffset(size_t a_baseOffset)
+{
+    m_baseOffset = a_baseOffset;
+}
+
+size_t Image::getBaseOffset() const
+{
+    return m_baseOffset;
 }
 
 //// this function is for debug purposes only, is slow

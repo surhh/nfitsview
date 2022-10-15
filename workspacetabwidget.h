@@ -12,6 +12,12 @@
 #define IMAGE_EXPORT_TYPE_JPG       "jpg"
 #define IMAGE_EXPORT_TYPE_BMP       "bmp"
 
+struct FITSImageHDU
+{
+    libnfits::Image*    image;
+    uint32_t            index;
+};
+
 namespace Ui {
 class WorkspaceTabWidget;
 }
@@ -27,7 +33,8 @@ public:
     void populateHeaderWidget(const libnfits::HDU& a_hdu);
     void populateRawDataWidget(const libnfits::HDU& a_hdu);
     void clearWidgets() const;
-    void setImage(const uint8_t* a_image, uint32_t a_width, uint32_t a_height, int8_t a_bitpix);
+    void setImage(const uint8_t* a_image, uint32_t a_width, uint32_t a_height, size_t a_HDUBaseOffset,
+                  size_t a_maxDataBufferSize, int8_t a_bitpix);
     void reloadImage();
     void clearImage() const;
     void scaleImage(int32_t a_factor);
@@ -44,6 +51,11 @@ public:
     QSize getImageLabelSize() const;
     void enableTabs(bool a_flag = true);
 
+    void insertImage(const uint8_t* a_image, uint32_t a_width, uint32_t a_height, size_t a_HDUBaseOffset,
+                        size_t a_maxDataBufferSize, int8_t a_bitpix, uint32_t a_hduIndex);
+    void clearImages();
+    void setImage(uint32_t a_hduIndex);
+
 private slots:
     void on_WorkspaceTabWidget_currentChanged(int index);
 
@@ -53,8 +65,9 @@ signals:
 private:
     Ui::WorkspaceTabWidget *ui;
 
-    QLabel              *m_imageLabel;
-    libnfits::Image     *m_fitsImage;
+    QLabel                          *m_imageLabel;
+    libnfits::Image                 *m_fitsImage;
+    std::vector<FITSImageHDU>        m_vecFitsImages;
 
     int32_t              m_zoomFactor;
 

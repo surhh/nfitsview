@@ -4,7 +4,7 @@ namespace libnfits
 {
 
 HDU::HDU():
-    m_dataBuffer(nullptr), m_payloadBuffer(nullptr), m_offset(0), m_size(0),
+    m_dataBuffer(nullptr), m_payloadBuffer(nullptr), m_offset(0), m_payloadOffset(0), m_size(0),
     m_type(/*FITS_HDU_PRIMARY_HDU_INDEX*/0), m_bitpix(0), m_naxis(0)
 {
 
@@ -101,6 +101,16 @@ void HDU::setSize(size_t a_size)
     m_size = a_size;
 }
 
+void HDU::setPayloadOffset(size_t a_payloadOffset)
+{
+    m_payloadOffset = a_payloadOffset;
+}
+
+size_t HDU::getPayloadOffset() const
+{
+    return m_payloadOffset;
+}
+
 size_t HDU::getSize() const
 {
     return m_size;
@@ -111,6 +121,7 @@ void HDU::reset()
     m_dataBuffer = nullptr;
     m_payloadBuffer = nullptr;
     m_offset = 0;
+    m_payloadOffset = 0;
     m_size = 0;
     m_type = 0; //FITS_HDU_PRIMARY_HDU_INDEX;
     m_bitpix = 0;

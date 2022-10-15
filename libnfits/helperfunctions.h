@@ -57,6 +57,23 @@ inline uint8_t max256(uint32_t a_value)
     return a_value & 0x000000ff;
 }
 
+inline uint8_t max3Index(uint64_t a_value1, uint64_t a_value2, uint64_t a_value3)
+{
+    if (a_value1 >= a_value2 && a_value1 >= a_value2)
+        return 1;
+    else if (a_value2 >= a_value1 && a_value2 >= a_value3)
+        return 2;
+    else if (a_value3 >= a_value1 && a_value3 >= a_value2)
+        return 3;
+
+    return 1;
+}
+
+inline bool greater3(uint8_t a_value1, uint8_t a_value2, uint8_t a_value3, uint8_t a_threshold)
+{
+    return (a_threshold > a_value1 && a_threshold > a_value2 && a_threshold > a_value3) ? false : true;
+}
+
 inline bool isEqual(double x, double y)
 {
   const double epsilon = 1e-5;
@@ -237,6 +254,8 @@ void convertDouble2RGB(double a_value, uint8_t& a_red, uint8_t& a_green, uint8_t
 void convertFloat2Grayscale(float a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue);
 
 void convertDouble2Grayscale(double a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue);
+
+void convertInt2RGB(uint32_t a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue);
 
 
 //// array of pixels conversion functions based on the single pixel conversion functions

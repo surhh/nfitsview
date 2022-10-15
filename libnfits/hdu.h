@@ -16,6 +16,7 @@ private:
     uint8_t*                m_dataBuffer;
     uint8_t*                m_payloadBuffer;
     size_t                  m_offset;
+    size_t                  m_payloadOffset;
     size_t                  m_size;
     uint8_t                 m_type;
     int32_t                 m_bitpix;
@@ -47,6 +48,9 @@ public:
 
     void setSize(size_t a_size);
     size_t getSize() const;
+
+    void setPayloadOffset(size_t a_payloadOffset);
+    size_t getPayloadOffset() const;
 
     void reset();
 };

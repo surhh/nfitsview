@@ -133,8 +133,6 @@ private:
     QString             m_exportFormat;
     int32_t             m_exportQuality;
 
-    std::vector<WidgetsStates>   m_widgetStates;
-
 private:
     void createStatusBarWidgets();
     void initGammaWidgetsValues();

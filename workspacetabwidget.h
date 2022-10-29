@@ -5,6 +5,8 @@
 #include <QLabel>
 #include <QScrollBar>
 
+#include "defsui.h"
+
 #include "libnfits/hdu.h"
 #include "libnfits/image.h"
 
@@ -16,6 +18,7 @@ struct FITSImageHDU
 {
     libnfits::Image*    image;
     uint32_t            index;
+    WidgetsStates       widgetsStates;
 };
 
 namespace Ui {
@@ -41,6 +44,7 @@ public:
     QSize getScrollAreaSize() const;
     void scrollToCenter() const;
     void convertImage2Grayscale();
+    void convertImage2EyeComfort();
     void restoreImage();
     void changeChannelLevel(uint8_t a_channel, float a_quatient);
     uint32_t getImageWidth() const;
@@ -52,9 +56,21 @@ public:
     void enableTabs(bool a_flag = true);
 
     void insertImage(const uint8_t* a_image, uint32_t a_width, uint32_t a_height, size_t a_HDUBaseOffset,
-                        size_t a_maxDataBufferSize, int8_t a_bitpix, uint32_t a_hduIndex);
+                        size_t a_maxDataBufferSize, int8_t a_bitpix, uint32_t a_hduIndex, const WidgetsStates& a_widgetStates);
     void clearImages();
     void setImage(uint32_t a_hduIndex);
+
+    int32_t getScrollPosX() const;
+    int32_t getScrollPosY() const;
+    void setScrollPosX(int32_t a_x);
+    void setScrollPosY(int32_t a_y);
+
+    int32_t setImageHDUWidgetsStates(uint32_t a_hduIndex, const WidgetsStates& a_widgetStates);
+    int32_t getImageHDUWidgetsStates(uint32_t a_hduIndex, WidgetsStates& a_widgetStates) const;
+    void resetCurrentImageHDUIndex();
+    int32_t getCurrentImageHDUIndex() const;
+
+    int32_t findImageHDUIndexByTableIndex(int32_t a_index);
 
 private slots:
     void on_WorkspaceTabWidget_currentChanged(int index);
@@ -68,8 +84,7 @@ private:
     QLabel                          *m_imageLabel;
     libnfits::Image                 *m_fitsImage;
     std::vector<FITSImageHDU>        m_vecFitsImages;
-
-    int32_t              m_zoomFactor;
+    int32_t                          m_fitsImageHDUIndex;
 
 };
 

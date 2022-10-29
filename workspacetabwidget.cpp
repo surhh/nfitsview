@@ -7,7 +7,7 @@ WorkspaceTabWidget::WorkspaceTabWidget(QWidget *parent) :
     QTabWidget(parent),
     ui(new Ui::WorkspaceTabWidget),
     m_fitsImage(nullptr),
-    m_zoomFactor(100)
+    m_fitsImageHDUIndex(-1)
 {
     ui->setupUi(this);
 
@@ -30,7 +30,7 @@ WorkspaceTabWidget::WorkspaceTabWidget(QWidget *parent) :
 
     scaleImage(0);
 
-    m_fitsImage = new libnfits::Image;
+    //// m_fitsImage = new libnfits::Image; // We don't need this anymore as we work with list of images for each HDU being created run-time
 
 #if defined(__WIN32__) || defined(__WIN64__)
     QFont newFont("Courier New", 12, QFont::Normal, true);
@@ -45,8 +45,9 @@ WorkspaceTabWidget::~WorkspaceTabWidget()
     if (m_imageLabel != nullptr)
         delete m_imageLabel;
 
-    if (m_fitsImage != nullptr)
-        delete m_fitsImage;
+    //// We don't need this anymore as we work with list of images for each HDU being created run-time
+    //// if (m_fitsImage != nullptr)
+    ////    delete m_fitsImage;
 
     //clearImage();
     clearImages();
@@ -145,8 +146,6 @@ void WorkspaceTabWidget::clearWidgets() const
 void WorkspaceTabWidget::setImage(const uint8_t* a_image, uint32_t a_width, uint32_t a_height, size_t a_HDUBaseOffset,
                                   size_t a_maxDataBufferSize, int8_t a_bitpix)
 {
-//    QImage *image = nullptr;
-
     m_fitsImage->reset(); // this is for showing correctly images from different image HDUs
     m_fitsImage->setParameters(a_width, a_height, FITS_PNG_DEFAULT_PIXEL_DEPTH, a_bitpix);
     m_fitsImage->setMaxDataBufferSize(a_maxDataBufferSize);
@@ -157,24 +156,12 @@ void WorkspaceTabWidget::setImage(const uint8_t* a_image, uint32_t a_width, uint
     //// image float data dumping for debugging purposes
     //// m_fitsImage->dumpFloatDataBuffer("./image_dump.txt", 8);
     //// end of debugging dump
-/*
-    QImage::Format format = QImage::Format_RGB32;
 
-    image = new QImage(m_fitsImage->getRGB32FlatData(), a_width, a_height, format);
-
-    if (image != nullptr)
-        m_imageLabel->setPixmap(QPixmap::fromImage(*image));
-
-    m_imageLabel->adjustSize();
-
-    if (image != nullptr)
-        delete image;
-*/
     reloadImage();
 }
 
 void WorkspaceTabWidget::insertImage(const uint8_t* a_image, uint32_t a_width, uint32_t a_height, size_t a_HDUBaseOffset,
-                                        size_t a_maxDataBufferSize, int8_t a_bitpix, uint32_t a_hduIndex)
+                                        size_t a_maxDataBufferSize, int8_t a_bitpix, uint32_t a_hduIndex, const WidgetsStates& a_widgetStates)
 {
     FITSImageHDU imageHDU;
 
@@ -188,6 +175,7 @@ void WorkspaceTabWidget::insertImage(const uint8_t* a_image, uint32_t a_width, u
 
     imageHDU.index = a_hduIndex;
     imageHDU.image = image;
+    imageHDU.widgetsStates = a_widgetStates;
 
     m_vecFitsImages.push_back(imageHDU);
 }
@@ -251,12 +239,17 @@ void WorkspaceTabWidget::scrollToCenter() const
 
 void WorkspaceTabWidget::convertImage2Grayscale()
 {
-    backupImage();
+    //backupImage();
 
     m_fitsImage->convertRGB32Flat2Grayscale();
-    //m_fitsImage->convertRGB32Flat2EyeComfortColors();
 }
 
+void WorkspaceTabWidget::convertImage2EyeComfort()
+{
+    //backupImage();
+
+    m_fitsImage->convertRGB32Flat2EyeComfortColors();
+}
 void WorkspaceTabWidget::backupImage()
 {
     m_fitsImage->backupRGB32FlatData();
@@ -279,12 +272,18 @@ void WorkspaceTabWidget::changeChannelLevel(uint8_t a_channel, float a_quatient)
 
 uint32_t WorkspaceTabWidget::getImageWidth() const
 {
-    return m_fitsImage->getWidth();
+    if (m_fitsImage != nullptr)
+        return m_fitsImage->getWidth();
+    else
+        return 0;
 }
 
 uint32_t WorkspaceTabWidget::getImageHeight() const
 {
-    return m_fitsImage->getHeight();
+    if (m_fitsImage != nullptr)
+        return m_fitsImage->getHeight();
+    else
+        return 0;
 }
 
 void WorkspaceTabWidget::imageSetVisible(bool a_visible)
@@ -332,6 +331,13 @@ void WorkspaceTabWidget::clearImages()
     }
 
     m_vecFitsImages.clear();
+
+    m_fitsImage = nullptr;
+    m_fitsImageHDUIndex = -1;
+
+    m_imageLabel->clear();
+    m_imageLabel->resize(0, 0);
+    m_imageLabel->setScaledContents(true);
 }
 
 void WorkspaceTabWidget::setImage(uint32_t a_hduIndex)
@@ -339,9 +345,73 @@ void WorkspaceTabWidget::setImage(uint32_t a_hduIndex)
     for (auto it = m_vecFitsImages.begin(); it < m_vecFitsImages.end(); ++it)
         if (it->index == a_hduIndex)
         {
-
             m_fitsImage = it->image;
+            m_fitsImageHDUIndex = it->index;
 
             reloadImage();
         }
+}
+
+int32_t WorkspaceTabWidget::getScrollPosX() const
+{
+    return ui->scrollArea->horizontalScrollBar()->value();
+}
+
+int32_t WorkspaceTabWidget::getScrollPosY() const
+{
+    return ui->scrollArea->verticalScrollBar()->value();
+}
+
+void WorkspaceTabWidget::setScrollPosX(int32_t a_x)
+{
+    ui->scrollArea->horizontalScrollBar()->setValue(a_x);
+}
+
+void WorkspaceTabWidget::setScrollPosY(int32_t a_y)
+{
+    ui->scrollArea->verticalScrollBar()->setValue(a_y);
+}
+
+int32_t WorkspaceTabWidget::setImageHDUWidgetsStates(uint32_t a_hduIndex, const WidgetsStates& a_widgetStates)
+{
+    if (a_hduIndex > m_vecFitsImages.size() - 1)
+        return FITS_GENERAL_ERROR;
+    else
+        m_vecFitsImages[a_hduIndex].widgetsStates = a_widgetStates;
+
+    return FITS_GENERAL_SUCCESS;
+}
+
+int32_t WorkspaceTabWidget::getImageHDUWidgetsStates(uint32_t a_hduIndex, WidgetsStates& a_widgetStates) const
+{
+    if (a_hduIndex > m_vecFitsImages.size() - 1)
+        return FITS_GENERAL_ERROR;
+    else
+        a_widgetStates = m_vecFitsImages[a_hduIndex].widgetsStates;
+
+    return FITS_GENERAL_SUCCESS;
+}
+
+void WorkspaceTabWidget::resetCurrentImageHDUIndex()
+{
+    m_fitsImageHDUIndex = -1;
+}
+
+int32_t WorkspaceTabWidget::getCurrentImageHDUIndex() const
+{
+    return m_fitsImageHDUIndex;
+}
+
+int32_t WorkspaceTabWidget::findImageHDUIndexByTableIndex(int32_t a_index)
+{
+    int32_t foundIndex = -1;
+
+    for (int32_t i = 0; i < m_vecFitsImages.size(); ++i)
+        if (m_vecFitsImages[i].index == a_index)
+        {
+            foundIndex = i;
+            break;
+        }
+
+    return foundIndex;
 }

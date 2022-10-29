@@ -54,7 +54,7 @@ inline float swap32f(float f)
 
 inline uint8_t max256(uint32_t a_value)
 {
-    return a_value & 0x000000ff;
+    return a_value > 0xff ? 0xff : a_value;
 }
 
 inline uint8_t max3Index(uint64_t a_value1, uint64_t a_value2, uint64_t a_value3)

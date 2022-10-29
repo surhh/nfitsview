@@ -307,7 +307,7 @@
                  </property>
                  <property name="sizeHint" stdset="0">
                   <size>
-                   <width>40</width>
+                   <width>20</width>
                    <height>20</height>
                   </size>
                  </property>
@@ -316,13 +316,26 @@
                <item>
                 <widget class="QCheckBox" name="checkBoxGrayscale">
                  <property name="sizePolicy">
-                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
                  <property name="text">
-                  <string>Grayscale (&quot;Restore Original Gamma&quot; action restriction)</string>
+                  <string>Grayscale</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="checkBoxEyeComfort">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string>Eye Comfort</string>
                  </property>
                 </widget>
                </item>
@@ -336,7 +349,7 @@
                  </property>
                  <property name="sizeHint" stdset="0">
                   <size>
-                   <width>40</width>
+                   <width>80</width>
                    <height>20</height>
                   </size>
                  </property>
@@ -375,6 +388,9 @@
                  </property>
                  <property name="maximum">
                   <number>100</number>
+                 </property>
+                 <property name="singleStep">
+                  <number>1</number>
                  </property>
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>

@@ -7,6 +7,7 @@
 #include <QLabel>
 #include <QTableWidgetItem>
 
+#include "defsui.h"
 #include "libnfits/fitsfile.h"
 
 #define MIN_IMAGE_SCALE_FACTOR              (1)
@@ -107,6 +108,8 @@ private slots:
 
     void on_workspaceWidget_sendGammaCorrectionTabEnabled(bool a_flag);
 
+    void on_checkBoxEyeComfort_stateChanged(int arg1);
+
 private:
     Ui::MainWindow *ui;
 
@@ -130,12 +133,15 @@ private:
     QString             m_exportFormat;
     int32_t             m_exportQuality;
 
+    std::vector<WidgetsStates>   m_widgetStates;
+
 private:
     void createStatusBarWidgets();
     void initGammaWidgetsValues();
     void initImageExportSettingsWidgetValues();
     void initHDUInfoWidgetValues();
     void enableGammaWidgets(bool a_flag = true);
+    void enableRGBWidgets(bool a_flag = true);
     void enableFileOpenRelatedWidgets(bool a_flag = true);
     void enableZoomWidgets(bool a_flag = true);
     void enableRestoreWidgets(bool a_flag = true);
@@ -167,7 +173,17 @@ private:
 
     QString getFileName() const;
 
+    WidgetsStates getWidgetsStates() const;
+    void setWidgetsStates(const WidgetsStates& a_widgetsStates);
+
+    void changeRGBColorChannelLevel(uint8_t a_channel, int8_t a_value);
+    void changeRGBColorChannelLevels(int8_t a_rValue, int8_t a_gValue, int8_t a_bValue);
+    void restoreRGBColorChannelLevelsImage(int32_t a_hduIndex);
+    void grayScale();
+    void eyeComfort();
+
     void resizeEvent(QResizeEvent *event);
+
 signals:
     void sendProgressChanged(qint32 a_value);
 };

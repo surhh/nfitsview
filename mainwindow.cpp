@@ -50,6 +50,11 @@ MainWindow::MainWindow(QWidget *parent)
     ui->actionRedoToolBar->setVisible(false);
     //// end of disabling Undo/Redo controls
 
+    //// set gamma restore button to invisible, not implemented at the moment due to RGB processing restrictoins
+    ui->actionRestoreOriginal->setVisible(false);
+    ui->actionRestoreOriginalToolBar->setVisible(false);
+
+
     enableRestoreWidgets(false);
     enableGammaWidgets(m_bEnableGammaWidgets);
     enableFileOpenRelatedWidgets(false);
@@ -118,7 +123,7 @@ void MainWindow::createStatusBarWidgets()
     statusBar()->addPermanentWidget(m_labelZoomLevel);
 }
 
-void MainWindow::enableGammaWidgets(bool a_flag)
+void MainWindow::enableRGBWidgets(bool a_flag)
 {
     ui->horizontalSliderR->setEnabled(a_flag);
     ui->horizontalSliderG->setEnabled(a_flag);
@@ -130,11 +135,17 @@ void MainWindow::enableGammaWidgets(bool a_flag)
 
     ui->labelRGBInfo->setEnabled(a_flag);
 
-    ui->checkBoxGrayscale->setEnabled(a_flag);
-
     ui->labelValueR->setEnabled(a_flag);
     ui->labelValueG->setEnabled(a_flag);
     ui->labelValueB->setEnabled(a_flag);
+}
+
+void MainWindow::enableGammaWidgets(bool a_flag)
+{
+    enableRGBWidgets(a_flag);
+
+    ui->checkBoxGrayscale->setEnabled(a_flag);
+    ui->checkBoxEyeComfort->setEnabled(a_flag);
 }
 
 void MainWindow::enableFileOpenRelatedWidgets(bool a_flag)
@@ -154,29 +165,24 @@ void MainWindow::enableFileOpenRelatedWidgets(bool a_flag)
 
 void MainWindow::on_checkBoxGrayscale_stateChanged(int arg1)
 {
-    ui->horizontalSliderR->setEnabled(!arg1);
-    ui->horizontalSliderG->setEnabled(!arg1);
-    ui->horizontalSliderB->setEnabled(!arg1);
-
-    ui->labelR->setEnabled(!arg1);
-    ui->labelG->setEnabled(!arg1);
-    ui->labelB->setEnabled(!arg1);
-
-    ui->labelRGBInfo->setEnabled(!arg1);
-
-    ui->labelValueR->setEnabled(!arg1);
-    ui->labelValueG->setEnabled(!arg1);
-    ui->labelValueB->setEnabled(!arg1);
+    enableRGBWidgets(!arg1);
+    ui->checkBoxEyeComfort->setEnabled(!arg1);    
 
     if (arg1)
     {
+        backupOriginalImage();
         ui->workspaceWidget->convertImage2Grayscale();
         enableRestoreWidgets(false);
+        ui->workspaceWidget->reloadImage();
     }
     else
-        ui->workspaceWidget->restoreImage();
+    {
+        int32_t index = ui->workspaceWidget->getCurrentImageHDUIndex();
+        if (index != - 1)
+            restoreRGBColorChannelLevelsImage(index);
+    }
 
-    ui->workspaceWidget->reloadImage();
+    //ui->workspaceWidget->reloadImage();
     ui->workspaceWidget->scaleImage(m_scaleFactor);
 }
 
@@ -383,73 +389,38 @@ void MainWindow::on_actionOpenToolBar_triggered()
 
 void MainWindow::on_horizontalSliderR_valueChanged(int value)
 {
-    backupOriginalImage();
-
-    int valueR = value;
-    QString valueRstr = QString::number(valueR) + " %";
-    valueRstr = valueRstr.rightJustified(12, ' ');
-
-    ui->labelValueR->setText(valueRstr);
-
-    ui->workspaceWidget->restoreImage();
-    ui->workspaceWidget->changeChannelLevel(0, 1 + (float)valueR/100);
-    ui->workspaceWidget->reloadImage();
-    ui->workspaceWidget->scaleImage(m_scaleFactor);
+    changeRGBColorChannelLevel(0, value);
 }
 
 void MainWindow::on_horizontalSliderG_valueChanged(int value)
 {
-    backupOriginalImage();
-
-    int valueG = value;
-    QString valueGstr = QString::number(valueG) + " %";
-    valueGstr = valueGstr.rightJustified(12, ' ');
-
-    ui->labelValueG->setText(valueGstr);
-
-    ui->workspaceWidget->restoreImage();
-    ui->workspaceWidget->changeChannelLevel(1, 1 + (float)valueG/100);
-    ui->workspaceWidget->reloadImage();
-    ui->workspaceWidget->scaleImage(m_scaleFactor);
+    changeRGBColorChannelLevel(1, value);
 }
 
 void MainWindow::on_horizontalSliderB_valueChanged(int value)
 {
-    backupOriginalImage();
-
-    int valueB= value;
-    QString valueBstr = QString::number(valueB) + " %";
-    valueBstr = valueBstr.rightJustified(12, ' ');
-
-    ui->labelValueB->setText(valueBstr);
-
-    ui->workspaceWidget->restoreImage();
-    ui->workspaceWidget->changeChannelLevel(2, 1 + (float)valueB/100);
-    ui->workspaceWidget->reloadImage();
-    ui->workspaceWidget->scaleImage(m_scaleFactor);
+    changeRGBColorChannelLevel(2, value);
 }
 
 void MainWindow::initGammaWidgetsValues()
 {
-    int valueR = 0;
-    ui->horizontalSliderR->setValue(valueR);
-    QString valueRstr = QString::number(valueR) + " %";
+    ui->horizontalSliderR->setValue(0);
+    QString valueRstr = QString::number(0) + " %";
     valueRstr = valueRstr.rightJustified(12, ' ');
     ui->labelValueR->setText(valueRstr);
 
-    int valueG = 0;
-    ui->horizontalSliderG->setValue(valueG);
-    QString valueGstr = QString::number(valueG) + " %";
+    ui->horizontalSliderG->setValue(0);
+    QString valueGstr = QString::number(0) + " %";
     valueGstr = valueGstr.rightJustified(12, ' ');
     ui->labelValueG->setText(valueGstr);
 
-    int valueB = 0;
-    ui->horizontalSliderB->setValue(valueB);
-    QString valueBstr = QString::number(valueB) + " %";
+    ui->horizontalSliderB->setValue(0);
+    QString valueBstr = QString::number(0) + " %";
     valueBstr = valueBstr.rightJustified(12, ' ');
     ui->labelValueB->setText(valueBstr);
 
     ui->checkBoxGrayscale->setChecked(false);
+    ui->checkBoxEyeComfort->setChecked(false);
 }
 
 void MainWindow::on_tableWidgetHDUs_itemActivated(QTableWidgetItem *item)
@@ -649,6 +620,9 @@ void MainWindow::fitToWindow()
     int32_t scaleY = 100 * ((double)scrollSize.height() / height);
 
     m_scaleFactor = scaleX < scaleY ? scaleX : scaleY;
+
+    if (m_scaleFactor < MIN_IMAGE_SCALE_FACTOR || m_scaleFactor > MAX_IMAGE_SCALE_FACTOR)
+        m_scaleFactor = 100;
 
     ui->workspaceWidget->scaleImage(m_scaleFactor);
     m_sliderZoom->setValue(m_scaleFactor);
@@ -875,6 +849,18 @@ void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current
         populateHeaderWidget(row);
         populateRawDataWidget(row);
     }
+    else
+        return;
+
+    int32_t currentImageIndex = ui->workspaceWidget->getCurrentImageHDUIndex();
+    int32_t prevImageHDUIndex = ui->workspaceWidget->findImageHDUIndexByTableIndex(currentImageIndex);
+
+    if (prevImageHDUIndex != -1)
+    {
+        WidgetsStates widgetsStates = getWidgetsStates();
+        widgetsStates.stored = true;
+        ui->workspaceWidget->setImageHDUWidgetsStates(prevImageHDUIndex, widgetsStates);
+    }
 
     int32_t resTemp = m_fitsFile.getHDU(row, hdu);
 
@@ -907,6 +893,25 @@ void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current
                 enableZoomWidgets(m_bEnableZoomWidget);
                 enableImageExportWidgets();
                 enableImageExportSettigsWidgets();
+
+                WidgetsStates widgetStates;
+                int32_t hduIndex = ui->workspaceWidget->findImageHDUIndexByTableIndex(row);
+
+                if (hduIndex != -1)
+                {
+                    ui->workspaceWidget->getImageHDUWidgetsStates(hduIndex, widgetStates);
+                    if (widgetStates.stored)
+                    {
+                        setWidgetsStates(widgetStates);
+                        grayScale();
+                        eyeComfort();
+                    }
+                    else
+                    {
+                        m_bImageChanged = false;
+                        initGammaWidgetsValues();
+                    }
+                }
             }
         }
         else
@@ -919,6 +924,8 @@ void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current
             enableImageExportSettigsWidgets(false);
 
             ui->workspaceWidget->imageSetVisible(false);
+
+            ui->workspaceWidget->resetCurrentImageHDUIndex();
         }
 
         axises.clear();
@@ -980,7 +987,9 @@ qint32 MainWindow::setAllWorkspaceImages()
 
                 if (bSuccess)
                 {
-                    ui->workspaceWidget->insertImage(hdu.getPayload(), axises[0], axises[1], hdu.getPayloadOffset(), m_fitsFile.getSize(), bitpix, h);
+                    WidgetsStates widgetStates = getWidgetsStates();
+                    ui->workspaceWidget->insertImage(hdu.getPayload(), axises[0], axises[1], hdu.getPayloadOffset(), m_fitsFile.getSize(),
+                                                     bitpix, h, widgetStates);
                     ++retVal;
                 }
             }
@@ -990,3 +999,214 @@ qint32 MainWindow::setAllWorkspaceImages()
     return retVal;
 }
 
+WidgetsStates MainWindow::getWidgetsStates() const
+{
+    WidgetsStates       widgetStates;
+    GammaWidgetsStates  gammaStates;
+    ExportWidgetsStates exportStates;
+    ZoomWidgetsStates   zoomStates;
+    ScrollState         scrollStates;
+
+
+    gammaStates.rLevel = ui->horizontalSliderR->value();
+    gammaStates.gLevel = ui->horizontalSliderG->value();
+    gammaStates.bLevel = ui->horizontalSliderB->value();
+
+    gammaStates.gray = ui->checkBoxGrayscale->isChecked();
+    gammaStates.eye = ui->checkBoxEyeComfort->isChecked();
+
+    gammaStates.rLevelEnabled = ui->horizontalSliderR->isEnabled();
+    gammaStates.gLevelEnabled = ui->horizontalSliderG->isEnabled();
+    gammaStates.bLevelEnabled = ui->horizontalSliderB->isEnabled();
+
+    gammaStates.grayEnabled = ui->checkBoxGrayscale->isEnabled();
+    gammaStates.eyeEnabled = ui->checkBoxEyeComfort->isEnabled();
+
+
+    exportStates.format = ui->comboBoxFormat->currentIndex();
+    exportStates.formatEnabled = ui->comboBoxFormat->isEnabled();
+
+    exportStates.quality = ui->horizontalSliderQuality->value();
+    exportStates.qualityEnabled = ui->horizontalSliderQuality->isEnabled();
+
+
+    zoomStates.factor = m_sliderZoom->value();
+    zoomStates.zoomEnabled = m_sliderZoom->isEnabled();
+
+    zoomStates.zoomInEnabled = ui->actionZoomIn->isEnabled();
+    zoomStates.zoomOutEnabled = ui->actionZoomOut->isEnabled();
+
+    zoomStates.fitWindowEnabled = ui->actionFitWindow->isEnabled();
+
+    scrollStates.x = ui->workspaceWidget->getScrollPosX();
+    scrollStates.y = ui->workspaceWidget->getScrollPosY();
+
+    widgetStates.gammaStates = gammaStates;
+    widgetStates.exportStates = exportStates;
+    widgetStates.zoomStates = zoomStates;
+    widgetStates.scrollState = scrollStates;
+
+    widgetStates.imageChanged = m_bImageChanged;
+
+    return widgetStates;
+}
+
+void MainWindow::setWidgetsStates(const WidgetsStates& a_widgetsStates)
+{
+    ui->horizontalSliderR->setValue(a_widgetsStates.gammaStates.rLevel);
+    ui->horizontalSliderG->setValue(a_widgetsStates.gammaStates.gLevel);
+    ui->horizontalSliderB->setValue(a_widgetsStates.gammaStates.bLevel);
+
+    QString valueStr;
+
+    valueStr = QString::number(a_widgetsStates.gammaStates.rLevel) + " %";
+    valueStr = valueStr.rightJustified(12, ' ');
+    ui->labelValueR->setText(valueStr);
+
+    valueStr = QString::number(a_widgetsStates.gammaStates.gLevel) + " %";
+    valueStr = valueStr.rightJustified(12, ' ');
+    ui->labelValueB->setText(valueStr);
+
+    valueStr = QString::number(a_widgetsStates.gammaStates.bLevel) + " %";
+    valueStr = valueStr.rightJustified(12, ' ');
+    ui->labelValueB->setText(valueStr);
+
+    ui->checkBoxGrayscale->setChecked(a_widgetsStates.gammaStates.gray);
+    ui->checkBoxEyeComfort->setChecked(a_widgetsStates.gammaStates.eye);
+
+    ui->horizontalSliderR->setEnabled(a_widgetsStates.gammaStates.rLevelEnabled );
+    ui->horizontalSliderG->setEnabled(a_widgetsStates.gammaStates.gLevelEnabled);
+    ui->horizontalSliderB->setEnabled(a_widgetsStates.gammaStates.bLevelEnabled);
+
+    ui->checkBoxGrayscale->setEnabled(a_widgetsStates.gammaStates.grayEnabled);
+    ui->checkBoxEyeComfort->setEnabled(a_widgetsStates.gammaStates.eyeEnabled);
+
+
+    ui->comboBoxFormat->setCurrentIndex(a_widgetsStates.exportStates.format);
+    ui->comboBoxFormat->setEnabled(a_widgetsStates.exportStates.formatEnabled);
+
+    ui->horizontalSliderQuality->setValue(a_widgetsStates.exportStates.quality);
+    ui->horizontalSliderQuality->setEnabled(a_widgetsStates.exportStates.qualityEnabled);
+
+
+    m_sliderZoom->setValue(a_widgetsStates.zoomStates.factor);
+    m_sliderZoom->setEnabled(a_widgetsStates.zoomStates.zoomEnabled);
+
+    ui->actionZoomIn->setEnabled(a_widgetsStates.zoomStates.zoomInEnabled);
+    ui->actionZoomInToolBar->setEnabled(a_widgetsStates.zoomStates.zoomInEnabled);
+
+    ui->actionZoomOut->setEnabled(a_widgetsStates.zoomStates.zoomOutEnabled);
+    ui->actionZoomOutToolBar->setEnabled(a_widgetsStates.zoomStates.zoomOutEnabled);
+
+    ui->actionFitWindow->setEnabled(a_widgetsStates.zoomStates.fitWindowEnabled);
+
+    m_scaleFactor = a_widgetsStates.zoomStates.factor;
+
+
+    ui->workspaceWidget->setScrollPosX(a_widgetsStates.scrollState.x);
+    ui->workspaceWidget->setScrollPosY(a_widgetsStates.scrollState.y);
+
+    m_bImageChanged = a_widgetsStates.imageChanged;
+}
+
+void MainWindow::on_checkBoxEyeComfort_stateChanged(int arg1)
+{
+    enableRGBWidgets(!arg1);
+    ui->checkBoxGrayscale->setEnabled(!arg1);
+
+    if (arg1)
+    {
+        backupOriginalImage();
+        ui->workspaceWidget->convertImage2EyeComfort();
+        enableRestoreWidgets(false);
+        ui->workspaceWidget->reloadImage();
+    }
+    else
+    {
+        int32_t index = ui->workspaceWidget->getCurrentImageHDUIndex();
+        if (index != - 1)
+            restoreRGBColorChannelLevelsImage(index);
+    }
+
+    //ui->workspaceWidget->reloadImage();
+    ui->workspaceWidget->scaleImage(m_scaleFactor);
+}
+
+void MainWindow::changeRGBColorChannelLevel(uint8_t a_channel, int8_t a_value)
+{
+    backupOriginalImage();
+
+    QString valueStr = QString::number(a_value) + " %";
+    valueStr = valueStr.rightJustified(12, ' ');
+
+    ui->workspaceWidget->restoreImage();
+
+    int8_t tmpVal;
+    if (a_channel == 0)
+    {
+        ui->labelValueR->setText(valueStr);
+
+        tmpVal = ui->horizontalSliderG->value();
+        if (tmpVal != 0)
+            ui->workspaceWidget->changeChannelLevel(1, 1 + (float)(tmpVal)/100);
+
+        tmpVal = ui->horizontalSliderB->value();
+        if (tmpVal != 0)
+            ui->workspaceWidget->changeChannelLevel(2, 1 + (float)(tmpVal)/100);
+    }
+    else if (a_channel == 1)
+    {
+        ui->labelValueG->setText(valueStr);
+
+        tmpVal = ui->horizontalSliderR->value();
+        if (tmpVal != 0)
+            ui->workspaceWidget->changeChannelLevel(0, 1 + (float)(tmpVal)/100);
+
+        tmpVal = ui->horizontalSliderB->value();
+        if (tmpVal != 0)
+            ui->workspaceWidget->changeChannelLevel(2, 1 + (float)(tmpVal)/100);
+    }
+    else if (a_channel == 2)
+    {
+        ui->labelValueB->setText(valueStr);
+
+        tmpVal = ui->horizontalSliderR->value();
+        if (tmpVal != 0)
+            ui->workspaceWidget->changeChannelLevel(0, 1 + (float)(tmpVal)/100);
+
+        tmpVal = ui->horizontalSliderG->value();
+        if (tmpVal != 0)
+            ui->workspaceWidget->changeChannelLevel(1, 1 + (float)(tmpVal)/100);
+    }
+
+    //ui->workspaceWidget->restoreImage();
+    ui->workspaceWidget->changeChannelLevel(a_channel, 1 + (float)(a_value)/100);
+    ui->workspaceWidget->reloadImage();
+    ui->workspaceWidget->scaleImage(m_scaleFactor);
+}
+
+void MainWindow::changeRGBColorChannelLevels(int8_t a_rValue, int8_t a_gValue, int8_t a_bValue)
+{
+    changeRGBColorChannelLevel(0, a_rValue);
+    changeRGBColorChannelLevel(1, a_gValue);
+    changeRGBColorChannelLevel(2, a_bValue);
+}
+
+void MainWindow::restoreRGBColorChannelLevelsImage(int32_t a_hduIndex)
+{
+    ui->workspaceWidget->setImage(a_hduIndex);
+
+    changeRGBColorChannelLevels(ui->horizontalSliderR->value(), ui->horizontalSliderG->value(), ui->horizontalSliderB->value());
+}
+
+void MainWindow::grayScale()
+{
+    if (ui->checkBoxGrayscale->isChecked())
+        on_checkBoxGrayscale_stateChanged(true);
+}
+
+void MainWindow::eyeComfort()
+{
+    if (ui->checkBoxEyeComfort->isChecked())
+        on_checkBoxEyeComfort_stateChanged(true);
+}

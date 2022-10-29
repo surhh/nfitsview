@@ -56,6 +56,7 @@ set(PROJECT_SOURCES
         workspacetabwidget.cpp
         aboutdialog.h
         aboutdialog.cpp
+        defsui.h
         mainwindow.ui
         workspacetabwidget.ui
         aboutdialog.ui

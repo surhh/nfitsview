@@ -127,8 +127,12 @@ private:
     libnfits::FitsFile  m_fitsFile;
 
     bool                m_bImageChanged;
+
     bool                m_bEnableGammaWidgets;
     bool                m_bEnableZoomWidget;
+
+    bool                m_bGrayscale;
+    bool                m_bEyeComfort;
 
     QString             m_exportFormat;
     int32_t             m_exportQuality;

@@ -12,16 +12,18 @@ typedef     int16_t (*SwapFunctionPtr16)          (int16_t);
 
 static int32_t percentCallbackFunctionSample(int32_t a_percent, void* a_buffer)
 {
-    std::cout << "Progress... : " << a_percent << std::endl;
+    std::string progress = "Progress... : " + std::to_string(a_percent);
 
     return a_percent;
 }
 
 //typedef     uint8_t   (*THREADFUNCPTR)              (void *);
 
-#define LIBNFITS_MAJOR_VERSION                  (0)
-#define LIBNFITS_MINOR_VERSION                  (1)
-#define LIBNFITS_BUILD_NUMBER                   (1)
+//#define DEBUG_MODE
+
+#define LIBNFITS_MAJOR_VERSION                  (1)
+#define LIBNFITS_MINOR_VERSION                  (3)
+#define LIBNFITS_BUILD_NUMBER                   (0)
 
 #define FITS_BLOCK_SIZE                         (2880)
 #define FITS_HEADER_RECORD_SIZE                 (80)

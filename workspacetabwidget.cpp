@@ -43,7 +43,15 @@ WorkspaceTabWidget::WorkspaceTabWidget(QWidget *parent) :
 WorkspaceTabWidget::~WorkspaceTabWidget()
 {
     if (m_imageLabel != nullptr)
+    {
+        m_imageLabel->resize(0, 0);
+        m_imageLabel->setScaledContents(true);
+        m_imageLabel->clear();
+
         delete m_imageLabel;
+
+        m_imageLabel = nullptr;
+    }
 
     //// We don't need this anymore as we work with list of images for each HDU being created run-time
     //// if (m_fitsImage != nullptr)
@@ -323,6 +331,13 @@ void WorkspaceTabWidget::enableTabs(bool a_flag)
 
 void WorkspaceTabWidget::clearImages()
 {
+    if (m_imageLabel != nullptr)
+    {
+        m_imageLabel->resize(0, 0);
+        m_imageLabel->setScaledContents(true);
+        m_imageLabel->clear();
+    }
+
     for (auto it = m_vecFitsImages.begin(); it < m_vecFitsImages.end(); ++it)
     {
         it->image->reset();
@@ -333,11 +348,8 @@ void WorkspaceTabWidget::clearImages()
     m_vecFitsImages.clear();
 
     m_fitsImage = nullptr;
-    m_fitsImageHDUIndex = -1;
 
-    m_imageLabel->clear();
-    m_imageLabel->resize(0, 0);
-    m_imageLabel->setScaledContents(true);
+    m_fitsImageHDUIndex = -1;
 }
 
 void WorkspaceTabWidget::setImage(uint32_t a_hduIndex)
@@ -405,6 +417,9 @@ int32_t WorkspaceTabWidget::getCurrentImageHDUIndex() const
 int32_t WorkspaceTabWidget::findImageHDUIndexByTableIndex(int32_t a_index)
 {
     int32_t foundIndex = -1;
+
+    if (a_index < 0)
+        return foundIndex;
 
     for (int32_t i = 0; i < m_vecFitsImages.size(); ++i)
         if (m_vecFitsImages[i].index == a_index)

@@ -6,11 +6,83 @@
 #include <algorithm>
 #include <sstream>
 #include <iomanip>
+#include <any>
+#include <ctime>
 
 #include "defs.h"
 
 namespace libnfits
 {
+
+template<typename ... many> void LOG(const std::string& a_str, many ... a_args)
+{
+#if defined(DEBUG_MODE)
+    std::time_t time_now = std::time(nullptr);
+
+    std::vector<std::any> argList = { a_args ... };
+
+    std::cout << std::put_time(std::localtime(&time_now), "%Y-%m-%d %OH:%OM:%OS") << " - [LOG]: ";
+
+    std::string outputStr = "";
+
+    int size = a_str.length();
+
+    for (int i = 0; i < size; ++i)
+    {
+        if (a_str[i] == '%')
+        {
+            if (i + 1 < size && a_str[i + 1] == '%')
+                ++i;
+            else
+            {
+                if (argList.empty())
+                    throw std::logic_error("ERROR: Not enough parameters!");
+
+                if (argList[0].type() == typeid(char *))
+                    outputStr += std::any_cast<char *>(argList[0]);
+
+                if (argList[0].type() == typeid(const char *))
+                    outputStr += std::any_cast<const char *>(argList[0]);
+
+                if (argList[0].type() == typeid(std::string))
+                    outputStr += std::any_cast<std::string>(argList[0]);
+
+                if (argList[0].type() == typeid(int))
+                    outputStr += std::to_string(std::any_cast<int>(argList[0]));
+
+                if (argList[0].type() == typeid(long))
+                    outputStr += std::to_string(std::any_cast<long>(argList[0]));
+
+                if (argList[0].type() == typeid(float))
+                    outputStr += std::to_string(std::any_cast<float>(argList[0]));
+
+                if (argList[0].type() == typeid(double))
+                    outputStr += std::to_string(std::any_cast<double>(argList[0]));
+
+                if (argList[0].type() == typeid(bool))
+                {
+                    std::string flag = "FALSE";
+                    bool b = std::any_cast<bool>(argList[0]);
+
+                    if (b)
+                        flag = "TRUE";
+
+                    outputStr += flag;
+                }
+
+                argList.erase(argList.begin());
+
+                ++i;
+            }
+        }
+
+        outputStr += a_str[i];
+    }
+
+    std::cout << outputStr << std::endl;
+#endif
+}
+
 
 #if defined(__unix__)
     #define swap16(x) (__builtin_bswap16(x))

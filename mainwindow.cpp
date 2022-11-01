@@ -32,6 +32,8 @@ MainWindow::MainWindow(QWidget *parent)
     , m_bImageChanged(false)
     , m_bEnableGammaWidgets(false)
     , m_bEnableZoomWidget(false)
+    , m_bGrayscale(false)
+    , m_bEyeComfort(false)
     , m_exportFormat(IMAGE_EXPORT_TYPE_PNG)
     , m_exportQuality(IMAGE_EXPORT_DEFAULT_QUALITY)
 {
@@ -125,27 +127,32 @@ void MainWindow::createStatusBarWidgets()
 
 void MainWindow::enableRGBWidgets(bool a_flag)
 {
-    ui->horizontalSliderR->setEnabled(a_flag);
-    ui->horizontalSliderG->setEnabled(a_flag);
-    ui->horizontalSliderB->setEnabled(a_flag);
+    bool b = !(ui->checkBoxGrayscale->isChecked() | ui->checkBoxEyeComfort->isChecked());
 
-    ui->labelR->setEnabled(a_flag);
-    ui->labelG->setEnabled(a_flag);
-    ui->labelB->setEnabled(a_flag);
+    ui->horizontalSliderR->setEnabled(b & a_flag);
+    ui->horizontalSliderG->setEnabled(b & a_flag);
+    ui->horizontalSliderB->setEnabled(b & a_flag);
 
-    ui->labelRGBInfo->setEnabled(a_flag);
+    ui->labelR->setEnabled(b & a_flag);
+    ui->labelG->setEnabled(b & a_flag);
+    ui->labelB->setEnabled(b & a_flag);
 
-    ui->labelValueR->setEnabled(a_flag);
-    ui->labelValueG->setEnabled(a_flag);
-    ui->labelValueB->setEnabled(a_flag);
+    ui->labelRGBInfo->setEnabled(b & a_flag);
+
+    ui->labelValueR->setEnabled(b & a_flag);
+    ui->labelValueG->setEnabled(b & a_flag);
+    ui->labelValueB->setEnabled(b & a_flag);
 }
 
 void MainWindow::enableGammaWidgets(bool a_flag)
 {
     enableRGBWidgets(a_flag);
 
-    ui->checkBoxGrayscale->setEnabled(a_flag);
-    ui->checkBoxEyeComfort->setEnabled(a_flag);
+    bool bG = !(ui->checkBoxGrayscale->isChecked());
+    bool bE = !(ui->checkBoxEyeComfort->isChecked());
+
+    ui->checkBoxGrayscale->setEnabled(bE & a_flag);
+    ui->checkBoxEyeComfort->setEnabled(bG & a_flag);
 }
 
 void MainWindow::enableFileOpenRelatedWidgets(bool a_flag)
@@ -168,18 +175,25 @@ void MainWindow::on_checkBoxGrayscale_stateChanged(int arg1)
     enableRGBWidgets(!arg1);
     ui->checkBoxEyeComfort->setEnabled(!arg1);    
 
-    if (arg1)
+    if (arg1 && !m_bGrayscale)
     {
+        /*
         backupOriginalImage();
         ui->workspaceWidget->convertImage2Grayscale();
         enableRestoreWidgets(false);
         ui->workspaceWidget->reloadImage();
+        */
+        grayScale();
+
+        m_bGrayscale = true;
     }
     else
     {
         int32_t index = ui->workspaceWidget->getCurrentImageHDUIndex();
         if (index != - 1)
             restoreRGBColorChannelLevelsImage(index);
+
+        m_bGrayscale = false;
     }
 
     //ui->workspaceWidget->reloadImage();
@@ -348,6 +362,8 @@ qint32 MainWindow::openFITSFileByName(const QString& a_fileName)
     }
 
     setStatus(STATUS_MESSAGE_READY);
+
+    m_bImageChanged = m_bEyeComfort = m_bGrayscale = false;
 
     return resTemp;
 }
@@ -642,6 +658,7 @@ void MainWindow::backupOriginalImage()
 {
     if (!m_bImageChanged)
     {
+        libnfits::LOG("in backupOriginalImage()");
         m_bImageChanged = true;
         ui->workspaceWidget->backupImage();
 
@@ -854,8 +871,12 @@ void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current
 
     int32_t currentImageIndex = ui->workspaceWidget->getCurrentImageHDUIndex();
     int32_t prevImageHDUIndex = ui->workspaceWidget->findImageHDUIndexByTableIndex(currentImageIndex);
+    int32_t currentTabIndex = ui->workspaceWidget->currentIndex();
 
-    if (prevImageHDUIndex != -1)
+    //m_bImageChanged = false;
+    //m_bEyeComfort = m_bGrayscale = false;
+
+    if (prevImageHDUIndex != -1 && currentTabIndex == 0)
     {
         WidgetsStates widgetsStates = getWidgetsStates();
         widgetsStates.stored = true;
@@ -902,13 +923,36 @@ void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current
                     ui->workspaceWidget->getImageHDUWidgetsStates(hduIndex, widgetStates);
                     if (widgetStates.stored)
                     {
+                        libnfits::LOG("widgetStates.imageChanged = % , widgetStates.gammaStates.gray = % , widgetStates.gammaStates.eye = %",
+                                      widgetStates.imageChanged, widgetStates.gammaStates.gray, widgetStates.gammaStates.eye);
                         setWidgetsStates(widgetStates);
-                        grayScale();
-                        eyeComfort();
+
+                        int32_t index = ui->workspaceWidget->getCurrentImageHDUIndex();
+
+                        if (widgetStates.gammaStates.gray)
+                        {
+
+                            libnfits::LOG("gray: index = % , hduIndex = %", index, hduIndex);
+                            restoreRGBColorChannelLevelsImage(index);
+                            grayScale();
+                            ui->workspaceWidget->scaleImage(m_scaleFactor);
+                        }
+
+                        if (widgetStates.gammaStates.eye)
+                        {
+                            libnfits::LOG("eye: index = % , hduIndex = %", index, hduIndex);
+                            restoreRGBColorChannelLevelsImage(index);
+                            eyeComfort();
+                            ui->workspaceWidget->scaleImage(m_scaleFactor);
+                        }
+
                     }
                     else
                     {
                         m_bImageChanged = false;
+                        m_bEyeComfort = false;
+                        m_bGrayscale = false;
+
                         initGammaWidgetsValues();
                     }
                 }
@@ -935,6 +979,8 @@ void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current
     }
 
     ui->workspaceWidget->setCurrentIndex(0);
+
+    libnfits::LOG("last line of on_tableWidgetHDUs_currentItemChanged() %", m_bImageChanged);
 }
 
 void MainWindow::on_workspaceWidget_sendGammaCorrectionTabEnabled(bool a_flag)
@@ -1053,6 +1099,10 @@ WidgetsStates MainWindow::getWidgetsStates() const
 
 void MainWindow::setWidgetsStates(const WidgetsStates& a_widgetsStates)
 {
+    m_bImageChanged = a_widgetsStates.imageChanged;
+    m_bGrayscale = a_widgetsStates.gammaStates.gray;
+    m_bEyeComfort = a_widgetsStates.gammaStates.eye;
+
     ui->horizontalSliderR->setValue(a_widgetsStates.gammaStates.rLevel);
     ui->horizontalSliderG->setValue(a_widgetsStates.gammaStates.gLevel);
     ui->horizontalSliderB->setValue(a_widgetsStates.gammaStates.bLevel);
@@ -1105,8 +1155,6 @@ void MainWindow::setWidgetsStates(const WidgetsStates& a_widgetsStates)
 
     ui->workspaceWidget->setScrollPosX(a_widgetsStates.scrollState.x);
     ui->workspaceWidget->setScrollPosY(a_widgetsStates.scrollState.y);
-
-    m_bImageChanged = a_widgetsStates.imageChanged;
 }
 
 void MainWindow::on_checkBoxEyeComfort_stateChanged(int arg1)
@@ -1114,18 +1162,20 @@ void MainWindow::on_checkBoxEyeComfort_stateChanged(int arg1)
     enableRGBWidgets(!arg1);
     ui->checkBoxGrayscale->setEnabled(!arg1);
 
-    if (arg1)
+    if (arg1 && !m_bEyeComfort)
     {
-        backupOriginalImage();
-        ui->workspaceWidget->convertImage2EyeComfort();
-        enableRestoreWidgets(false);
-        ui->workspaceWidget->reloadImage();
+        eyeComfort();
+
+        m_bEyeComfort = true;
     }
-    else
+    else if (!arg1 && m_bEyeComfort)
     {
         int32_t index = ui->workspaceWidget->getCurrentImageHDUIndex();
-        if (index != - 1)
+        libnfits::LOG("in on_checkBoxEyeComfort_stateChanged() , else branch, index = % , m_bImageChanged = %", index, m_bImageChanged);
+        if (index != -1)
             restoreRGBColorChannelLevelsImage(index);
+
+        m_bEyeComfort = false;
     }
 
     //ui->workspaceWidget->reloadImage();
@@ -1134,6 +1184,7 @@ void MainWindow::on_checkBoxEyeComfort_stateChanged(int arg1)
 
 void MainWindow::changeRGBColorChannelLevel(uint8_t a_channel, int8_t a_value)
 {
+    libnfits::LOG("in changeRGBColorChannelLevel(), before backupOriginalImage() call, m_bImageChanged = %", m_bImageChanged);
     backupOriginalImage();
 
     QString valueStr = QString::number(a_value) + " %";
@@ -1194,19 +1245,39 @@ void MainWindow::changeRGBColorChannelLevels(int8_t a_rValue, int8_t a_gValue, i
 
 void MainWindow::restoreRGBColorChannelLevelsImage(int32_t a_hduIndex)
 {
-    ui->workspaceWidget->setImage(a_hduIndex);
+    int8_t rValue = ui->horizontalSliderR->value();
+    int8_t gValue = ui->horizontalSliderG->value();
+    int8_t bValue = ui->horizontalSliderB->value();
 
-    changeRGBColorChannelLevels(ui->horizontalSliderR->value(), ui->horizontalSliderG->value(), ui->horizontalSliderB->value());
+    if (rValue != 0 || gValue != 0 || bValue != 0)
+    {
+        libnfits::LOG("in restoreRGBColorChannelLevelsImage(), if case, a_hduIndex = %", a_hduIndex);
+        ui->workspaceWidget->setImage(a_hduIndex);
+        changeRGBColorChannelLevels(rValue, gValue, bValue);
+    }
+    else
+    {
+        libnfits::LOG("in restoreRGBColorChannelLevelsImage(), else case");
+        ui->workspaceWidget->restoreImage();
+        ui->workspaceWidget->reloadImage();
+    }
 }
 
 void MainWindow::grayScale()
 {
-    if (ui->checkBoxGrayscale->isChecked())
-        on_checkBoxGrayscale_stateChanged(true);
+    libnfits::LOG("in grayScale() , m_bImageChanged = ", m_bImageChanged);
+    backupOriginalImage();
+    ui->workspaceWidget->convertImage2Grayscale();
+    enableRestoreWidgets(false);
+    ui->workspaceWidget->reloadImage();
+
 }
 
 void MainWindow::eyeComfort()
 {
-    if (ui->checkBoxEyeComfort->isChecked())
-        on_checkBoxEyeComfort_stateChanged(true);
+    libnfits::LOG("in eyeComfort() , m_bImageChanged = ", m_bImageChanged);
+    backupOriginalImage();
+    ui->workspaceWidget->convertImage2EyeComfort();
+    enableRestoreWidgets(false);
+    ui->workspaceWidget->reloadImage();
 }

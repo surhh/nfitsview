@@ -8,7 +8,7 @@
 typedef     int32_t (*CallbackFunctionPtr)       (int32_t, void*);
 
 // inline endianess swap fnuctions type protos
-typedef     int16_t (*SwapFunctionPtr16)          (int16_t);
+//typedef     int16_t (*SwapFunctionPtr16)          (int16_t);
 
 static int32_t percentCallbackFunctionSample(int32_t a_percent, void* a_buffer)
 {
@@ -19,7 +19,7 @@ static int32_t percentCallbackFunctionSample(int32_t a_percent, void* a_buffer)
 
 //typedef     uint8_t   (*THREADFUNCPTR)              (void *);
 
-//#define DEBUG_MODE
+//#define DEBUG_MODE                            // enabling and disabling the debug logging used in libnfits::LOG()
 
 #define LIBNFITS_MAJOR_VERSION                  (1)
 #define LIBNFITS_MINOR_VERSION                  (3)

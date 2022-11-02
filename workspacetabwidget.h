@@ -72,6 +72,8 @@ public:
 
     int32_t findImageHDUIndexByTableIndex(int32_t a_index);
 
+    void setNoImageDataImage();
+
 private slots:
     void on_WorkspaceTabWidget_currentChanged(int index);
 

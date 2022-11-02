@@ -967,9 +967,11 @@ void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current
             enableImageExportWidgets(false);
             enableImageExportSettigsWidgets(false);
 
-            ui->workspaceWidget->imageSetVisible(false);
+            //ui->workspaceWidget->imageSetVisible(false);
 
             ui->workspaceWidget->resetCurrentImageHDUIndex();
+
+            ui->workspaceWidget->setNoImageDataImage();
         }
 
         axises.clear();
@@ -980,7 +982,7 @@ void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current
 
     ui->workspaceWidget->setCurrentIndex(0);
 
-    libnfits::LOG("last line of on_tableWidgetHDUs_currentItemChanged() %", m_bImageChanged);
+    libnfits::LOG("last line of on_tableWidgetHDUs_currentItemChanged() % ", m_bImageChanged);
 }
 
 void MainWindow::on_workspaceWidget_sendGammaCorrectionTabEnabled(bool a_flag)

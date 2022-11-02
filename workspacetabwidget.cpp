@@ -430,3 +430,12 @@ int32_t WorkspaceTabWidget::findImageHDUIndexByTableIndex(int32_t a_index)
 
     return foundIndex;
 }
+
+void WorkspaceTabWidget::setNoImageDataImage()
+{
+    m_imageLabel->clear();
+
+    m_imageLabel->setPixmap(QPixmap("://icons/no_image_data.png"));
+
+    m_imageLabel->adjustSize();
+}

@@ -776,7 +776,7 @@ void MainWindow::enableImageExportSettigsWidgets(bool a_flag)
 
 void MainWindow::on_comboBoxFormat_currentIndexChanged(const QString &arg1)
 {
-    m_exportFormat = arg1;
+    m_exportFormat = QString(arg1.toLower());
     m_exportQuality = ui->horizontalSliderQuality->value();
 
     if (arg1 != QString(IMAGE_EXPORT_TYPE_JPG).toUpper())

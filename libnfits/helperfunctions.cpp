@@ -7,6 +7,8 @@
 #include <boost/iostreams/filter/gzip.hpp>
 #include <cmath>
 
+#define HEX_DELIM_SYMBOL        ' '
+
 namespace libnfits
 {
 
@@ -790,7 +792,7 @@ int32_t convertBuffer2HexString(uint8_t* a_buffer, uint8_t* a_output, size_t siz
         for (i = 0; i < blockSize; ++i)
         {
             if (i != 0 && i % a_align == 0)
-                blockBuffer[index++] = '|';
+                blockBuffer[index++] = HEX_DELIM_SYMBOL;
 
             char2hex(a_buffer[b*blockSize + i], charHi, charLow);
 
@@ -798,7 +800,7 @@ int32_t convertBuffer2HexString(uint8_t* a_buffer, uint8_t* a_output, size_t siz
             blockBuffer[index++] = charLow;
         }
 
-        blockBuffer[index++] = '|';
+        blockBuffer[index++] = HEX_DELIM_SYMBOL;
 
         for (size_t i = 0; i < spaceSize; ++i)
             blockBuffer[index++] = ' ';
@@ -824,7 +826,7 @@ int32_t convertBuffer2HexString(uint8_t* a_buffer, uint8_t* a_output, size_t siz
         for (size_t j = 0; j < lastBlockSize; ++j)
         {
             if (j != 0 && j % a_align == 0)
-                blockBuffer[index++] = '|';
+                blockBuffer[index++] = HEX_DELIM_SYMBOL;
 
             char2hex(a_buffer[b * blockSize + j], charHi, charLow);
 
@@ -832,7 +834,7 @@ int32_t convertBuffer2HexString(uint8_t* a_buffer, uint8_t* a_output, size_t siz
             blockBuffer[index++] = charLow;
         }
 
-        blockBuffer[index++] = '|';
+        blockBuffer[index++] = HEX_DELIM_SYMBOL;
 
         for (size_t i = 0; i < spaceSize + (blockSize - lastBlockSize); ++i)
             blockBuffer[index++] = ' ';
@@ -862,7 +864,7 @@ std::string convertBuffer2HexString(uint8_t* a_buffer, size_t size, uint32_t a_a
     const uint8_t minBlockSize = 8;
     const uint8_t spaceSize = 8;
 
-    uint32_t index = 0, indexOut = 0;
+    uint32_t index = 0;
 
     uint8_t charHi = 0, charLow = 0;
 
@@ -885,7 +887,7 @@ std::string convertBuffer2HexString(uint8_t* a_buffer, size_t size, uint32_t a_a
         for (i = 0; i < blockSize; ++i)
         {
             if (i != 0 && i % a_align == 0)
-                blockBuffer[index++] = '|';
+                blockBuffer[index++] = HEX_DELIM_SYMBOL;
 
             char2hex(a_buffer[b*blockSize + i], charHi, charLow);
 
@@ -893,7 +895,7 @@ std::string convertBuffer2HexString(uint8_t* a_buffer, size_t size, uint32_t a_a
             blockBuffer[index++] = charLow;
         }
 
-        blockBuffer[index++] = '|';
+        blockBuffer[index++] = HEX_DELIM_SYMBOL;
 
         for (size_t i = 0; i < spaceSize; ++i)
             blockBuffer[index++] = ' ';
@@ -920,7 +922,7 @@ std::string convertBuffer2HexString(uint8_t* a_buffer, size_t size, uint32_t a_a
         for (size_t j = 0; j < lastBlockSize; ++j)
         {
             if (j != 0 && j % a_align == 0)
-                blockBuffer[index++] = '|';
+                blockBuffer[index++] = HEX_DELIM_SYMBOL;
 
             char2hex(a_buffer[b * blockSize + j], charHi, charLow);
 
@@ -928,7 +930,7 @@ std::string convertBuffer2HexString(uint8_t* a_buffer, size_t size, uint32_t a_a
             blockBuffer[index++] = charLow;
         }
 
-        blockBuffer[index++] = '|';
+        blockBuffer[index++] = HEX_DELIM_SYMBOL;
 
         for (size_t i = 0; i < spaceSize + (blockSize - lastBlockSize); ++i)
             blockBuffer[index++] = ' ';

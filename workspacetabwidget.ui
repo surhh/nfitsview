@@ -38,7 +38,7 @@
          <x>0</x>
          <y>0</y>
          <width>376</width>
-         <height>247</height>
+         <height>249</height>
         </rect>
        </property>
       </widget>
@@ -77,6 +77,9 @@
         <family>Courier 10 Pitch</family>
         <pointsize>12</pointsize>
        </font>
+      </property>
+      <property name="lineWrapMode">
+       <enum>QTextEdit::NoWrap</enum>
       </property>
       <property name="readOnly">
        <bool>true</bool>

@@ -8,8 +8,8 @@ nFITSview - A simple and user-friendly FITS image viewer
 
 Currently nFITSview supports the following formats and features:
 
-    - 32-bit floating and integer images
-    - 64-bit floating images (experimental, may still not work as it should)
+    - 32-bit floating point and integer images
+    - 64-bit floating point images (experimental, may still not work as it should)
     - Exporting image HDUs as PNG/JPEG/BMP files
     - Bulk exporting of all image HDUs as PNG files
     - RGB gamma correction, grayscaling and eye-comfortable image generation

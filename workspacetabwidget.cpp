@@ -136,7 +136,7 @@ void WorkspaceTabWidget::populateRawDataWidget(const libnfits::HDU& a_hdu)
     }
 
     std::string strRawData = "";
-    strRawData = (libnfits::convertBuffer2HexString(pData, outSize, align));
+    strRawData = libnfits::convertBuffer2HexString(pData, outSize, align);
 
     strRawData += strInfoBig;
     ui->textEditRawData->setText(QString((const char*)strRawData.c_str()));

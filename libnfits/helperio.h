@@ -14,7 +14,7 @@ namespace libnfits
 class MapFile
 {
 private:
-    uint8_t*        m_memoryBuffer;
+    uint8_t        *m_memoryBuffer;
     int32_t         m_fileDesc;
     std::string     m_fileName;
     size_t          m_fileSize;

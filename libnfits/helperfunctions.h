@@ -14,6 +14,13 @@
 namespace libnfits
 {
 
+struct RGBPixel
+{
+    uint8_t red;
+    uint8_t green;
+    uint8_t blue;
+};
+
 template<typename ... many> void LOG(const std::string& a_str, many ... a_args)
 {
 #if defined(DEBUG_MODE)
@@ -52,6 +59,33 @@ template<typename ... many> void LOG(const std::string& a_str, many ... a_args)
 
                 if (argList[0].type() == typeid(long))
                     outputStr += std::to_string(std::any_cast<long>(argList[0]));
+
+                if (argList[0].type() == typeid(int8_t))
+                    outputStr += std::to_string(std::any_cast<int8_t>(argList[0]));
+
+                if (argList[0].type() == typeid(int16_t))
+                    outputStr += std::to_string(std::any_cast<int16_t>(argList[0]));
+
+                if (argList[0].type() == typeid(int32_t))
+                    outputStr += std::to_string(std::any_cast<int32_t>(argList[0]));
+
+                if (argList[0].type() == typeid(int64_t))
+                    outputStr += std::to_string(std::any_cast<int64_t>(argList[0]));
+
+                if (argList[0].type() == typeid(uint8_t))
+                    outputStr += std::to_string(std::any_cast<uint8_t>(argList[0]));
+
+                if (argList[0].type() == typeid(uint16_t))
+                    outputStr += std::to_string(std::any_cast<uint16_t>(argList[0]));
+
+                if (argList[0].type() == typeid(uint32_t))
+                    outputStr += std::to_string(std::any_cast<uint32_t>(argList[0]));
+
+                if (argList[0].type() == typeid(uint64_t))
+                    outputStr += std::to_string(std::any_cast<uint64_t>(argList[0]));
+
+                if (argList[0].type() == typeid(size_t))
+                    outputStr += std::to_string(std::any_cast<size_t>(argList[0]));
 
                 if (argList[0].type() == typeid(float))
                     outputStr += std::to_string(std::any_cast<float>(argList[0]));
@@ -161,7 +195,7 @@ inline uint8_t char2alphanum(const uint8_t a_char)
 inline uint8_t convertRGB2Grayscale(uint8_t a_red, uint8_t a_green, uint8_t a_blue)
 {
     //// Average method - faster method
-    return (a_red +  a_green + a_blue) / 3;
+    return (a_red + a_green + a_blue) / 3;
 
     //// Luminosity method - this second method may differ, choose the one which best fits the needs (not used)
     //// return 0.299*(float)a_red + 0.587*(float)a_green + 0.114*(float)a_blue;
@@ -224,6 +258,8 @@ template<typename T> std::string int2hex(T a_value)
 
   return strStream.str();
 }
+
+bool areEqual(double a_x, double a_y);
 
 //// color normalization functions
 template<typename T> T normalizeValue(T a_value, T a_min, T a_max, T a_minNew, T a_maxNew)
@@ -329,6 +365,22 @@ void convertDouble2Grayscale(double a_value, uint8_t& a_red, uint8_t& a_green, u
 
 void convertInt2RGB(uint32_t a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue);
 
+void convertShort2RGB(uint16_t a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue);
+
+void convertShort2RGB(uint16_t a_value, RGBPixel& a_pixel);
+
+void convertShortSZ2RGB(uint16_t a_value, double a_bscale, double a_bzero, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue);
+
+void convertShortSZ2RGB(uint16_t a_value, double a_bscale, double a_bzero, RGBPixel& a_pixel);
+
+void convertShort2Grayscale(uint16_t a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue);
+
+void convertShort2Grayscale(uint16_t a_value, RGBPixel& a_pixel);
+
+void convertShortSZ2Grayscale(uint16_t a_value, double a_bscale, double a_bzero, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue);
+
+void convertShortSZ2Grayscale(uint16_t a_value, double a_bscale, double a_bzero, RGBPixel& a_pixel);
+
 
 //// array of pixels conversion functions based on the single pixel conversion functions
 void convertBufferFloat2RGBA(uint8_t* a_buffer, size_t a_size);
@@ -339,7 +391,9 @@ void convertBufferDouble2RGBA(uint8_t* a_buffer, size_t a_size);
 
 void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size);
 
-void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size);
+void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer);
+
+void convertBufferShortSZ2RGB(uint8_t* a_buffer, size_t a_size, double a_bzero, double a_bscale, uint8_t* a_destBuffer);
 
 void convertBufferByte2RGB(uint8_t* a_buffer, size_t a_size);
 
@@ -347,6 +401,8 @@ void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size);
 
 void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size);
 
+
+//// functions to convert to grayscale
 void convertBufferRGB2Grayscale(uint8_t* a_buffer, size_t a_size);
 
 void convertBufferRGB2Grayscale(uint8_t** a_buffer, uint32_t a_width, uint32_t a_height);

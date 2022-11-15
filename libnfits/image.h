@@ -55,6 +55,8 @@ private:
     uint32_t            m_height;
     uint8_t             m_colorDepth;
     int8_t              m_bitpix;
+    double              m_bzero;
+    double              m_bscale;
     size_t              m_maxDataBufferSize;
     size_t              m_baseOffset;
     std::string         m_title;
@@ -90,6 +92,10 @@ public:
     void setColorDepth(uint8_t a_colorDepth);
     void setBitPix(int8_t a_bitpix);
     void setCompressed(bool a_isCompressed = false);
+    void setBZero(double a_bzero);
+    void setBScale(double a_bscale);
+    double getBZero() const;
+    double getBScale() const;
     uint32_t getWidth() const;
     uint32_t getHeight() const;
     uint8_t getColorDepth() const;

@@ -32,7 +32,7 @@
 #define STATUS_MESSAGE_READY                "Ready"
 
 #define NFITSVIEW_APP_NAME                  "nFITSview"
-#define NFITSVIEW_VERSION                   "1.3"
+#define NFITSVIEW_VERSION                   "1.4"
 #define NFITSVIEW_APP_FULL_NAME             NFITSVIEW_APP_NAME " " NFITSVIEW_VERSION
 
 QT_BEGIN_NAMESPACE

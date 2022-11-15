@@ -1036,8 +1036,34 @@ qint32 MainWindow::setAllWorkspaceImages()
                 if (bSuccess)
                 {
                     WidgetsStates widgetStates = getWidgetsStates();
-                    ui->workspaceWidget->insertImage(hdu.getPayload(), axises[0], axises[1], hdu.getPayloadOffset(), m_fitsFile.getSize(),
-                                                     bitpix, h, widgetStates);
+
+                    //// The old function, in the new one packed params into the structure
+                    //ui->workspaceWidget->insertImage(hdu.getPayload(), axises[0], axises[1], hdu.getPayloadOffset(), m_fitsFile.getSize(),
+                    //                                 bitpix, h, widgetStates);
+
+                    ImageParams imageParams;
+                    imageParams.width = axises[0];
+                    imageParams.height = axises[1];
+                    imageParams.HDUBaseOffset = hdu.getPayloadOffset();
+                    imageParams.maxDataBufferSize = m_fitsFile.getSize();
+                    imageParams.bitpix = bitpix;
+                    imageParams.hduIndex = h;
+
+                    bool bZSuccess = false, bSSuccess = false;
+
+                    double bzero = hdu.getKeywordValue<double>(FITS_KEYWORD_BZERO, bZSuccess);
+                    double bscale = hdu.getKeywordValue<double>(FITS_KEYWORD_BSCALE, bSSuccess);
+
+                    imageParams.bzero = FITS_BZERO_DEFAULT_VALUE;
+                    if (bZSuccess)
+                        imageParams.bzero = bzero;
+
+                    imageParams.bscale = FITS_BSCALE_DEFAULT_VALUE;
+                    if (bSSuccess)
+                        imageParams.bscale = bscale;
+
+                    ui->workspaceWidget->insertImage(hdu.getPayload(), imageParams, widgetStates);
+
                     ++retVal;
                 }
             }

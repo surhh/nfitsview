@@ -59,4 +59,16 @@ struct WidgetsStates
     }
 };
 
+struct ImageParams
+{
+    uint32_t width;
+    uint32_t height;
+    double   bzero;
+    double   bscale;
+    size_t   HDUBaseOffset;
+    size_t   maxDataBufferSize;
+    uint32_t hduIndex;
+    int8_t   bitpix;
+};
+
 #endif // DEFSUI_H

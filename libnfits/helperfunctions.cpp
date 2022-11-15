@@ -378,6 +378,11 @@ std::string formatFloatString(float a_number, uint8_t a_padding)
 
 }
 
+bool areEqual(double a_x, double a_y)
+{
+    return std::fabs(a_x - a_y) < std::numeric_limits<double>::epsilon();
+}
+
 void swapBuffer16(uint8_t* a_buffer, size_t a_size)
 {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -523,6 +528,66 @@ void convertInt2RGB(uint32_t a_value, uint8_t& a_red, uint8_t& a_green, uint8_t&
     a_blue = (a_value & 0x0000ff00) >> 8;
 }
 
+void convertShort2RGB(uint16_t a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue)
+{
+    a_red = ((a_value & 0x7c00) >> 10) * 8;
+    a_green = ((a_value & 0x03e0) >> 5) * 8;
+    a_blue = (a_value & 0x001f) * 8;
+}
+
+void convertShort2RGB(uint16_t a_value, RGBPixel& a_pixel)
+{
+    a_pixel.red = ((a_value & 0x7c00) >> 10) * 8;
+    a_pixel.green = ((a_value & 0x03e0) >> 5) * 8;
+    a_pixel.blue = (a_value & 0x001f) * 8;
+}
+
+void convertShortSZ2RGB(uint16_t a_value, double a_bscale, double a_bzero, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue)
+{
+    uint16_t value = a_bzero + a_bscale * a_value;
+
+    convertShort2RGB(value, a_red, a_blue, a_green);
+}
+
+void convertShortSZ2RGB(uint16_t a_value, double a_bscale, double a_bzero, RGBPixel& a_pixel)
+{
+    uint16_t value = a_bzero + a_bscale * a_value;
+
+    convertShort2RGB(value, a_pixel);
+}
+
+void convertShort2Grayscale(uint16_t a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue)
+{
+    uint8_t color = ((float)a_value / 0xffff) * 0xff;
+
+    a_red = color;
+    a_green = color;
+    a_blue = color;
+}
+
+void convertShort2Grayscale(uint16_t a_value, RGBPixel& a_pixel)
+{
+    uint8_t color = ((float)a_value / 0xffff) * 0xff;
+
+    a_pixel.red = color;
+    a_pixel.green = color;
+    a_pixel.blue = color;
+}
+
+void convertShortSZ2Grayscale(uint16_t a_value, double a_bscale, double a_bzero, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue)
+{
+    uint16_t value = a_bzero + a_bscale * a_value;
+
+    convertShort2Grayscale(value, a_red, a_green, a_blue);
+}
+
+void convertShortSZ2Grayscale(uint16_t a_value, double a_bscale, double a_bzero, RGBPixel& a_pixel)
+{
+    uint16_t value = a_bzero + a_bscale * a_value;
+
+    convertShort2Grayscale(value, a_pixel);
+}
+
 void convertBufferFloat2RGBA(uint8_t* a_buffer, size_t a_size)
 {
     // checking for buffer granularity
@@ -666,7 +731,6 @@ void convertBufferDouble2RGBA(uint8_t* a_buffer, size_t a_size)
 
         tmpBuf[i] = (val << 32) & 0xffffffff00000000;
     }
-
 }
 
 void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size)
@@ -701,9 +765,62 @@ void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size)
     }
 }
 
-void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size)
+void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer)
 {
-    //// TODO: create for 16 bit
+    // checking for buffer granularity
+    if (a_size % sizeof(uint16_t) != 0)
+        return;
+
+    uint16_t *tmpBuf = (uint16_t*)(a_buffer);
+
+    for (size_t i = 0; i < a_size / sizeof(uint16_t); ++i)
+    {
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+        uint16_t s = swap16(tmpBuf[i]);
+#else
+        uint16_t s = tmpBuf[i];
+#endif
+
+        //uint8_t red, green, blue;
+        RGBPixel pixel;
+
+        //convertShort2RGB(s, RGBPixel(red, green, blue));
+        convertShort2Grayscale(s, pixel);
+
+        a_destBuffer[i*2]     = pixel.red;
+        a_destBuffer[i*2 + 1] = pixel.green;
+        a_destBuffer[i*2 + 2] = pixel.blue;
+        a_destBuffer[i*2 + 3] = 0x00;
+    }
+}
+
+void convertBufferShortSZ2RGB(uint8_t* a_buffer, size_t a_size, double a_bzero, double a_bscale, uint8_t* a_destBuffer)
+{
+    // checking for buffer granularity
+    if (a_size % sizeof(uint16_t) != 0)
+        return;
+
+    uint16_t *tmpBuf = (uint16_t*)(a_buffer);
+
+    for (size_t i = 0; i < a_size / sizeof(uint16_t); ++i)
+    {
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+        uint16_t s = swap16(tmpBuf[i]);
+#else
+        uint16_t s = tmpBuf[i];
+#endif
+
+        //uint8_t red, green, blue;
+        RGBPixel pixel;
+
+        //convertShortSZ2RGB(s, a_bscale, RGBPixel(a_bzero, red, green, blue));
+        convertShortSZ2Grayscale(s, a_bscale, a_bzero, pixel);
+
+        a_destBuffer[i*4]     = pixel.red;
+        a_destBuffer[i*4 + 1] = pixel.green;
+        a_destBuffer[i*4 + 2] = pixel.blue;
+        a_destBuffer[i*4 + 3] = 0x00;
+    }
 }
 
 void convertBufferByte2RGB(uint8_t* a_buffer, size_t a_size)

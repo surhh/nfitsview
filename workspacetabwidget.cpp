@@ -188,6 +188,27 @@ void WorkspaceTabWidget::insertImage(const uint8_t* a_image, uint32_t a_width, u
     m_vecFitsImages.push_back(imageHDU);
 }
 
+void WorkspaceTabWidget::insertImage(const uint8_t* a_image, ImageParams& a_imageParams, const WidgetsStates& a_widgetStates)
+{
+    FITSImageHDU imageHDU;
+
+    libnfits::Image *image = new libnfits::Image;
+
+    image->setParameters(a_imageParams.width, a_imageParams.height, FITS_PNG_DEFAULT_PIXEL_DEPTH, a_imageParams.bitpix);
+    image->setMaxDataBufferSize(a_imageParams.maxDataBufferSize);
+    image->setBaseOffset(a_imageParams.HDUBaseOffset);
+    image->setBZero(a_imageParams.bzero);
+    image->setBScale(a_imageParams.bscale);
+    image->setData(a_image);
+    image->createRGB32FlatData();
+
+    imageHDU.index = a_imageParams.hduIndex;
+    imageHDU.image = image;
+    imageHDU.widgetsStates = a_widgetStates;
+
+    m_vecFitsImages.push_back(imageHDU);
+}
+
 void WorkspaceTabWidget::reloadImage()
 {
     QImage *image = nullptr;

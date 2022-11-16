@@ -11,6 +11,9 @@
 
 #include "defs.h"
 
+//void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer);
+//void convertBufferShortSZ2RGB(uint8_t* a_buffer, size_t a_size, double a_bzero, double a_bscale, uint8_t* a_destBuffer);
+
 namespace libnfits
 {
 
@@ -391,9 +394,9 @@ void convertBufferDouble2RGBA(uint8_t* a_buffer, size_t a_size);
 
 void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size);
 
-void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer);
+void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer, bool a_gray = true);
 
-void convertBufferShortSZ2RGB(uint8_t* a_buffer, size_t a_size, double a_bzero, double a_bscale, uint8_t* a_destBuffer);
+void convertBufferShortSZ2RGB(uint8_t* a_buffer, size_t a_size, double a_bzero, double a_bscale, uint8_t* a_destBuffer, bool a_gray = true);
 
 void convertBufferByte2RGB(uint8_t* a_buffer, size_t a_size);
 
@@ -427,5 +430,8 @@ std::string convertBuffer2HexString(uint8_t* a_buffer, size_t size, uint32_t a_a
 //// dumpFloatDataBuffer() is slow and should be used for debug purposes only
 int32_t dumpFloatDataBuffer(const uint8_t* a_buffer, size_t a_size, const std::string& a_filename, uint32_t a_rowSize);
 }
+
+typedef     void (*convertBufferShort)       (uint16_t, libnfits::RGBPixel&);
+typedef     void (*convertBufferShortSZ)     (uint16_t, double, double, libnfits::RGBPixel&);
 
 #endif // LIBNFITS_HELPERFUNCTIONS_H

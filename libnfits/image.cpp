@@ -89,7 +89,7 @@ int32_t Image::exportPNG(const std::string& a_fileName)
     //// TODO: RGBA and grayscale should be supported as well
     //pixelBuffer = m_dataBuffer;
 
-    if (bytesNum == 3 || bytesNum == 4)
+    if (bytesNum == 2 | bytesNum == 3 || bytesNum == 4 || bytesNum == 8)
         colorType = FITS_PNG_COLOR_RGB;  // the FITS_PNG_COLOR_RGB_ALPHA seems not to work as expected on the FITS pixel array
     else
         return FITS_PNG_EXPORT_ERROR;
@@ -340,7 +340,7 @@ int32_t Image::createRGBData()
     if (m_rgbDataBuffer == nullptr)
         return FITS_GENERAL_ERROR;
 
-    uint8_t *tmpRow = new uint8_t[tmpBufRowSize * (bytesNum == 2 ? 2 : 1)];
+    uint8_t *tmpRow = new uint8_t[tmpBufRowSize];
 
     uint8_t *tmpDestRow = nullptr;
 
@@ -359,6 +359,7 @@ int32_t Image::createRGBData()
 
         for (int64_t y = m_height - 1; y >= 0; --y) //// this loop is for correcting Y-axis upside down showing
         {
+            //libnfits::LOG(" in createRGBData() 1 , y = % , bufRowSize = % , tmpBufRowSize = %" , y, bufRowSize, tmpBufRowSize);
             m_rgbDataBuffer[y] = new uint8_t[bufRowSize];
             std::memset(m_rgbDataBuffer[y] , 0, bufRowSize);
 
@@ -394,29 +395,33 @@ int32_t Image::createRGBData()
             }
             else if (bytesNum == 4 || bytesNum == 8)
             */
-            {
+            //{
                 //std::memcpy(tmpRow, m_dataBuffer + (y * tmpBufRowSize), tmpBufRowSize);
-                //// this memcpy is for correcting Y-axis upside down showing
-                std::memcpy(tmpRow, m_dataBuffer + ((m_height - 1 - y) * tmpBufRowSize), tmpBufRowSize);
 
-                if (m_bitpix == 16)
-                    areEqual(m_bzero, FITS_BZERO_DEFAULT_VALUE) && areEqual(m_bscale, FITS_BSCALE_DEFAULT_VALUE) ?
-                            convertBufferShort2RGB(tmpRow, tmpBufRowSize, tmpDestRow) :
-                            convertBufferShortSZ2RGB(tmpRow, tmpBufRowSize, m_bzero, m_bscale, tmpDestRow);
-                else if (m_bitpix == -32)
-                    convertBufferFloat2RGB(tmpRow, tmpBufRowSize);
-                else if (m_bitpix == 32)
-                    convertBufferInt2RGB(tmpRow, tmpBufRowSize);
-                else if (m_bitpix == -64)
-                    convertBufferDouble2RGB(tmpRow, tmpBufRowSize);
+            //// this memcpy is for correcting Y-axis upside down showing
+            std::memcpy(tmpRow, m_dataBuffer + offset, tmpBufRowSize);
 
-                for (uint32_t x = 0; x < m_width; ++x)
-                {
-                    m_rgbDataBuffer[y][x*3]     = tmpFinalRow[x*indexBase];
-                    m_rgbDataBuffer[y][x*3 + 1] = tmpFinalRow[x*indexBase + 1];
-                    m_rgbDataBuffer[y][x*3 + 2] = tmpFinalRow[x*indexBase + 2];
-                }
+            if (m_bitpix == 16)
+                areEqual(m_bzero, FITS_BZERO_DEFAULT_VALUE) && areEqual(m_bscale, FITS_BSCALE_DEFAULT_VALUE) ?
+                        convertBufferShort2RGB(tmpRow, tmpBufRowSize, tmpDestRow) :
+                        convertBufferShortSZ2RGB(tmpRow, tmpBufRowSize, m_bzero, m_bscale, tmpDestRow);
+            else if (m_bitpix == -32)
+                convertBufferFloat2RGB(tmpRow, tmpBufRowSize);
+            else if (m_bitpix == 32)
+                convertBufferInt2RGB(tmpRow, tmpBufRowSize);
+            else if (m_bitpix == -64)
+                convertBufferDouble2RGB(tmpRow, tmpBufRowSize);
+
+            for (uint32_t x = 0; x < m_width; ++x)
+            {
+                uint64_t indexSource = x*indexBase;
+                uint64_t indexDest = x*3;
+
+                m_rgbDataBuffer[y][indexDest]     = tmpFinalRow[indexSource];
+                m_rgbDataBuffer[y][indexDest + 1] = tmpFinalRow[indexSource + 1];
+                m_rgbDataBuffer[y][indexDest + 2] = tmpFinalRow[indexSource + 2];
             }
+            //}
         }
     }
     catch (...)
@@ -458,7 +463,7 @@ int32_t Image::createRGB32Data()
     if (m_rgb32DataBuffer == nullptr)
         return FITS_GENERAL_ERROR;
 
-    uint8_t *tmpRow = new uint8_t[tmpBufRowSize * (bytesNum == 2 ? 2 : 1)];
+    uint8_t *tmpRow = new uint8_t[tmpBufRowSize];
 
     uint8_t *tmpDestRow = nullptr;
 
@@ -490,7 +495,7 @@ int32_t Image::createRGB32Data()
             ////
 
             //// this memcpy is for correcting Y-axis upside down showing
-            std::memcpy(tmpRow, m_dataBuffer + ((m_height - 1 - y) * tmpBufRowSize), tmpBufRowSize);
+            std::memcpy(tmpRow, m_dataBuffer + offset, tmpBufRowSize);
 
             if (m_bitpix == 16)
                 areEqual(m_bzero, FITS_BZERO_DEFAULT_VALUE) && areEqual(m_bscale, FITS_BSCALE_DEFAULT_VALUE) ?
@@ -505,10 +510,13 @@ int32_t Image::createRGB32Data()
 
             for (uint32_t x = 0; x < m_width; ++x)
             {
-                m_rgb32DataBuffer[y][x*4]     = tmpFinalRow[x*indexBase + 2];
-                m_rgb32DataBuffer[y][x*4 + 1] = tmpFinalRow[x*indexBase + 1];
-                m_rgb32DataBuffer[y][x*4 + 2] = tmpFinalRow[x*indexBase];
-                m_rgb32DataBuffer[y][x*4 + 3] = 0xff;
+                uint64_t indexSource = x*indexBase;
+                uint64_t indexDest = x*4;
+
+                m_rgb32DataBuffer[y][indexDest]     = tmpFinalRow[indexSource + 2];
+                m_rgb32DataBuffer[y][indexDest + 1] = tmpFinalRow[indexSource + 1];
+                m_rgb32DataBuffer[y][indexDest + 2] = tmpFinalRow[indexSource];
+                m_rgb32DataBuffer[y][indexDest + 3] = 0xff;
             }
         }
     }
@@ -597,10 +605,13 @@ int32_t Image::createRGB32FlatData()
 
             for (uint32_t x = 0; x < m_width; ++x)
             {
-                m_rgb32FlatDataBuffer[4*(y*m_width + x)]     = tmpFinalRow[x*indexBase + 2];
-                m_rgb32FlatDataBuffer[4*(y*m_width + x) + 1] = tmpFinalRow[x*indexBase + 1];
-                m_rgb32FlatDataBuffer[4*(y*m_width + x) + 2] = tmpFinalRow[x*indexBase];
-                m_rgb32FlatDataBuffer[4*(y*m_width + x) + 3] = 0xff;
+                uint64_t indexSource = x*indexBase;
+                uint64_t indexDest = y*m_width + x;
+
+                m_rgb32FlatDataBuffer[4*indexDest]     = tmpFinalRow[indexSource + 2];
+                m_rgb32FlatDataBuffer[4*indexDest + 1] = tmpFinalRow[indexSource + 1];
+                m_rgb32FlatDataBuffer[4*indexDest + 2] = tmpFinalRow[indexSource];
+                m_rgb32FlatDataBuffer[4*indexDest + 3] = 0xff;
             }
         }
     }

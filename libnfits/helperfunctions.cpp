@@ -765,13 +765,18 @@ void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size)
     }
 }
 
-void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer)
+void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer, bool a_gray)
 {
     // checking for buffer granularity
     if (a_size % sizeof(uint16_t) != 0)
         return;
 
     uint16_t *tmpBuf = (uint16_t*)(a_buffer);
+
+    convertBufferShort  ptrConvertFunction = convertShort2Grayscale;
+
+    if (!a_gray)
+        ptrConvertFunction = convertShort2RGB;
 
     for (size_t i = 0; i < a_size / sizeof(uint16_t); ++i)
     {
@@ -781,26 +786,29 @@ void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuf
         uint16_t s = tmpBuf[i];
 #endif
 
-        //uint8_t red, green, blue;
         RGBPixel pixel;
 
-        //convertShort2RGB(s, RGBPixel(red, green, blue));
-        convertShort2Grayscale(s, pixel);
+        ptrConvertFunction(s, pixel);
 
-        a_destBuffer[i*2]     = pixel.red;
-        a_destBuffer[i*2 + 1] = pixel.green;
-        a_destBuffer[i*2 + 2] = pixel.blue;
-        a_destBuffer[i*2 + 3] = 0x00;
+        a_destBuffer[i*4]     = pixel.red;
+        a_destBuffer[i*4 + 1] = pixel.green;
+        a_destBuffer[i*4 + 2] = pixel.blue;
+        a_destBuffer[i*4 + 3] = 0x00;
     }
 }
 
-void convertBufferShortSZ2RGB(uint8_t* a_buffer, size_t a_size, double a_bzero, double a_bscale, uint8_t* a_destBuffer)
+void convertBufferShortSZ2RGB(uint8_t* a_buffer, size_t a_size, double a_bzero, double a_bscale, uint8_t* a_destBuffer, bool a_gray)
 {
     // checking for buffer granularity
     if (a_size % sizeof(uint16_t) != 0)
         return;
 
     uint16_t *tmpBuf = (uint16_t*)(a_buffer);
+
+    convertBufferShortSZ  ptrConvertFunctionSZ = convertShortSZ2Grayscale;
+
+    if (!a_gray)
+        ptrConvertFunctionSZ = convertShortSZ2RGB;
 
     for (size_t i = 0; i < a_size / sizeof(uint16_t); ++i)
     {
@@ -810,11 +818,9 @@ void convertBufferShortSZ2RGB(uint8_t* a_buffer, size_t a_size, double a_bzero, 
         uint16_t s = tmpBuf[i];
 #endif
 
-        //uint8_t red, green, blue;
         RGBPixel pixel;
 
-        //convertShortSZ2RGB(s, a_bscale, RGBPixel(a_bzero, red, green, blue));
-        convertShortSZ2Grayscale(s, a_bscale, a_bzero, pixel);
+        ptrConvertFunctionSZ(s, a_bscale, a_bzero, pixel);
 
         a_destBuffer[i*4]     = pixel.red;
         a_destBuffer[i*4 + 1] = pixel.green;

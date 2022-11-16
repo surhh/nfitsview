@@ -69,6 +69,7 @@ struct ImageParams
     size_t   maxDataBufferSize;
     uint32_t hduIndex;
     int8_t   bitpix;
+    bool     grayscale;
 };
 
 #endif // DEFSUI_H

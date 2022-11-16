@@ -251,11 +251,23 @@ int32_t FitsFile::exportImageHDU(uint32_t a_hduIndex)
     if (!bSuccess)
         return FITS_PNG_EXPORT_ERROR;
 
+    bool bZSuccess = false, bSSuccess = false;
+
+    double bzero = m_HDUs[a_hduIndex].getKeywordValue<double>(FITS_KEYWORD_BZERO, bZSuccess);
+    double bscale = m_HDUs[a_hduIndex].getKeywordValue<double>(FITS_KEYWORD_BSCALE, bSSuccess);
+
     image.setParameters(axises[0], axises[1], FITS_PNG_DEFAULT_PIXEL_DEPTH, bitpix);
     image.setData(m_HDUs[a_hduIndex].getPayload());
     image.setMaxDataBufferSize(m_fileSize);
     image.setBaseOffset(m_HDUs[a_hduIndex].getPayloadOffset());
     image.setCallbackFunction(m_callbackFunc, m_callbackFuncParam);
+
+    if (bZSuccess)
+        image.setBZero(bzero);
+
+    if (bSSuccess)
+        image.setBScale(bscale);
+
     retVal = image.exportPNG(fileName);
 
     return retVal;

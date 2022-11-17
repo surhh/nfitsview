@@ -498,9 +498,23 @@ void convertFloat2RGB(float a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& 
     a_blue = (val & 0x0000ff00) >> 8;
 }
 
+void convertFloat2RGB(float a_value, RGBPixel& a_pixel)
+{
+    uint32_t val = convertFloat2RGBA(a_value);
+
+    a_pixel.red = (val & 0xff000000) >> 24;
+    a_pixel.green = (val & 0x00ff0000) >> 16;
+    a_pixel.blue = (val & 0x0000ff00) >> 8;
+}
+
 void convertDouble2RGB(double a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue)
 {
     convertFloat2RGB((float)a_value, a_red, a_green, a_blue);
+}
+
+void convertDouble2RGB(double a_value, RGBPixel& a_pixel)
+{
+    convertFloat2RGB((float)a_value, a_pixel);
 }
 
 void convertFloat2Grayscale(float a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue)
@@ -514,6 +528,18 @@ void convertFloat2Grayscale(float a_value, uint8_t& a_red, uint8_t& a_green, uin
     a_red = channelValue;
     a_green = channelValue;
     a_blue = channelValue;
+}
+
+void convertFloat2Grayscale(float a_value, RGBPixel& a_pixel)
+{
+    convertFloat2RGB(a_value, a_pixel);
+
+    uint8_t channelValue = convertRGB2Grayscale(a_pixel);
+
+    a_pixel.red = channelValue;
+    a_pixel.green = channelValue;
+    a_pixel.blue = channelValue;
+
 }
 
 void convertDouble2Grayscale(double a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue)
@@ -775,6 +801,8 @@ void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuf
 
     convertBufferShort  ptrConvertFunction = convertShort2Grayscale;
 
+    RGBPixel pixel;
+
     if (!a_gray)
         ptrConvertFunction = convertShort2RGB;
 
@@ -785,8 +813,6 @@ void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuf
 #else
         uint16_t s = tmpBuf[i];
 #endif
-
-        RGBPixel pixel;
 
         ptrConvertFunction(s, pixel);
 
@@ -807,6 +833,8 @@ void convertBufferShortSZ2RGB(uint8_t* a_buffer, size_t a_size, double a_bzero, 
 
     convertBufferShortSZ  ptrConvertFunctionSZ = convertShortSZ2Grayscale;
 
+    RGBPixel pixel;
+
     if (!a_gray)
         ptrConvertFunctionSZ = convertShortSZ2RGB;
 
@@ -817,8 +845,6 @@ void convertBufferShortSZ2RGB(uint8_t* a_buffer, size_t a_size, double a_bzero, 
 #else
         uint16_t s = tmpBuf[i];
 #endif
-
-        RGBPixel pixel;
 
         ptrConvertFunctionSZ(s, a_bscale, a_bzero, pixel);
 

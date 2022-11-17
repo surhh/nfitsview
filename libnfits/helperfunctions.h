@@ -224,6 +224,15 @@ inline uint8_t convertRGB2Grayscale(uint8_t a_red, uint8_t a_green, uint8_t a_bl
     */
 }
 
+inline uint8_t convertRGB2Grayscale(RGBPixel& a_pixel)
+{
+    //// Average method - faster method
+    return (a_pixel.red + a_pixel.green + a_pixel.blue) / 3;
+
+    //// Luminosity method - this second method may differ, choose the one which best fits the needs (not used)
+    //// return 0.299*(float)a_red + 0.587*(float)a_green + 0.114*(float)a_blue;
+}
+
 template<typename T> T convertStringMulti(const std::string& a_strData, bool& a_successFlag)
 {
     T retVal;
@@ -360,9 +369,15 @@ uint32_t convertDouble2RGBA(double a_value);
 
 void convertFloat2RGB(float a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue);
 
+void convertFloat2RGB(float a_value, RGBPixel& a_pixel);
+
 void convertDouble2RGB(double a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue);
 
+void convertDouble2RGB(double a_value, RGBPixel& a_pixel);
+
 void convertFloat2Grayscale(float a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue);
+
+void convertFloat2Grayscale(float a_value, RGBPixel& a_pixel);
 
 void convertDouble2Grayscale(double a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue);
 
@@ -385,7 +400,7 @@ void convertShortSZ2Grayscale(uint16_t a_value, double a_bscale, double a_bzero,
 void convertShortSZ2Grayscale(uint16_t a_value, double a_bscale, double a_bzero, RGBPixel& a_pixel);
 
 
-//// array of pixels conversion functions based on the single pixel conversion functions
+//// array of pixels (buffer) conversion functions based on the single pixel conversion functions
 void convertBufferFloat2RGBA(uint8_t* a_buffer, size_t a_size);
 
 void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size);
@@ -405,7 +420,7 @@ void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size);
 void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size);
 
 
-//// functions to convert to grayscale
+//// functions to convert buffers to grayscale
 void convertBufferRGB2Grayscale(uint8_t* a_buffer, size_t a_size);
 
 void convertBufferRGB2Grayscale(uint8_t** a_buffer, uint32_t a_width, uint32_t a_height);

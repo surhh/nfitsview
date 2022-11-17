@@ -8,6 +8,7 @@
 
 #include "libnfits/hdu.h"
 #include "libnfits/fitsfile.h"
+#include "libnfits/fits2png.h"
 #include "libnfits/header.h"
 #include "libnfits/headerrecord.h"
 
@@ -312,7 +313,7 @@ qint32 MainWindow::openFITSFile()
     return openFITSFileByName(fileName);    
 }
 
-qint32 MainWindow::openFITSFileByNameFromCmdLine(const QString &a_fileName)
+qint32 MainWindow::openFITSFileByNameFromCmdLine(const QString& a_fileName)
 {
     qint32 resOpen = openFITSFileByName(a_fileName);
 
@@ -341,6 +342,8 @@ qint32 MainWindow::openFITSFileByName(const QString& a_fileName)
 
     clearWidgets();
 
+    setProgress(25);
+
     resTemp = m_fitsFile.loadFile(m_fitsFileName.toStdString());
 
     m_fitsFile.setCallbackFunction(progressCallbackFunction, (void *)this);
@@ -354,6 +357,8 @@ qint32 MainWindow::openFITSFileByName(const QString& a_fileName)
         enableFileOpenRelatedWidgets();
 
         setWindowTitle(QString(NFITSVIEW_APP_NAME) + " - " + getFileName());
+
+        setProgress(100);
     }
     else
     {
@@ -362,6 +367,8 @@ qint32 MainWindow::openFITSFileByName(const QString& a_fileName)
     }
 
     setStatus(STATUS_MESSAGE_READY);
+
+    setProgress(0);
 
     m_bImageChanged = m_bEyeComfort = m_bGrayscale = false;
 
@@ -391,6 +398,18 @@ qint32 MainWindow::closeFITSFile()
     setWindowTitle(NFITSVIEW_APP_NAME);
 
     return FITS_GENERAL_SUCCESS;
+}
+
+qint32 MainWindow::convertFITSFileFromCmdLine(const QString &a_fileName)
+{
+    qint32 retVal;
+
+    retVal = openFITSFileByName(a_fileName);
+
+    if (retVal == FITS_GENERAL_SUCCESS)
+        return exportAllImages(false);
+
+    return retVal;
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -470,7 +489,7 @@ void MainWindow::clearWidgets()
     initHDUInfoWidgetValues();
 }
 
-qint32 MainWindow::exportAllImages()
+qint32 MainWindow::exportAllImages(bool a_msgFlag)
 {
     setStatus(STATUS_MESSAGE_IMAGE_EXPORT_HDUS);
 
@@ -481,15 +500,18 @@ qint32 MainWindow::exportAllImages()
     setStatus(STATUS_MESSAGE_READY);
 
     //if (retVal == FITS_GENERAL_SUCCESS)
-    if (retVal > FITS_PNG_EXPORT_ERROR)
+    if (a_msgFlag)
     {
-        if (retVal > 0)
-            QMessageBox::information(this, "Success", IMAGE_EXPORT_HDUS_MESSAGE_SUCCESS);
-        else if (retVal == 0)
-            QMessageBox::warning(this, "Warning", IMAGE_EXPORT_NO_HDUS_MESSAGE);
+        if (retVal > FITS_PNG_EXPORT_ERROR)
+        {
+            if (retVal > 0)
+                QMessageBox::information(this, "Success", IMAGE_EXPORT_HDUS_MESSAGE_SUCCESS);
+            else if (retVal == 0)
+                QMessageBox::warning(this, "Warning", IMAGE_EXPORT_NO_HDUS_MESSAGE);
+        }
+        else
+            QMessageBox::critical(this, "Error", IMAGE_EXPORT_HDUS_MESSAGE_ERROR);
     }
-    else
-        QMessageBox::critical(this, "Error", IMAGE_EXPORT_HDUS_MESSAGE_ERROR);
 
     setProgress(0);
 

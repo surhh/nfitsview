@@ -48,6 +48,7 @@ public:
     ~MainWindow();
 
     qint32 openFITSFileByNameFromCmdLine(const QString& a_fileName);
+    qint32 convertFITSFileFromCmdLine(const QString& a_fileName);
 
 private slots:
     void on_checkBoxGrayscale_stateChanged(int arg1);
@@ -158,7 +159,7 @@ private:
     qint32 openFITSFile();
     qint32 openFITSFileByName(const QString& a_fileName);
     qint32 closeFITSFile();
-    qint32 exportAllImages();
+    qint32 exportAllImages(bool a_msgFlag = true);
     bool   exportImage();
     qint32 setAllWorkspaceImages();
 

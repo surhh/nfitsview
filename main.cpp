@@ -5,6 +5,9 @@
 #define APP_EXIT_SUCCESS_CODE    (0)
 #define APP_EXIT_ERROR_CODE      (1)
 
+#define CMDLINE_SWITCH_HELP      "-h"
+#define CMDLINE_SWITCH_EXPORT    "-e"
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
@@ -23,7 +26,7 @@ int main(int argc, char *argv[])
     {
         arg1 = QCoreApplication::arguments().at(1);
 
-        if (arg1 == "-h")
+        if (arg1 == CMDLINE_SWITCH_HELP)
         {
             std::cout << std::endl << "nFITSview " << NFITSVIEW_VERSION << std::endl;
             std::cout << "________________________________________________________________________" << std::endl << std::endl;
@@ -32,13 +35,13 @@ int main(int argc, char *argv[])
             std::cout << "  or" << std::endl << std::endl;
             std::cout << "nfitsview <command> [FITS file]" << std::endl << std::endl;
             std::cout << "Commands available:" << std::endl << std::endl;
-            std::cout << "  -c  Convert all image HDU(s) of the FITS file to PNG file(s)" << std::endl;
-            std::cout << "  -h  Show this help" << std::endl;
+            std::cout << "  " << CMDLINE_SWITCH_EXPORT<< "  Export all image HDU(s) of the FITS file to PNG file(s)" << std::endl;
+            std::cout << "  " << CMDLINE_SWITCH_HELP << "  Show this help" << std::endl;
 
             return APP_EXIT_SUCCESS_CODE;
         }
 
-        if (arg1 == "-c")
+        if (arg1 == CMDLINE_SWITCH_EXPORT)
         {
             std::cout << "[ERROR]: No input FITS file" << std::endl;
 
@@ -52,11 +55,11 @@ int main(int argc, char *argv[])
         arg1 = QCoreApplication::arguments().at(1);
         arg2 = QCoreApplication::arguments().at(2);
 
-        if (arg1 == "-c")
+        if (arg1 == CMDLINE_SWITCH_EXPORT)
         {
-            std::cout << "[INFO]: Converting FITS file image HDUs to PNG images...: " << arg2.toStdString() << std::endl;
-            resConvert = w.convertFITSFileFromCmdLine(arg2);
-            std::cout << "[INFO]: Converted " << resConvert << " HDU(s)" << std::endl;
+            std::cout << "[INFO]: Exporting FITS file image HDUs to PNG images...: " << arg2.toStdString() << std::endl;
+            resConvert = w.exportFITSFileFromCmdLine(arg2);
+            std::cout << "[INFO]: Exported " << resConvert << " HDU(s)" << std::endl;
         }
         else
         {

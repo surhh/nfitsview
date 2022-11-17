@@ -400,7 +400,7 @@ qint32 MainWindow::closeFITSFile()
     return FITS_GENERAL_SUCCESS;
 }
 
-qint32 MainWindow::convertFITSFileFromCmdLine(const QString &a_fileName)
+qint32 MainWindow::exportFITSFileFromCmdLine(const QString &a_fileName)
 {
     qint32 retVal;
 

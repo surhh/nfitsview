@@ -554,6 +554,13 @@ void convertInt2RGB(uint32_t a_value, uint8_t& a_red, uint8_t& a_green, uint8_t&
     a_blue = (a_value & 0x0000ff00) >> 8;
 }
 
+void convertLong2RGB(uint32_t a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue)
+{
+    a_red = (a_value & 0xff00000000000000) >> 56;
+    a_green = (a_value & 0x00ff000000000000) >> 48;
+    a_blue = (a_value & 0x0000ff0000000000) >> 40;
+}
+
 void convertShort2RGB(uint16_t a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue)
 {
     a_red = ((a_value & 0x7c00) >> 10) * 8;
@@ -891,6 +898,33 @@ void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size)
 void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size)
 {
     //// TODO: create for 64 bit
+    // checking for buffer granularity
+    if (a_size % sizeof(int64_t) != 0)
+        return;
+
+    uint64_t *tmpBuf = (uint64_t*)(a_buffer);
+
+    for (size_t i = 0; i < a_size / sizeof(uint64_t); ++i)
+    {
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+        uint64_t s = swap64(tmpBuf[i]);
+#else
+        uint64_t s = tmpBuf[i];
+#endif
+
+        uint8_t red, green, blue;
+
+        convertLong2RGB(s, red, green, blue);
+
+        a_buffer[i*4]     = red;
+        a_buffer[i*4 + 1] = green;
+        a_buffer[i*4 + 2] = blue;
+        a_buffer[i*4 + 3] = 0x00;
+        a_buffer[i*4 + 4] = 0x00;
+        a_buffer[i*4 + 5] = 0x00;
+        a_buffer[i*4 + 6] = 0x00;
+        a_buffer[i*4 + 7] = 0x00;
+    }
 }
 
 std::string char2hex(const uint8_t a_char)

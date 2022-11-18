@@ -383,6 +383,8 @@ void convertDouble2Grayscale(double a_value, uint8_t& a_red, uint8_t& a_green, u
 
 void convertInt2RGB(uint32_t a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue);
 
+void convertLong2RGB(uint32_t a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue);
+
 void convertShort2RGB(uint16_t a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue);
 
 void convertShort2RGB(uint16_t a_value, RGBPixel& a_pixel);

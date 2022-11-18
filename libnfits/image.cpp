@@ -411,6 +411,8 @@ int32_t Image::createRGBData()
                 convertBufferInt2RGB(tmpRow, tmpBufRowSize);
             else if (m_bitpix == -64)
                 convertBufferDouble2RGB(tmpRow, tmpBufRowSize);
+            else if (m_bitpix == 64)
+                convertBufferLong2RGB(tmpRow, tmpBufRowSize);
 
             for (uint32_t x = 0; x < m_width; ++x)
             {
@@ -507,6 +509,8 @@ int32_t Image::createRGB32Data()
                 convertBufferInt2RGB(tmpRow, tmpBufRowSize);
             else if (m_bitpix == -64)
                 convertBufferDouble2RGB(tmpRow, tmpBufRowSize);
+            else if (m_bitpix == 64)
+                convertBufferLong2RGB(tmpRow, tmpBufRowSize);
 
             for (uint32_t x = 0; x < m_width; ++x)
             {
@@ -591,17 +595,17 @@ int32_t Image::createRGB32FlatData()
             std::memcpy(tmpRow, m_dataBuffer + offset, tmpBufRowSize);
 
             if (m_bitpix == 16)
-            {
                 areEqual(m_bzero, FITS_BZERO_DEFAULT_VALUE) && areEqual(m_bscale, FITS_BSCALE_DEFAULT_VALUE) ?
                         convertBufferShort2RGB(tmpRow, tmpBufRowSize, tmpDestRow) :
                         convertBufferShortSZ2RGB(tmpRow, tmpBufRowSize, m_bzero, m_bscale, tmpDestRow);
-            }
             if (m_bitpix == -32)
                 convertBufferFloat2RGB(tmpRow, tmpBufRowSize);
             else if (m_bitpix == 32)
                 convertBufferInt2RGB(tmpRow, tmpBufRowSize);
             else if (m_bitpix == -64)
                 convertBufferDouble2RGB(tmpRow, tmpBufRowSize);
+            else if (m_bitpix == 64)
+                convertBufferLong2RGB(tmpRow, tmpBufRowSize);
 
             for (uint32_t x = 0; x < m_width; ++x)
             {

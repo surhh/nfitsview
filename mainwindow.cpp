@@ -680,7 +680,7 @@ void MainWindow::backupOriginalImage()
 {
     if (!m_bImageChanged)
     {
-        libnfits::LOG("in backupOriginalImage()");
+        //libnfits::LOG("in backupOriginalImage()");
         m_bImageChanged = true;
         ui->workspaceWidget->backupImage();
 
@@ -945,8 +945,8 @@ void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current
                     ui->workspaceWidget->getImageHDUWidgetsStates(hduIndex, widgetStates);
                     if (widgetStates.stored)
                     {
-                        libnfits::LOG("widgetStates.imageChanged = % , widgetStates.gammaStates.gray = % , widgetStates.gammaStates.eye = %",
-                                      widgetStates.imageChanged, widgetStates.gammaStates.gray, widgetStates.gammaStates.eye);
+                        //libnfits::LOG("widgetStates.imageChanged = % , widgetStates.gammaStates.gray = % , widgetStates.gammaStates.eye = %",
+                        //              widgetStates.imageChanged, widgetStates.gammaStates.gray, widgetStates.gammaStates.eye);
                         setWidgetsStates(widgetStates);
 
                         int32_t index = ui->workspaceWidget->getCurrentImageHDUIndex();
@@ -954,7 +954,7 @@ void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current
                         if (widgetStates.gammaStates.gray)
                         {
 
-                            libnfits::LOG("gray: index = % , hduIndex = %", index, hduIndex);
+                            //libnfits::LOG("gray: index = % , hduIndex = %", index, hduIndex);
                             restoreRGBColorChannelLevelsImage(index);
                             grayScale();
                             ui->workspaceWidget->scaleImage(m_scaleFactor);
@@ -962,7 +962,7 @@ void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current
 
                         if (widgetStates.gammaStates.eye)
                         {
-                            libnfits::LOG("eye: index = % , hduIndex = %", index, hduIndex);
+                            //libnfits::LOG("eye: index = % , hduIndex = %", index, hduIndex);
                             restoreRGBColorChannelLevelsImage(index);
                             eyeComfort();
                             ui->workspaceWidget->scaleImage(m_scaleFactor);
@@ -1004,7 +1004,7 @@ void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current
 
     ui->workspaceWidget->setCurrentIndex(0);
 
-    libnfits::LOG("last line of on_tableWidgetHDUs_currentItemChanged() % ", m_bImageChanged);
+    //libnfits::LOG("last line of on_tableWidgetHDUs_currentItemChanged() % ", m_bImageChanged);
 }
 
 void MainWindow::on_workspaceWidget_sendGammaCorrectionTabEnabled(bool a_flag)
@@ -1221,7 +1221,7 @@ void MainWindow::on_checkBoxEyeComfort_stateChanged(int arg1)
     else if (!arg1 && m_bEyeComfort)
     {
         int32_t index = ui->workspaceWidget->getCurrentImageHDUIndex();
-        libnfits::LOG("in on_checkBoxEyeComfort_stateChanged() , else branch, index = % , m_bImageChanged = %", index, m_bImageChanged);
+        //libnfits::LOG("in on_checkBoxEyeComfort_stateChanged() , else branch, index = % , m_bImageChanged = %", index, m_bImageChanged);
         if (index != -1)
             restoreRGBColorChannelLevelsImage(index);
 
@@ -1234,7 +1234,7 @@ void MainWindow::on_checkBoxEyeComfort_stateChanged(int arg1)
 
 void MainWindow::changeRGBColorChannelLevel(uint8_t a_channel, int8_t a_value)
 {
-    libnfits::LOG("in changeRGBColorChannelLevel(), before backupOriginalImage() call, m_bImageChanged = %", m_bImageChanged);
+    //libnfits::LOG("in changeRGBColorChannelLevel(), before backupOriginalImage() call, m_bImageChanged = %", m_bImageChanged);
     backupOriginalImage();
 
     QString valueStr = QString::number(a_value) + " %";
@@ -1301,13 +1301,13 @@ void MainWindow::restoreRGBColorChannelLevelsImage(int32_t a_hduIndex)
 
     if (rValue != 0 || gValue != 0 || bValue != 0)
     {
-        libnfits::LOG("in restoreRGBColorChannelLevelsImage(), if case, a_hduIndex = %", a_hduIndex);
+        //libnfits::LOG("in restoreRGBColorChannelLevelsImage(), if case, a_hduIndex = %", a_hduIndex);
         ui->workspaceWidget->setImage(a_hduIndex);
         changeRGBColorChannelLevels(rValue, gValue, bValue);
     }
     else
     {
-        libnfits::LOG("in restoreRGBColorChannelLevelsImage(), else case");
+        //libnfits::LOG("in restoreRGBColorChannelLevelsImage(), else case");
         ui->workspaceWidget->restoreImage();
         ui->workspaceWidget->reloadImage();
     }
@@ -1315,7 +1315,7 @@ void MainWindow::restoreRGBColorChannelLevelsImage(int32_t a_hduIndex)
 
 void MainWindow::grayScale()
 {
-    libnfits::LOG("in grayScale() , m_bImageChanged = ", m_bImageChanged);
+    //libnfits::LOG("in grayScale() , m_bImageChanged = ", m_bImageChanged);
     backupOriginalImage();
     ui->workspaceWidget->convertImage2Grayscale();
     enableRestoreWidgets(false);
@@ -1325,7 +1325,7 @@ void MainWindow::grayScale()
 
 void MainWindow::eyeComfort()
 {
-    libnfits::LOG("in eyeComfort() , m_bImageChanged = ", m_bImageChanged);
+    //libnfits::LOG("in eyeComfort() , m_bImageChanged = ", m_bImageChanged);
     backupOriginalImage();
     ui->workspaceWidget->convertImage2EyeComfort();
     enableRestoreWidgets(false);

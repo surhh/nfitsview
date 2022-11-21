@@ -33,7 +33,7 @@ WorkspaceTabWidget::WorkspaceTabWidget(QWidget *parent) :
     //// m_fitsImage = new libnfits::Image; // We don't need this anymore as we work with list of images for each HDU being created run-time
 
 #if defined(__WIN32__) || defined(__WIN64__)
-    QFont newFont("Courier New", 12, QFont::Normal, true);
+    QFont newFont("Courier New", 12, QFont::Bold, true);
     ui->tabHeader->setFont(newFont);
     ui->tabRawData->setFont(newFont);
     ui->tabTable->setFont(newFont);

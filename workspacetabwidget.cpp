@@ -34,6 +34,7 @@ WorkspaceTabWidget::WorkspaceTabWidget(QWidget *parent) :
 
 #if defined(__WIN32__) || defined(__WIN64__)
     QFont newFont("Courier New", 14, QFont::Bold, true);
+    newFont.setItalic(false);
     ui->tabHeader->setFont(newFont);
     ui->tabRawData->setFont(newFont);
     ui->tabTable->setFont(newFont);

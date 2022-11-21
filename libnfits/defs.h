@@ -67,7 +67,7 @@ static int32_t percentCallbackFunctionSample(int32_t a_percent, void* a_buffer)
 #define FITS_MSG_EMPTY_STRING_ERROR             "The record string is empty"
 #define FITS_MSG_RECORD_SYNTAX_ERROR            "Record syntax error"
 #define FITS_MSG_GENERAL_RECORD_SIZE_ERROR      "Record size error"
-#define FITS_MSG_ERROR_OPENING_FILE             "The file is not FITS format or other loading error occurred!"
+#define FITS_MSG_ERROR_OPENING_FILE             "Error occurred during opening the file or the file is not FITS format!"
 #define FITS_MSG_ERROR_TYPE                     "File Open Error"
 
 #define FITS_MEMORY_MAP_FILE_SUCCESS            (1)

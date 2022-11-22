@@ -29,7 +29,7 @@ The original development of nFITSview is done under Linux, so the easiest and th
 - just build in Qt Creator. 
 - it should be also possible to build using CMake from the command line.
 
-The latest version (1.4) of nFITSview for Linux 64-bit (Debian-based) is now available for download as well. The dependencies for install are: 
+The latest version (1.4) of nFITSview for Linux 64-bit (Debian-based) is available for download too. The dependencies for installing are: 
 
 libboost-iostreams1.74.0 (>= 1.74.0), libc6 (>= 2.34), libgcc-s1 (>= 3.0), libpng16-16 (>= 1.6.2-1)
 

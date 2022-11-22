@@ -3,6 +3,7 @@
 
 #include <cstdint>
 
+//// Tables are not supported yet
 namespace libnfits
 {
 

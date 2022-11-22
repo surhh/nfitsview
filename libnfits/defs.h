@@ -7,17 +7,12 @@
 // this typedef may be used for defining callback functions used in the threads in the future coding
 typedef     int32_t (*CallbackFunctionPtr)       (int32_t, void*);
 
-// inline endianess swap fnuctions type protos
-//typedef     int16_t (*SwapFunctionPtr16)          (int16_t);
-
 static int32_t percentCallbackFunctionSample(int32_t a_percent, void* a_buffer)
 {
     std::string progress = "Progress... : " + std::to_string(a_percent);
 
     return a_percent;
 }
-
-//typedef     uint8_t   (*THREADFUNCPTR)              (void *);
 
 //#define DEBUG_MODE                            // enabling and disabling the debug logging used in libnfits::LOG()
 

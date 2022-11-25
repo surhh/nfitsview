@@ -12,6 +12,8 @@ WorkspaceTabWidget::WorkspaceTabWidget(QWidget *parent) :
     ui->setupUi(this);
 
     // table tab so far is not needed and is hidden now
+    ui->tableWidgetTable->setColumnCount(1);
+    ui->tableWidgetTable->setRowCount(1);
     ui->tableWidgetTable->setEnabled(false);
     ui->tableWidgetTable->setVisible(false);
     setTabVisible(1, false);

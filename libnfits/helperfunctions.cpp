@@ -986,7 +986,7 @@ int32_t convertBuffer2HexString(uint8_t* a_buffer, uint8_t* a_output, size_t siz
         blockBuffer[index++] = HEX_DELIM_SYMBOL;
 
         for (size_t i = 0; i < spaceSize; ++i)
-            blockBuffer[index++] = ' ';
+            blockBuffer[index++] = HEX_DELIM_SYMBOL;
 
         for (size_t i = 0; i < blockSize; ++i)
             blockBuffer[index++] = char2alphanum(a_buffer[b * blockSize + i]);
@@ -1020,7 +1020,7 @@ int32_t convertBuffer2HexString(uint8_t* a_buffer, uint8_t* a_output, size_t siz
         blockBuffer[index++] = HEX_DELIM_SYMBOL;
 
         for (size_t i = 0; i < spaceSize + (blockSize - lastBlockSize); ++i)
-            blockBuffer[index++] = ' ';
+            blockBuffer[index++] = HEX_DELIM_SYMBOL;
 
         for (size_t i = 0; i < blockSize; ++i)
             blockBuffer[index++] = char2alphanum(a_buffer[b * blockSize + i]);
@@ -1081,7 +1081,7 @@ std::string convertBuffer2HexString(uint8_t* a_buffer, size_t size, uint32_t a_a
         blockBuffer[index++] = HEX_DELIM_SYMBOL;
 
         for (size_t i = 0; i < spaceSize; ++i)
-            blockBuffer[index++] = ' ';
+            blockBuffer[index++] = HEX_DELIM_SYMBOL;
 
         for (size_t i = 0; i < blockSize; ++i)
             blockBuffer[index++] = char2alphanum(a_buffer[b * blockSize + i]);
@@ -1116,7 +1116,7 @@ std::string convertBuffer2HexString(uint8_t* a_buffer, size_t size, uint32_t a_a
         blockBuffer[index++] = HEX_DELIM_SYMBOL;
 
         for (size_t i = 0; i < spaceSize + (blockSize - lastBlockSize); ++i)
-            blockBuffer[index++] = ' ';
+            blockBuffer[index++] = HEX_DELIM_SYMBOL;
 
         for (size_t i = 0; i < blockSize; ++i)
             blockBuffer[index++] = char2alphanum(a_buffer[b * blockSize + i]);

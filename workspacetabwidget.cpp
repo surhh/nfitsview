@@ -134,7 +134,7 @@ void WorkspaceTabWidget::populateRawDataWidget(const libnfits::HDU& a_hdu)
         strInfoBig += "........\n";
         strInfoBig += "........\n";
         strInfoBig += "\n-----------------------------------------------------\n";
-        strInfoBig += "NOTE: Only " + std::to_string(maxMB) + " MB of data is shown in raw data preview\n";
+        strInfoBig += "NOTE: Only " + std::to_string(maxMB) + " MB of data is shown in the raw data preview\n";
         strInfoBig += "-----------------------------------------------------\n";
     }
 

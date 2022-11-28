@@ -32,7 +32,11 @@
 #define STATUS_MESSAGE_READY                "Ready"
 
 #define NFITSVIEW_APP_NAME                  "nFITSview"
-#define NFITSVIEW_VERSION                   "1.5"
+
+#define TOSTR(x)                            #x
+#define TOSTRING(x)                         TOSTR(x)
+
+#define NFITSVIEW_VERSION                   TOSTRING(LIBNFITS_MAJOR_VERSION) "." TOSTRING(LIBNFITS_MINOR_VERSION)
 #define NFITSVIEW_APP_FULL_NAME             NFITSVIEW_APP_NAME " " NFITSVIEW_VERSION
 
 QT_BEGIN_NAMESPACE

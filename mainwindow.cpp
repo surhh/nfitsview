@@ -392,7 +392,7 @@ qint32 MainWindow::closeFITSFile()
 
     m_bImageChanged = false;
 
-    m_exportFormat = ui->comboBoxFormat->currentText();
+    m_exportFormat = ui->comboBoxFormat->currentText().toLower();
     m_exportQuality = ui->horizontalSliderQuality->value();
 
     setWindowTitle(NFITSVIEW_APP_NAME);
@@ -722,7 +722,7 @@ bool MainWindow::exportImage()
     QDir path = QFileInfo(m_fitsFileName).absoluteDir();
     QString dir = path.absolutePath();
 
-    QString fileName = QFileDialog::getSaveFileName(this, QString("Save ") + m_exportFormat + QString(" file"), dir,
+    QString fileName = QFileDialog::getSaveFileName(this, QString("Export ") + m_exportFormat + QString(" file"), dir,
                                                     m_exportFormat + QString(" Files (*")  + m_exportFormat.toLower() + QString(")"));
 
     if (fileName.isEmpty())

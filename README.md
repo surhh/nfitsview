@@ -14,7 +14,7 @@ Currently nFITSview supports the following formats and features:
      as it should)
 -    Exporting image HDUs as PNG/JPEG/BMP files
 -    Bulk exporting of all image HDUs as PNG files
--    RGB gamma correction and grayscaling
+-    RGB gamma correction, grayscale and "Eye Comfort" filter
 -    Image zoom in/out
 -    HDU header syntax view
 -    Raw data hex preview

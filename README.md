@@ -20,7 +20,8 @@ Currently nFITSview supports the following formats and features:
 -    Raw data hex preview
 -    Only uncompressed images are supported 
 -    Command line exporting of FITS file  (see -h, -e command line switches).
-     Note: the console output is not visible on Windows platform.
+     
+     *Note: the console output is not visible on Windows platform.*
     
 # How to build under Linux
 

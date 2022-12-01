@@ -668,12 +668,12 @@ void MainWindow::fitToWindow()
 
 void MainWindow::on_actionRestoreOriginalToolBar_triggered()
 {
-    restoreOriginalImage();
+    //restoreOriginalImage();
 }
 
 void MainWindow::on_actionRestoreOriginal_triggered()
 {
-    restoreOriginalImage();
+    //restoreOriginalImage();
 }
 
 void MainWindow::backupOriginalImage()

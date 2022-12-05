@@ -22,7 +22,7 @@
                                             "The exported images are located in the same directory where\n" \
                                             "the original FITS file is located."
 
-#define IMAGE_EXPORT_NO_HDUS_MESSAGE        "No image HDUs available for converting!"
+#define IMAGE_EXPORT_NO_HDUS_MESSAGE        "No image HDUs are available for exporting!"
 
 #define IMAGE_EXPORT_HDUS_MESSAGE_ERROR     "Error exporting all image HDUs as image."
 

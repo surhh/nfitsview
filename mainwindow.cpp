@@ -870,6 +870,8 @@ void MainWindow::on_actionAbout_triggered()
 
 void MainWindow::on_actionQuit_triggered()
 {
+    closeFITSFile();
+
     qApp->exit();
 }
 

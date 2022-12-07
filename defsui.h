@@ -16,6 +16,8 @@ struct GammaWidgetsStates
     bool        bLevelEnabled;
     bool        grayEnabled;
     bool        eyeEnabled;
+
+    bool        rgbResetEnabled;
 };
 
 struct ExportWidgetsStates

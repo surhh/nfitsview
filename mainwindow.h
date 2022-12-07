@@ -115,6 +115,8 @@ private slots:
 
     void on_checkBoxEyeComfort_stateChanged(int arg1);
 
+    void on_resetRGBButton_clicked();
+
 private:
     Ui::MainWindow *ui;
 

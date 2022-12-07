@@ -3,7 +3,6 @@
 
 #include <QFileDialog>
 #include <QTextEdit>
-#include <QThread>
 #include <QMessageBox>
 
 #include "libnfits/hdu.h"
@@ -143,6 +142,8 @@ void MainWindow::enableRGBWidgets(bool a_flag)
     ui->labelValueR->setEnabled(b & a_flag);
     ui->labelValueG->setEnabled(b & a_flag);
     ui->labelValueB->setEnabled(b & a_flag);
+
+    ui->resetRGBButton->setEnabled(b & a_flag);
 }
 
 void MainWindow::enableGammaWidgets(bool a_flag)
@@ -1118,7 +1119,8 @@ WidgetsStates MainWindow::getWidgetsStates() const
     gammaStates.bLevelEnabled = ui->horizontalSliderB->isEnabled();
 
     gammaStates.grayEnabled = ui->checkBoxGrayscale->isEnabled();
-    gammaStates.eyeEnabled = ui->checkBoxEyeComfort->isEnabled();
+    gammaStates.eyeEnabled = ui->checkBoxEyeComfort->isEnabled();    
+    gammaStates.rgbResetEnabled = ui->resetRGBButton->isEnabled();
 
 
     exportStates.format = ui->comboBoxFormat->currentIndex();
@@ -1182,6 +1184,7 @@ void MainWindow::setWidgetsStates(const WidgetsStates& a_widgetsStates)
 
     ui->checkBoxGrayscale->setEnabled(a_widgetsStates.gammaStates.grayEnabled);
     ui->checkBoxEyeComfort->setEnabled(a_widgetsStates.gammaStates.eyeEnabled);
+    ui->resetRGBButton->setEnabled(a_widgetsStates.gammaStates.rgbResetEnabled);
 
 
     ui->comboBoxFormat->setCurrentIndex(a_widgetsStates.exportStates.format);
@@ -1333,3 +1336,31 @@ void MainWindow::eyeComfort()
     enableRestoreWidgets(false);
     ui->workspaceWidget->reloadImage();
 }
+
+void MainWindow::on_resetRGBButton_clicked()
+{
+    int32_t r,g,b;
+
+    r = ui->horizontalSliderR->value();
+    g = ui->horizontalSliderG->value();
+    b = ui->horizontalSliderB->value();
+
+    if (r != 0)
+    {
+        changeRGBColorChannelLevel(0, 0);
+        ui->horizontalSliderR->setValue(0);
+    }
+
+    if (g != 0)
+    {
+        changeRGBColorChannelLevel(1, 0);
+        ui->horizontalSliderG->setValue(0);
+    }
+
+    if (b != 0)
+    {
+        changeRGBColorChannelLevel(2, 0);
+        ui->horizontalSliderB->setValue(0);
+    }
+}
+

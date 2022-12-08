@@ -209,7 +209,7 @@ inline uint8_t convertRGB2Grayscale(RGBPixel& a_pixel)
     return (a_pixel.red + a_pixel.green + a_pixel.blue) / 3;
 
     //// Luminosity method - this second method may differ, choose the one which best fits the needs (not used)
-    //// return 0.299*(float)a_red + 0.587*(float)a_green + 0.114*(float)a_blue;
+    //// return 0.299*(float)a_pixel.red + 0.587*(float)a_pixel.green + 0.114*(float)a_pixel.blue;
 }
 
 template<typename T> T convertStringMulti(const std::string& a_strData, bool& a_successFlag)

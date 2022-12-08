@@ -339,7 +339,6 @@ void swapBuffer32(uint8_t* a_buffer, size_t a_size);
 
 void swapBuffer64(uint8_t* a_buffer, size_t a_size);
 
-
 //// single pixel conversion functions
 inline uint32_t convertFloat2RGBA(float a_value)
 {
@@ -394,6 +393,20 @@ inline uint32_t convertFloat2RGBA(float a_value)
     retVal = retVal | 0xff; //// the value for Alpha-channel, may be also 0xff
 
     return retVal;
+}
+
+inline uint32_t convertFloatRGBA(float a_value, float a_min, float a_max)
+{
+    uint32_t retVal = 0;
+
+    if (areEqual(a_min, a_max))
+        return retVal;
+
+    float range = std::abs(a_max - a_min);
+
+    float value = -1.0 + (2.0 * (a_value / range));
+
+    return convertFloat2RGBA(value);
 }
 
 inline uint32_t convertDouble2RGBA(double a_value)

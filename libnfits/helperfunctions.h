@@ -201,24 +201,6 @@ inline uint8_t convertRGB2Grayscale(uint8_t a_red, uint8_t a_green, uint8_t a_bl
     //// return 0.299*(float)a_red + 0.587*(float)a_green + 0.114*(float)a_blue;
 
     //// Lightness method - for testing (straightforward code)
-    /*
-    uint8_t maxChannel = a_red;
-    uint8_t minChannel = a_blue;
-
-    if (a_green > maxChannel)
-        maxChannel = a_green;
-
-    if (a_blue > maxChannel)
-        maxChannel = a_blue;
-
-    if (a_red < minChannel)
-        minChannel = a_red;
-
-    if (a_green < minChannel)
-        minChannel = a_green;
-
-    return (maxChannel + minChannel) / 2;
-    */
 }
 
 inline uint8_t convertRGB2Grayscale(RGBPixel& a_pixel)

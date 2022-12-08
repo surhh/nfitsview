@@ -422,67 +422,7 @@ void swapBuffer64(uint8_t* a_buffer, size_t a_size)
     return;
 #endif
 }
-
-uint32_t convertFloat2RGBA(float a_value)
-{
-    const int32_t maxVal = 0x2ff; // default is 0x2ff
-    const int32_t minVal = 0;     // default is 0
-
-    int32_t val = (int32_t)(a_value * maxVal);
-
-    if (val < minVal)
-        val = minVal;
-
-    if (val > maxVal)
-        val = maxVal;
-
-    int32_t offset = val % 0x100;
-
-    uint8_t tmpBuf[3];
-
-    if (val < 0x100)
-    {
-        tmpBuf[0] = 0;
-        tmpBuf[1] = 0;
-        tmpBuf[2] = offset;
-    }
-    else if (val < 0x200)
-    {
-        tmpBuf[0] = 0;
-        tmpBuf[1] = offset;
-        tmpBuf[2] = 0xff - offset;
-    }
-    else
-    {
-        tmpBuf[0] = offset;
-        tmpBuf[1] = 0xff - offset;
-        tmpBuf[2] = 0;
-    }
-
-    uint32_t retVal = 0, tmpVal = 0;
-
-    tmpVal = tmpBuf[0]; //// 0
-    tmpVal = tmpVal << 24;
-    retVal = retVal | tmpVal;
-
-    tmpVal = tmpBuf[1]; //// 1
-    tmpVal = tmpVal << 16;
-    retVal = retVal | tmpVal;
-
-    tmpVal = tmpBuf[2]; //// 2
-    tmpVal = tmpVal << 8;
-    retVal = retVal | tmpVal;
-
-    retVal = retVal | 0xff; //// the value for Alpha-channel, may be also 0xff
-
-    return retVal;
-}
-
-uint32_t convertDouble2RGBA(double a_value)
-{
-    return convertFloat2RGBA((float)a_value);
-}
-
+/*
 void convertFloat2RGB(float a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue)
 {
     uint32_t val = convertFloat2RGBA(a_value);
@@ -533,7 +473,6 @@ void convertFloat2Grayscale(float a_value, RGBPixel& a_pixel)
     a_pixel.red = channelValue;
     a_pixel.green = channelValue;
     a_pixel.blue = channelValue;
-
 }
 
 void convertDouble2Grayscale(double a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue)
@@ -554,6 +493,7 @@ void convertLong2RGB(uint32_t a_value, uint8_t& a_red, uint8_t& a_green, uint8_t
     a_green = (a_value & 0x00ff000000000000) >> 48;
     a_blue = (a_value & 0x0000ff0000000000) >> 40;
 }
+*/
 
 void convertShort2RGB(uint16_t a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue)
 {
@@ -863,7 +803,6 @@ void convertBufferByte2RGB(uint8_t* a_buffer, size_t a_size)
 
 void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size)
 {
-    //// TODO: create for 32 bit
     // checking for buffer granularity
     if (a_size % sizeof(int32_t) != 0)
         return;
@@ -891,7 +830,6 @@ void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size)
 
 void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size)
 {
-    //// TODO: create for 64 bit
     // checking for buffer granularity
     if (a_size % sizeof(int64_t) != 0)
         return;

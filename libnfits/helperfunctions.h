@@ -341,27 +341,136 @@ void swapBuffer64(uint8_t* a_buffer, size_t a_size);
 
 
 //// single pixel conversion functions
-uint32_t convertFloat2RGBA(float a_value);
+inline uint32_t convertFloat2RGBA(float a_value)
+{
+    const int32_t maxVal = 0x2ff; // default is 0x2ff
+    const int32_t minVal = 0;     // default is 0
 
-uint32_t convertDouble2RGBA(double a_value);
+    int32_t val = (int32_t)(a_value * maxVal);
 
-void convertFloat2RGB(float a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue);
+    if (val < minVal)
+        val = minVal;
 
-void convertFloat2RGB(float a_value, RGBPixel& a_pixel);
+    if (val > maxVal)
+        val = maxVal;
 
-void convertDouble2RGB(double a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue);
+    int32_t offset = val % 0x100;
 
-void convertDouble2RGB(double a_value, RGBPixel& a_pixel);
+    uint8_t tmpBuf[3];
 
-void convertFloat2Grayscale(float a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue);
+    if (val < 0x100)
+    {
+        tmpBuf[0] = 0;
+        tmpBuf[1] = 0;
+        tmpBuf[2] = offset;
+    }
+    else if (val < 0x200)
+    {
+        tmpBuf[0] = 0;
+        tmpBuf[1] = offset;
+        tmpBuf[2] = 0xff - offset;
+    }
+    else
+    {
+        tmpBuf[0] = offset;
+        tmpBuf[1] = 0xff - offset;
+        tmpBuf[2] = 0;
+    }
 
-void convertFloat2Grayscale(float a_value, RGBPixel& a_pixel);
+    uint32_t retVal = 0, tmpVal = 0;
 
-void convertDouble2Grayscale(double a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue);
+    tmpVal = tmpBuf[0]; //// 0
+    tmpVal = tmpVal << 24;
+    retVal = retVal | tmpVal;
 
-void convertInt2RGB(uint32_t a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue);
+    tmpVal = tmpBuf[1]; //// 1
+    tmpVal = tmpVal << 16;
+    retVal = retVal | tmpVal;
 
-void convertLong2RGB(uint32_t a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue);
+    tmpVal = tmpBuf[2]; //// 2
+    tmpVal = tmpVal << 8;
+    retVal = retVal | tmpVal;
+
+    retVal = retVal | 0xff; //// the value for Alpha-channel, may be also 0xff
+
+    return retVal;
+}
+
+inline uint32_t convertDouble2RGBA(double a_value)
+{
+    return convertFloat2RGBA((float)a_value);
+}
+
+inline void convertFloat2RGB(float a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue)
+{
+    uint32_t val = convertFloat2RGBA(a_value);
+
+    a_red = (val & 0xff000000) >> 24;
+    a_green = (val & 0x00ff0000) >> 16;
+    a_blue = (val & 0x0000ff00) >> 8;
+}
+
+inline void convertFloat2RGB(float a_value, RGBPixel& a_pixel)
+{
+    uint32_t val = convertFloat2RGBA(a_value);
+
+    a_pixel.red = (val & 0xff000000) >> 24;
+    a_pixel.green = (val & 0x00ff0000) >> 16;
+    a_pixel.blue = (val & 0x0000ff00) >> 8;
+}
+
+inline void convertDouble2RGB(double a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue)
+{
+    convertFloat2RGB((float)a_value, a_red, a_green, a_blue);
+}
+
+inline void convertDouble2RGB(double a_value, RGBPixel& a_pixel)
+{
+    convertFloat2RGB((float)a_value, a_pixel);
+}
+
+inline void convertFloat2Grayscale(float a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue)
+{
+    uint8_t red, green, blue;
+
+    convertFloat2RGB(a_value, red, green, blue);
+
+    uint8_t channelValue = convertRGB2Grayscale(red, green, blue);
+
+    a_red = channelValue;
+    a_green = channelValue;
+    a_blue = channelValue;
+}
+
+inline void convertFloat2Grayscale(float a_value, RGBPixel& a_pixel)
+{
+    convertFloat2RGB(a_value, a_pixel);
+
+    uint8_t channelValue = convertRGB2Grayscale(a_pixel);
+
+    a_pixel.red = channelValue;
+    a_pixel.green = channelValue;
+    a_pixel.blue = channelValue;
+}
+
+inline void convertDouble2Grayscale(double a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue)
+{
+    convertFloat2Grayscale((float)a_value, a_red, a_green, a_blue);
+}
+
+inline void convertInt2RGB(uint32_t a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue)
+{
+    a_red = (a_value & 0xff000000) >> 24;
+    a_green = (a_value & 0x00ff0000) >> 16;
+    a_blue = (a_value & 0x0000ff00) >> 8;
+}
+
+inline void convertLong2RGB(uint32_t a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue)
+{
+    a_red = (a_value & 0xff00000000000000) >> 56;
+    a_green = (a_value & 0x00ff000000000000) >> 48;
+    a_blue = (a_value & 0x0000ff0000000000) >> 40;
+}
 
 void convertShort2RGB(uint16_t a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue);
 

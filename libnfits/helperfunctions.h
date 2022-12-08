@@ -254,7 +254,7 @@ template<typename T> std::string int2hex(T a_value)
 //// color normalization functions
 template<typename T> T normalizeValue(T a_value, T a_min, T a_max, T a_minNew, T a_maxNew)
 {
-    return (a_value - a_min)*((a_maxNew - a_minNew)/(a_max - a_min)) + a_minNew;
+    return a_minNew + (a_value - a_min)*(std::abs(a_maxNew - a_minNew)/std::abs(a_max - a_min));
 }
 
 void normalizeFloatBuffer(uint8_t* a_buffer, size_t a_size, float a_min, float a_max, float a_minNew, float a_maxNew);
@@ -404,7 +404,7 @@ inline uint32_t convertFloatRGBA(float a_value, float a_min, float a_max)
 
     float range = std::abs(a_max - a_min);
 
-    float value = -1.0 + (2.0 * (a_value / range));
+    float value = -1.0 + (a_value - a_min) * (2.0 / range);
 
     return convertFloat2RGBA(value);
 }

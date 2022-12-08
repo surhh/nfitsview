@@ -250,7 +250,6 @@ template<typename T> std::string int2hex(T a_value)
   return strStream.str();
 }
 
-//bool areEqual(double a_x, double a_y);
 
 //// color normalization functions
 template<typename T> T normalizeValue(T a_value, T a_min, T a_max, T a_minNew, T a_maxNew)

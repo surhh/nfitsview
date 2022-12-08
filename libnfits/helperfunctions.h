@@ -8,11 +8,10 @@
 #include <iomanip>
 #include <any>
 #include <ctime>
+#include <cmath>
 
 #include "defs.h"
 
-//void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer);
-//void convertBufferShortSZ2RGB(uint8_t* a_buffer, size_t a_size, double a_bzero, double a_bscale, uint8_t* a_destBuffer);
 
 namespace libnfits
 {
@@ -183,11 +182,9 @@ inline bool greater3(uint8_t a_value1, uint8_t a_value2, uint8_t a_value3, uint8
     return (a_threshold > a_value1 && a_threshold > a_value2 && a_threshold > a_value3) ? false : true;
 }
 
-inline bool isEqual(double x, double y)
+inline bool areEqual(double a_x, double a_y)
 {
-  const double epsilon = 1e-5;
-
-  return std::abs(x - y) <= epsilon * std::abs(x);
+    return std::fabs(a_x - a_y) < std::numeric_limits<double>::epsilon();
 }
 
 inline uint8_t char2alphanum(const uint8_t a_char)
@@ -271,7 +268,7 @@ template<typename T> std::string int2hex(T a_value)
   return strStream.str();
 }
 
-bool areEqual(double a_x, double a_y);
+//bool areEqual(double a_x, double a_y);
 
 //// color normalization functions
 template<typename T> T normalizeValue(T a_value, T a_min, T a_max, T a_minNew, T a_maxNew)

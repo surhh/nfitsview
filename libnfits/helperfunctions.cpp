@@ -5,7 +5,6 @@
 #include <boost/iostreams/filtering_streambuf.hpp>
 #include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
-#include <cmath>
 
 #define HEX_DELIM_SYMBOL        ' '
 
@@ -376,11 +375,6 @@ std::string formatFloatString(float a_number, uint8_t a_padding)
 
     return retStr;
 
-}
-
-bool areEqual(double a_x, double a_y)
-{
-    return std::fabs(a_x - a_y) < std::numeric_limits<double>::epsilon();
 }
 
 void swapBuffer16(uint8_t* a_buffer, size_t a_size)

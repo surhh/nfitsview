@@ -309,7 +309,7 @@ void MainWindow::populateRawDataWidget(int32_t a_hduIndex)
 
 qint32 MainWindow::openFITSFile()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, "Open FITS file", "~/", "FITS Files (*.fits)");
+    QString fileName = QFileDialog::getOpenFileName(this, "Open FITS file", "~/", "FITS Files (*.fit *.fts *.fits)");
 
     return openFITSFileByName(fileName);    
 }

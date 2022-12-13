@@ -374,7 +374,6 @@ std::string formatFloatString(float a_number, uint8_t a_padding)
     std::string retStr = tmpBuf;
 
     return retStr;
-
 }
 
 void swapBuffer16(uint8_t* a_buffer, size_t a_size)

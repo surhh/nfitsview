@@ -177,6 +177,9 @@ void MainWindow::on_checkBoxGrayscale_stateChanged(int arg1)
     enableRGBWidgets(!arg1);
     ui->checkBoxEyeComfort->setEnabled(!arg1);    
 
+    int32_t scrollX = ui->workspaceWidget->getScrollPosX();
+    int32_t scrollY = ui->workspaceWidget->getScrollPosY();
+
     if (arg1 && !m_bGrayscale)
     {
         /*
@@ -200,6 +203,8 @@ void MainWindow::on_checkBoxGrayscale_stateChanged(int arg1)
 
     //ui->workspaceWidget->reloadImage();
     ui->workspaceWidget->scaleImage(m_scaleFactor);
+    ui->workspaceWidget->setScrollPosX(scrollX);
+    ui->workspaceWidget->setScrollPosY(scrollY);
 }
 
 void MainWindow::om_m_sliderZoom_valueChanged(int a_value)
@@ -1217,6 +1222,9 @@ void MainWindow::on_checkBoxEyeComfort_stateChanged(int arg1)
     enableRGBWidgets(!arg1);
     ui->checkBoxGrayscale->setEnabled(!arg1);
 
+    int32_t scrollX = ui->workspaceWidget->getScrollPosX();
+    int32_t scrollY = ui->workspaceWidget->getScrollPosY();
+
     if (arg1 && !m_bEyeComfort)
     {
         eyeComfort();
@@ -1226,7 +1234,6 @@ void MainWindow::on_checkBoxEyeComfort_stateChanged(int arg1)
     else if (!arg1 && m_bEyeComfort)
     {
         int32_t index = ui->workspaceWidget->getCurrentImageHDUIndex();
-        //libnfits::LOG("in on_checkBoxEyeComfort_stateChanged() , else branch, index = % , m_bImageChanged = %", index, m_bImageChanged);
         if (index != -1)
             restoreRGBColorChannelLevelsImage(index);
 
@@ -1235,6 +1242,8 @@ void MainWindow::on_checkBoxEyeComfort_stateChanged(int arg1)
 
     //ui->workspaceWidget->reloadImage();
     ui->workspaceWidget->scaleImage(m_scaleFactor);
+    ui->workspaceWidget->setScrollPosX(scrollX);
+    ui->workspaceWidget->setScrollPosY(scrollY);
 }
 
 void MainWindow::changeRGBColorChannelLevel(uint8_t a_channel, int8_t a_value)

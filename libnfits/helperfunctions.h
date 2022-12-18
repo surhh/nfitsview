@@ -165,7 +165,8 @@ inline uint8_t max256(uint32_t a_value)
     return a_value > 0xff ? 0xff : a_value;
 }
 
-inline uint8_t max3Index(uint64_t a_value1, uint64_t a_value2, uint64_t a_value3)
+//inline uint8_t max3Index(uint64_t a_value1, uint64_t a_value2, uint64_t a_value3)
+inline uint8_t max3ByteIndex(uint8_t a_value1, uint8_t a_value2, uint8_t a_value3)
 {
     if (a_value1 >= a_value2 && a_value1 >= a_value2)
         return 1;
@@ -175,6 +176,28 @@ inline uint8_t max3Index(uint64_t a_value1, uint64_t a_value2, uint64_t a_value3
         return 3;
 
     return 1;
+}
+
+inline uint8_t max3Bytes(uint8_t a_pixel[3])
+{
+    uint8_t maxValue = 0;
+
+    for (int32_t i = 0; i < 3; ++i)
+        if (a_pixel[i] > maxValue)
+            maxValue = a_pixel[i];
+
+    return maxValue;
+}
+
+inline uint8_t min3Bytes(uint8_t a_pixel[3])
+{
+    uint8_t minValue = 0xff;
+
+    for (int32_t i = 0; i < 3; ++i)
+        if (a_pixel[i] < minValue)
+            minValue = a_pixel[i];
+
+    return minValue;
 }
 
 inline bool greater3(uint8_t a_value1, uint8_t a_value2, uint8_t a_value3, uint8_t a_threshold)
@@ -195,12 +218,16 @@ inline uint8_t char2alphanum(const uint8_t a_char)
 inline uint8_t convertRGB2Grayscale(uint8_t a_red, uint8_t a_green, uint8_t a_blue)
 {
     //// Average method - faster method
-    return (a_red + a_green + a_blue) / 3;
+    //// return (a_red + a_green + a_blue) / 3;
 
     //// Luminosity method - this second method may differ, choose the one which best fits the needs (not used)
     //// return 0.299*(float)a_red + 0.587*(float)a_green + 0.114*(float)a_blue;
 
-    //// Lightness method - for testing (straightforward code)
+    //// Brightness method - for testing (straightforward code)
+
+    uint8_t rgb[] = { a_red, a_green, a_blue };
+    return max3Bytes(rgb);
+    ////return (max3Bytes(rgb) + min3Bytes(rgb))/2;
 }
 
 inline uint8_t convertRGB2Grayscale(RGBPixel& a_pixel)
@@ -395,7 +422,7 @@ inline uint32_t convertFloat2RGBA(float a_value)
     return retVal;
 }
 
-inline uint32_t convertFloatRGBA(float a_value, float a_min, float a_max)
+inline uint32_t convertFloat2RGBA(float a_value, float a_min, float a_max)
 {
     uint32_t retVal = 0;
 

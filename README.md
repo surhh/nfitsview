@@ -44,6 +44,10 @@ The latest version (1.6) of nFITSview for Windows 64-bit to download:
 
 [nfitsview1_6-setup-x64.exe](https://github.com/surhh/nfitsview/releases/download/v1.6/nfitsview1_6-setup-x64.exe)
 
+
+
+# Screenshots
+
 ![nfitsview1_6_screenshot_1](https://user-images.githubusercontent.com/109148999/208360548-7fcf52cb-2d3c-4ccd-a377-dbf21e601f29.png)
 ![nfitsview1_6_screenshot_2](https://user-images.githubusercontent.com/109148999/208360553-a52ab2da-9a58-48c3-a12b-c6b7b0934504.png)
 ![nfitsview1_6_screenshot_3](https://user-images.githubusercontent.com/109148999/208360556-f3f59db8-f518-461c-82cd-2aecf22b9a17.png)

@@ -1,11 +1,6 @@
 # About nFITSview  (next FITS viewer)
 nFITSview - A simple and user-friendly FITS image viewer
 
-![nfitsview1_3_screenshot_1](https://user-images.githubusercontent.com/109148999/199483028-5a383cda-3389-4793-8df9-4b558ab504b7.png)
-![nfitsview1_3_screenshot_2](https://user-images.githubusercontent.com/109148999/199483066-552c2bce-06e8-4c9b-b913-f62b3290bbf4.png)
-![nfitsview1_3_screenshot_3](https://user-images.githubusercontent.com/109148999/199483134-122cb761-3a97-47e6-8e39-c02ca06c144c.png)
-
-
 Currently nFITSview supports the following formats and features:
 
 -    16-bit integer images
@@ -48,6 +43,11 @@ corresponding pathes for the libraries in the CMakeLists.txt file and then build
 The latest version (1.6) of nFITSview for Windows 64-bit to download:
 
 [nfitsview1_6-setup-x64.exe](https://github.com/surhh/nfitsview/releases/download/v1.6/nfitsview1_6-setup-x64.exe)
+
+![nfitsview1_6_screenshot_1](https://user-images.githubusercontent.com/109148999/208360548-7fcf52cb-2d3c-4ccd-a377-dbf21e601f29.png)
+![nfitsview1_6_screenshot_2](https://user-images.githubusercontent.com/109148999/208360553-a52ab2da-9a58-48c3-a12b-c6b7b0934504.png)
+![nfitsview1_6_screenshot_3](https://user-images.githubusercontent.com/109148999/208360556-f3f59db8-f518-461c-82cd-2aecf22b9a17.png)
+![nfitsview1_6_screenshot_4](https://user-images.githubusercontent.com/109148999/208360557-a89d83f9-e54f-4cf6-8b53-9a123f1ef610.png)
 
 # About FITS format
 

@@ -11,6 +11,7 @@
 #include "libnfits/image.h"
 
 #define IMAGE_EXPORT_TYPE_PNG       "png"
+#define IMAGE_EXPORT_TYPE_TIFF      "tiff"
 #define IMAGE_EXPORT_TYPE_JPG       "jpg"
 #define IMAGE_EXPORT_TYPE_BMP       "bmp"
 

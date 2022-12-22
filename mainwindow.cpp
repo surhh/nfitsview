@@ -330,8 +330,6 @@ qint32 MainWindow::openFITSFileByName(const QString& a_fileName)
 {
     qint32 result = FITS_GENERAL_ERROR;
 
-    setStatus(STATUS_MESSAGE_IMAGE_LOAD);
-
     if (!a_fileName.isEmpty())
     {
         m_fitsFileName = a_fileName;
@@ -345,6 +343,8 @@ qint32 MainWindow::openFITSFileByName(const QString& a_fileName)
 
     if (m_fitsFile.isOpen() && (closeFITSFile() == FITS_GENERAL_ERROR))
         return result;
+
+    setStatus(STATUS_MESSAGE_IMAGE_LOAD);
 
     clearWidgets();
 

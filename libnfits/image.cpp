@@ -323,7 +323,7 @@ int32_t Image::createRGBData()
 
     uint8_t bytesNum = std::abs(m_bitpix) / 8;
 
-    if (bytesNum != 2 && bytesNum != 4 && bytesNum != 8)   //// TODO: in the future it's needed to support other 8/16/32/64/ bit images
+    if (bytesNum != 1 && bytesNum != 2 && bytesNum != 4 && bytesNum != 8)   //// TODO: in the future it's needed to support other 8/16/32/64/ bit images
         return FITS_GENERAL_ERROR;
 
     // the image has been converted to RGB already
@@ -346,16 +346,18 @@ int32_t Image::createRGBData()
 
     uint8_t *tmpFinalRow = tmpRow;
 
-    if (m_bitpix == 16)
+    if (m_bitpix == 16 || m_bitpix == 8)
     {
-        tmpDestRow = new uint8_t[tmpBufRowSize * (bytesNum == 2 ? 2 : 1)];
+        //tmpDestRow = new uint8_t[tmpBufRowSize * (bytesNum == 2 ? 2 : 1)];
+        tmpDestRow = new uint8_t[tmpBufRowSize * (32/std::abs(m_bitpix))];
         tmpFinalRow = tmpDestRow;
     }
 
     // Writing the buffer containing pixel data
     try
     {
-        uint32_t indexBase = bytesNum * (bytesNum == 2 ? 2 : 1);
+        //uint32_t indexBase = bytesNum * (bytesNum == 2 ? 2 : 1);
+        uint32_t indexBase = bytesNum * (bytesNum <= 2 ? 32/std::abs(m_bitpix) : 1);
 
         for (int64_t y = m_height - 1; y >= 0; --y) //// this loop is for correcting Y-axis upside down showing
         {
@@ -401,7 +403,9 @@ int32_t Image::createRGBData()
             //// this memcpy is for correcting Y-axis upside down showing
             std::memcpy(tmpRow, m_dataBuffer + offset, tmpBufRowSize);
 
-            if (m_bitpix == 16)
+            if (m_bitpix == 8)
+                convertBufferByte2RGB(tmpRow, tmpBufRowSize, tmpDestRow);
+            else if (m_bitpix == 16)
                 areEqual(m_bzero, FITS_BZERO_DEFAULT_VALUE) && areEqual(m_bscale, FITS_BSCALE_DEFAULT_VALUE) ?
                         convertBufferShort2RGB(tmpRow, tmpBufRowSize, tmpDestRow) :
                         convertBufferShortSZ2RGB(tmpRow, tmpBufRowSize, m_bzero, m_bscale, tmpDestRow);
@@ -446,7 +450,7 @@ int32_t Image::createRGB32Data()
 
     uint8_t bytesNum = std::abs(m_bitpix) / 8;
 
-    if (bytesNum != 2 && bytesNum != 4 && bytesNum != 8)   //// TODO: in the future it's needed to support other 8/16/32/64/ bit images
+    if (bytesNum != 1 && bytesNum != 2 && bytesNum != 4 && bytesNum != 8)   //// TODO: in the future it's needed to support other 8/16/32/64/ bit images
         return FITS_GENERAL_ERROR;
 
     // the image has been converted to RGB already
@@ -471,16 +475,18 @@ int32_t Image::createRGB32Data()
 
     uint8_t *tmpFinalRow = tmpRow;
 
-    if (m_bitpix == 16)
+    if (m_bitpix == 16 || m_bitpix == 8)
     {
-        tmpDestRow = new uint8_t[tmpBufRowSize * (bytesNum == 2 ? 2 : 1)];
+        //tmpDestRow = new uint8_t[tmpBufRowSize * (bytesNum == 2 ? 2 : 1)];
+        tmpDestRow = new uint8_t[tmpBufRowSize * (32/std::abs(m_bitpix))];
         tmpFinalRow = tmpDestRow;
     }
 
     // Writing the buffer containing pixel data
     try
     {
-        uint32_t indexBase = bytesNum * (bytesNum == 2 ? 2 : 1);
+        //uint32_t indexBase = bytesNum * (bytesNum == 2 ? 2 : 1);
+        uint32_t indexBase = bytesNum * (bytesNum <= 2 ? 32/std::abs(m_bitpix) : 1);
 
         for (int64_t y = m_height - 1; y >= 0; --y) //// this loop is for correcting Y-axis upside down showing
         {
@@ -499,11 +505,13 @@ int32_t Image::createRGB32Data()
             //// this memcpy is for correcting Y-axis upside down showing
             std::memcpy(tmpRow, m_dataBuffer + offset, tmpBufRowSize);
 
-            if (m_bitpix == 16)
+            if (m_bitpix == 8)
+                convertBufferByte2RGB(tmpRow, tmpBufRowSize, tmpDestRow);
+            else if (m_bitpix == 16)
                 areEqual(m_bzero, FITS_BZERO_DEFAULT_VALUE) && areEqual(m_bscale, FITS_BSCALE_DEFAULT_VALUE) ?
                         convertBufferShort2RGB(tmpRow, tmpBufRowSize, tmpDestRow) :
                         convertBufferShortSZ2RGB(tmpRow, tmpBufRowSize, m_bzero, m_bscale, tmpDestRow);
-            if (m_bitpix == -32)
+            else if (m_bitpix == -32)
                 convertBufferFloat2RGB(tmpRow, tmpBufRowSize);
             else if (m_bitpix == 32)
                 convertBufferInt2RGB(tmpRow, tmpBufRowSize);
@@ -544,7 +552,7 @@ int32_t Image::createRGB32FlatData()
 
     uint8_t bytesNum = std::abs(m_bitpix) / 8;
 
-    if (bytesNum != 2 && bytesNum != 4 && bytesNum != 8) ///// TODO: in the future it's needed to support other 8/16/32/64/ bit images
+    if (bytesNum != 1 && bytesNum != 2 && bytesNum != 4 && bytesNum != 8) ///// TODO: in the future it's needed to support other 8/16/32/64/ bit images
         return FITS_GENERAL_ERROR;
 
     // the image has been converted to RGB already
@@ -571,16 +579,19 @@ int32_t Image::createRGB32FlatData()
 
     uint8_t *tmpFinalRow = tmpRow;
 
-    if (m_bitpix == 16)
+    if (m_bitpix == 16 || m_bitpix == 8)
     {
-        tmpDestRow = new uint8_t[tmpBufRowSize * (bytesNum == 2 ? 2 : 1)];
+        //tmpDestRow = new uint8_t[tmpBufRowSize * (bytesNum == 2 ? 2 : 1)];
+        tmpDestRow = new uint8_t[tmpBufRowSize * (32/std::abs(m_bitpix))];
         tmpFinalRow = tmpDestRow;
     }
 
     // Writing the buffer containing pixel data
     try
     {
-        uint32_t indexBase = bytesNum * (bytesNum == 2 ? 2 : 1);
+        //uint32_t indexBase = bytesNum * (bytesNum == 2 ? 2 : 1);
+        uint32_t indexBase = bytesNum * (bytesNum <= 2 ? 32/std::abs(m_bitpix) : 1);
+
 
         for (int64_t y = m_height - 1; y >= 0; --y) //// this loop is for correcting Y-axis upside down showing
         {
@@ -594,11 +605,13 @@ int32_t Image::createRGB32FlatData()
             ////
             std::memcpy(tmpRow, m_dataBuffer + offset, tmpBufRowSize);
 
-            if (m_bitpix == 16)
+            if (m_bitpix == 8)
+                convertBufferByte2RGB(tmpRow, tmpBufRowSize, tmpDestRow);
+            else if (m_bitpix == 16)
                 areEqual(m_bzero, FITS_BZERO_DEFAULT_VALUE) && areEqual(m_bscale, FITS_BSCALE_DEFAULT_VALUE) ?
                         convertBufferShort2RGB(tmpRow, tmpBufRowSize, tmpDestRow) :
                         convertBufferShortSZ2RGB(tmpRow, tmpBufRowSize, m_bzero, m_bscale, tmpDestRow);
-            if (m_bitpix == -32)
+            else if (m_bitpix == -32)
                 convertBufferFloat2RGB(tmpRow, tmpBufRowSize);
             else if (m_bitpix == 32)
                 convertBufferInt2RGB(tmpRow, tmpBufRowSize);

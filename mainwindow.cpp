@@ -934,7 +934,7 @@ void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current
 
                 fitToWindow();
 
-                if (std::abs(bitpix) > 8)
+                if (std::abs(bitpix) >= 8)
                 {
                     m_bEnableGammaWidgets = true;
                     enableGammaWidgets(m_bEnableGammaWidgets);

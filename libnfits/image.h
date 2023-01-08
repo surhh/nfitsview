@@ -170,6 +170,10 @@ public:
     void setBaseOffset(size_t a_baseOffset);
     size_t getBaseOffset() const;
 
+    void processRGBBrightnessFilter(uint8_t a_threshold);
+    void processRGB32BrightnessFilter(uint8_t a_threshold);
+    void processRGBB32FlatBrightnessFilter(uint8_t a_threshold);
+
     //// this function is for debug purposes only, is slow
     int32_t dumpFloatDataBuffer(const std::string& a_filename, uint32_t a_rowSize);
 };

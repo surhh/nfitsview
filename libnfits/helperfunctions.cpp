@@ -463,10 +463,12 @@ void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size)
 
         convertFloat2RGB(f, red, green, blue);
 
-        a_buffer[i*4]     = red;
-        a_buffer[i*4 + 1] = green;
-        a_buffer[i*4 + 2] = blue;
-        a_buffer[i*4 + 3] = 0x00;
+        size_t indexBase = i*4;
+
+        a_buffer[indexBase]     = red;
+        a_buffer[indexBase + 1] = green;
+        a_buffer[indexBase + 2] = blue;
+        //a_buffer[indexBase + 3] = 0x00;
     }
 }
 
@@ -490,9 +492,11 @@ void convertBufferRGB2Grayscale(uint8_t* a_buffer, size_t a_size)
         uint8_t red, green, blue;
         convertFloat2Grayscale(f, red, green, blue);
 
-        a_buffer[i*3]     = red;
-        a_buffer[i*3 + 1] = green;
-        a_buffer[i*3 + 2] = blue;
+        size_t indexBase = i*3;
+
+        a_buffer[indexBase]     = red;
+        a_buffer[indexBase + 1] = green;
+        a_buffer[indexBase + 2] = blue;
     }
 }
 
@@ -506,9 +510,11 @@ void convertBufferRGB2Grayscale(uint8_t** a_buffer, uint32_t a_width, uint32_t a
         {
             uint8_t average = convertRGB2Grayscale(a_buffer[y][x*3], a_buffer[y][x*3 + 1], a_buffer[y][x*3 + 2]);
 
-            a_buffer[y][x*3] = average;
-            a_buffer[y][x*3 + 1] = average;
-            a_buffer[y][x*3 + 2] = average;
+            uint32_t indexBase = x*3;
+
+            a_buffer[y][indexBase] = average;
+            a_buffer[y][indexBase + 1] = average;
+            a_buffer[y][indexBase + 2] = average;
         }
 }
 
@@ -522,9 +528,11 @@ void convertBufferRGB322Grayscale(uint8_t** a_buffer, uint32_t a_width, uint32_t
         {
             uint8_t average = convertRGB2Grayscale(a_buffer[y][x*4], a_buffer[y][x*4 + 1], a_buffer[y][x*4 + 2]);
 
-            a_buffer[y][x*4] = average;
-            a_buffer[y][x*4 + 1] = average;
-            a_buffer[y][x*4 + 2] = average;
+            uint32_t indexBase = x*4;
+
+            a_buffer[y][indexBase] = average;
+            a_buffer[y][indexBase + 1] = average;
+            a_buffer[y][indexBase + 2] = average;
         }
 }
 
@@ -538,9 +546,11 @@ void convertBufferRGB32Flat2Grayscale(uint8_t* a_buffer, uint32_t a_width, uint3
         {
             uint8_t average = convertRGB2Grayscale(a_buffer[4*(y*a_width + x)], a_buffer[4*(y*a_width + x) + 1], a_buffer[4*(y*a_width + x) + 2]);
 
-            a_buffer[4*(y*a_width + x)] = average;
-            a_buffer[4*(y*a_width + x) + 1] = average;
-            a_buffer[4*(y*a_width+ x) + 2] = average;
+            size_t indexBase = 4*(y*a_width + x);
+
+            a_buffer[indexBase] = average;
+            a_buffer[indexBase + 1] = average;
+            a_buffer[indexBase + 2] = average;
         }
 }
 
@@ -588,14 +598,16 @@ void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size)
 
         convertDouble2RGB(f, red, green, blue);
 
-        a_buffer[i*8]     = red;
-        a_buffer[i*8 + 1] = green;
-        a_buffer[i*8 + 2] = blue;
-        a_buffer[i*8 + 3] = 0x00;
-        a_buffer[i*8 + 4] = 0x00;
-        a_buffer[i*8 + 5] = 0x00;
-        a_buffer[i*8 + 6] = 0x00;
-        a_buffer[i*8 + 7] = 0x00;
+        size_t indexBase = i*8;
+
+        a_buffer[indexBase]     = red;
+        a_buffer[indexBase + 1] = green;
+        a_buffer[indexBase + 2] = blue;
+        //a_buffer[indexBase + 3] = 0x00;
+        //a_buffer[indexBase + 4] = 0x00;
+        //a_buffer[indexBase + 5] = 0x00;
+        //a_buffer[indexBase + 6] = 0x00;
+        //a_buffer[indexBase + 7] = 0x00;
     }
 }
 
@@ -624,10 +636,12 @@ void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuf
 
         ptrConvertFunction(s, pixel);
 
-        a_destBuffer[i*4]     = pixel.red;
-        a_destBuffer[i*4 + 1] = pixel.green;
-        a_destBuffer[i*4 + 2] = pixel.blue;
-        a_destBuffer[i*4 + 3] = 0x00;
+        size_t indexBase = i*4;
+
+        a_destBuffer[indexBase]     = pixel.red;
+        a_destBuffer[indexBase + 1] = pixel.green;
+        a_destBuffer[indexBase + 2] = pixel.blue;
+        //a_destBuffer[indexBase + 3] = 0x00;
     }
 }
 
@@ -656,10 +670,12 @@ void convertBufferShortSZ2RGB(uint8_t* a_buffer, size_t a_size, double a_bzero, 
 
         ptrConvertFunctionSZ(s, a_bscale, a_bzero, pixel);
 
-        a_destBuffer[i*4]     = pixel.red;
-        a_destBuffer[i*4 + 1] = pixel.green;
-        a_destBuffer[i*4 + 2] = pixel.blue;
-        a_destBuffer[i*4 + 3] = 0x00;
+        size_t indexBase = i*4;
+
+        a_destBuffer[indexBase]     = pixel.red;
+        a_destBuffer[indexBase + 1] = pixel.green;
+        a_destBuffer[indexBase + 2] = pixel.blue;
+        //a_destBuffer[indexBase + 3] = 0x00;
     }
 }
 
@@ -671,10 +687,12 @@ void convertBufferByte2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuff
     {
         convertByte2Grayscale(a_buffer[i], pixel);
 
-        a_destBuffer[i*4]     = pixel.red;
-        a_destBuffer[i*4 + 1] = pixel.green;
-        a_destBuffer[i*4 + 2] = pixel.blue;
-        a_destBuffer[i*4 + 3] = 0x00;
+        size_t indexBase = i*4;
+
+        a_destBuffer[indexBase]     = pixel.red;
+        a_destBuffer[indexBase + 1] = pixel.green;
+        a_destBuffer[indexBase + 2] = pixel.blue;
+        //a_destBuffer[indexBase + 3] = 0x00;
     }
 }
 
@@ -686,10 +704,12 @@ void convertBufferByteSZ2RGB(uint8_t* a_buffer, size_t a_size, int8_t a_bzero, i
     {
         convertByteSZ2Grayscale(a_buffer[i], a_bzero, a_bscale, pixel);
 
-        a_destBuffer[i*4]     = pixel.red;
-        a_destBuffer[i*4 + 1] = pixel.green;
-        a_destBuffer[i*4 + 2] = pixel.blue;
-        a_destBuffer[i*4 + 3] = 0x00;
+        size_t indexBase = i*4;
+
+        a_destBuffer[indexBase]     = pixel.red;
+        a_destBuffer[indexBase + 1] = pixel.green;
+        a_destBuffer[indexBase + 2] = pixel.blue;
+        //a_destBuffer[indexBase + 3] = 0x00;
     }
 }
 
@@ -713,10 +733,12 @@ void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size)
 
         convertInt2RGB(s, red, green, blue);
 
-        a_buffer[i*4]     = red;
-        a_buffer[i*4 + 1] = green;
-        a_buffer[i*4 + 2] = blue;
-        a_buffer[i*4 + 3] = 0x00;
+        size_t indexBase = i*4;
+
+        a_buffer[indexBase]     = red;
+        a_buffer[indexBase + 1] = green;
+        a_buffer[indexBase + 2] = blue;
+        //a_buffer[indexBase + 3] = 0x00;
     }
 }
 
@@ -740,14 +762,16 @@ void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size)
 
         convertLong2RGB(s, red, green, blue);
 
-        a_buffer[i*8]     = red;
-        a_buffer[i*8 + 1] = green;
-        a_buffer[i*8 + 2] = blue;
-        a_buffer[i*8 + 3] = 0x00;
-        a_buffer[i*8 + 4] = 0x00;
-        a_buffer[i*8 + 5] = 0x00;
-        a_buffer[i*8 + 6] = 0x00;
-        a_buffer[i*8 + 7] = 0x00;
+        size_t indexBase = i*8;
+
+        a_buffer[indexBase]     = red;
+        a_buffer[indexBase + 1] = green;
+        a_buffer[indexBase + 2] = blue;
+        //a_buffer[indexBase + 3] = 0x00;
+        //a_buffer[indexBase + 4] = 0x00;
+        //a_buffer[indexBase + 5] = 0x00;
+        //a_buffer[indexBase + 6] = 0x00;
+        //a_buffer[indexBase + 7] = 0x00;
     }
 }
 

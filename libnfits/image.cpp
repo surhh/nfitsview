@@ -623,12 +623,12 @@ int32_t Image::createRGB32FlatData()
             for (uint32_t x = 0; x < m_width; ++x)
             {
                 uint64_t indexSource = x*indexBase;
-                uint64_t indexDest = y*m_width + x;
+                uint64_t indexDest = 4*(y*m_width + x);
 
-                m_rgb32FlatDataBuffer[4*indexDest]     = tmpFinalRow[indexSource + 2];
-                m_rgb32FlatDataBuffer[4*indexDest + 1] = tmpFinalRow[indexSource + 1];
-                m_rgb32FlatDataBuffer[4*indexDest + 2] = tmpFinalRow[indexSource];
-                m_rgb32FlatDataBuffer[4*indexDest + 3] = 0xff;
+                m_rgb32FlatDataBuffer[indexDest]     = tmpFinalRow[indexSource + 2];
+                m_rgb32FlatDataBuffer[indexDest + 1] = tmpFinalRow[indexSource + 1];
+                m_rgb32FlatDataBuffer[indexDest + 2] = tmpFinalRow[indexSource];
+                m_rgb32FlatDataBuffer[indexDest + 3] = 0xff;
             }
         }
     }
@@ -1112,9 +1112,68 @@ double Image::getBScale() const
     return m_bscale;
 }
 
+void Image::processRGBBrightnessFilter(uint8_t a_threshold)
+{
+    if (m_rgbDataBuffer == nullptr)
+        return;
 
-//// this function is for debug purposes only, is slow
-int32_t Image::dumpFloatDataBuffer(const std::string &a_filename, uint32_t a_rowSize)
+    for (int32_t y = 0; y < m_height; ++y)
+        for (int32_t x = 0; x < m_width; ++x)
+        {
+            uint8_t brightness = calcPixelBrightness(m_rgbDataBuffer[y][x], m_rgbDataBuffer[y][x +1], m_rgbDataBuffer[y][x + 2]);
+
+            if (brightness < a_threshold)
+            {
+                m_rgbDataBuffer[y][x] = 0;
+                m_rgbDataBuffer[y][x + 1] = 0;
+                m_rgbDataBuffer[y][x + 2] = 0;
+            }
+        }
+}
+
+void Image::processRGB32BrightnessFilter(uint8_t a_threshold)
+{
+    if (m_rgb32DataBuffer == nullptr)
+        return;
+
+    for (int32_t y = 0; y < m_height; ++y)
+        for (int32_t x = 0; x < m_width; ++x)
+        {
+            uint8_t brightness = calcPixelBrightness(m_rgb32DataBuffer[y][x], m_rgb32DataBuffer[y][x +1], m_rgb32DataBuffer[y][x + 2]);
+
+            if (brightness < a_threshold)
+            {
+                m_rgb32DataBuffer[y][x] = 0;
+                m_rgb32DataBuffer[y][x + 1] = 0;
+                m_rgb32DataBuffer[y][x + 2] = 0;
+            }
+        }
+}
+
+void Image::processRGBB32FlatBrightnessFilter(uint8_t a_threshold)
+{
+    if (m_rgb32FlatDataBuffer == nullptr)
+        return;
+
+    for (int32_t y = 0; y < m_height; ++y)
+        for (int32_t x = 0; x < m_width; ++x)
+        {
+            uint64_t indexDest = 4*(y*m_width + x);
+
+            uint8_t brightness = calcPixelBrightness(m_rgb32FlatDataBuffer[indexDest], m_rgb32FlatDataBuffer[indexDest+1],
+                                                     m_rgb32FlatDataBuffer[indexDest + 2]);
+
+            if (brightness < a_threshold)
+            {
+                m_rgb32FlatDataBuffer[indexDest]     = 0;
+                m_rgb32FlatDataBuffer[indexDest + 1] = 0;
+                m_rgb32FlatDataBuffer[indexDest + 2] = 0;
+            }
+        }
+}
+
+//// this function is for debugging  purposes only, it is slow
+int32_t Image::dumpFloatDataBuffer(const std::string& a_filename, uint32_t a_rowSize)
 {
     return libnfits::dumpFloatDataBuffer(m_dataBuffer, m_width * m_height * sizeof(float), a_filename, a_rowSize);
 }

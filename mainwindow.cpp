@@ -182,12 +182,6 @@ void MainWindow::on_checkBoxGrayscale_stateChanged(int arg1)
 
     if (arg1 && !m_bGrayscale)
     {
-        /*
-        backupOriginalImage();
-        ui->workspaceWidget->convertImage2Grayscale();
-        enableRestoreWidgets(false);
-        ui->workspaceWidget->reloadImage();
-        */
         grayScale();
 
         m_bGrayscale = true;

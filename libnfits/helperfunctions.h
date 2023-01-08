@@ -215,17 +215,27 @@ inline uint8_t char2alphanum(const uint8_t a_char)
     return (a_char >= 0x20 && a_char < 0x7F) ? a_char : '.';
 }
 
+inline uint8_t calcPixelBrightness(uint8_t a_red, uint8_t a_green, uint8_t a_blue)
+{
+    return std::round(0.299*(float)a_red + 0.587*(float)a_green + 0.114*(float)a_blue);
+}
+
+inline uint8_t calcPixelBrightness(RGBPixel& a_pixel)
+{
+    return std::round(0.299*(float)a_pixel.red + 0.587*(float)a_pixel.green + 0.114*(float)a_pixel.blue);
+}
+
 inline uint8_t convertRGB2Grayscale(uint8_t a_red, uint8_t a_green, uint8_t a_blue)
 {
     //// Average method - faster method
     //// return (a_red + a_green + a_blue) / 3;
 
     //// Luminosity method - this second method may differ, choose the one which best fits the needs (not used)
-    //// return 0.299*(float)a_red + 0.587*(float)a_green + 0.114*(float)a_blue;
+    //// return calcPixelBrightness(a_red, a_green, a_blue);
 
-    //// Brightness method - for testing (straightforward code)
-
+    //// Third max method
     uint8_t rgb[] = { a_red, a_green, a_blue };
+
     return max3Bytes(rgb);
     ////return (max3Bytes(rgb) + min3Bytes(rgb))/2;
 }
@@ -233,10 +243,15 @@ inline uint8_t convertRGB2Grayscale(uint8_t a_red, uint8_t a_green, uint8_t a_bl
 inline uint8_t convertRGB2Grayscale(RGBPixel& a_pixel)
 {
     //// Average method - faster method
-    return (a_pixel.red + a_pixel.green + a_pixel.blue) / 3;
+    //// return (a_pixel.red + a_pixel.green + a_pixel.blue) / 3;
 
-    //// Luminosity method - this second method may differ, choose the one which best fits the needs (not used)
-    //// return 0.299*(float)a_pixel.red + 0.587*(float)a_pixel.green + 0.114*(float)a_pixel.blue;
+    //// Brightness method - this second method may differ, choose the one which best fits the needs (not used)
+    //// return return calcPixelBrightness(a_pixel.red, a_pixel.green, a_pixel.blue);
+
+    //// Third max method
+    uint8_t rgb[] = { a_pixel.red, a_pixel.green, a_pixel.blue };
+
+    return max3Bytes(rgb);
 }
 
 template<typename T> T convertStringMulti(const std::string& a_strData, bool& a_successFlag)

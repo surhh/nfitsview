@@ -655,8 +655,16 @@ int32_t convertBuffer2HexString(uint8_t* a_buffer, uint8_t* a_output, size_t siz
 std::string convertBuffer2HexString(uint8_t* a_buffer, size_t size, uint32_t a_align);
 
 
-//// dumpFloatDataBuffer() is slow and should be used for debug purposes only
+void getFloatBufferMinMax(uint8_t* a_buffer, size_t a_size, float& a_min, float& a_max);
+
+void getDoubleBufferMinMax(uint8_t* a_buffer, size_t a_size, double &a_min, double &a_max);
+
+
+//// these functions are for debugging purposes only, they are slow
 int32_t dumpFloatDataBuffer(const uint8_t* a_buffer, size_t a_size, const std::string& a_filename, uint32_t a_rowSize);
+
+int32_t dumpDoubleDataBuffer(const uint8_t* a_buffer, size_t a_size, const std::string& a_filename, uint32_t a_rowSize);
+
 }
 
 typedef     void (*convertBufferShort)       (uint16_t, libnfits::RGBPixel&);

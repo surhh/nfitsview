@@ -1172,11 +1172,14 @@ void Image::processRGBB32FlatBrightnessFilter(uint8_t a_threshold)
         }
 }
 
-//// this function is for debugging  purposes only, it is slow
+//// these functions are for debugging purposes only, they are slow
 int32_t Image::dumpFloatDataBuffer(const std::string& a_filename, uint32_t a_rowSize)
 {
     return libnfits::dumpFloatDataBuffer(m_dataBuffer, m_width * m_height * sizeof(float), a_filename, a_rowSize);
 }
 
-
+int32_t Image::dumpDoubleDataBuffer(const std::string& a_filename, uint32_t a_rowSize)
+{
+    return libnfits::dumpDoubleDataBuffer(m_dataBuffer, m_width * m_height * sizeof(float), a_filename, a_rowSize);
+}
 }

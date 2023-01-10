@@ -174,8 +174,9 @@ public:
     void processRGB32BrightnessFilter(uint8_t a_threshold);
     void processRGBB32FlatBrightnessFilter(uint8_t a_threshold);
 
-    //// this function is for debug purposes only, is slow
+    //// thiese functions are for debugging purposes only, is slow
     int32_t dumpFloatDataBuffer(const std::string& a_filename, uint32_t a_rowSize);
+    int32_t dumpDoubleDataBuffer(const std::string& a_filename, uint32_t a_rowSize);
 };
 
 }

@@ -1025,12 +1025,75 @@ void normalizeDoubleBuffer(uint8_t* a_buffer, size_t a_size, double a_min, doubl
 #endif
         double f = *((double *)&s);
 
-        tmpFloatBuf[i] = normalizeValue<double>(f, a_min, a_max, a_minNew, a_maxNew);
+        if (!std::isnan(f))
+            tmpFloatBuf[i] = normalizeValue<double>(f, a_min, a_max, a_minNew, a_maxNew);
     }
 }
 
+void getFloatBufferMinMax(uint8_t* a_buffer, size_t a_size, float& a_min, float& a_max)
+{
+    // checking for buffer granularity
+    if (a_size % sizeof(float) != 0)
+        return;
 
-//// use for debug purposes only, slow function
+    uint32_t *tmpBuf = (uint32_t*)(a_buffer);
+
+    float minVal = std::numeric_limits<float>::min();
+    float maxVal = std::numeric_limits<float>::max();
+
+    for (size_t i = 0; i < a_size / sizeof(float); ++i)
+    {
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+        int32_t s = swap32(tmpBuf[i]);
+#else
+        int32_t s = tmpBuf[i];
+#endif
+        float f = *((float *)&s);
+
+        if (f > maxVal)
+            maxVal = f;
+
+        if (f < minVal)
+            minVal = f;
+    }
+
+    a_min = minVal;
+    a_max = maxVal;
+}
+
+void getDoubleBufferMinMax(uint8_t* a_buffer, size_t a_size, double& a_min, double& a_max)
+{
+    // checking for buffer granularity
+    if (a_size % sizeof(double) != 0)
+        return;
+
+    uint64_t *tmpBuf = (uint64_t*)(a_buffer);
+
+    double minVal = std::numeric_limits<double>::min();
+    double maxVal = std::numeric_limits<double>::max();
+
+    for (size_t i = 0; i < a_size / sizeof(double); ++i)
+    {
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+        int64_t s = swap64(tmpBuf[i]);
+#else
+        int64_t s = tmpBuf[i];
+#endif
+        double f = *((double *)&s);
+
+        if (f > maxVal)
+            maxVal = f;
+
+        if (f < minVal)
+            minVal = f;
+    }
+
+    a_min = minVal;
+    a_max = maxVal;
+}
+
+
+//// use for debug purposes only, slow functions
 int32_t dumpFloatDataBuffer(const uint8_t* a_buffer, size_t a_size, const std::string& a_filename, uint32_t a_rowSize)
 {
     int32_t retVal = FITS_GENERAL_SUCCESS;
@@ -1039,7 +1102,7 @@ int32_t dumpFloatDataBuffer(const uint8_t* a_buffer, size_t a_size, const std::s
 
     std::string rowStr = "";
 
-    float min = 0.0f, max = 0.0f;
+    float min = 0.0, max = 0.0;
 
     // checking for buffer granularity
     if (a_size % sizeof(float) != 0)
@@ -1062,6 +1125,62 @@ int32_t dumpFloatDataBuffer(const uint8_t* a_buffer, size_t a_size, const std::s
         int32_t s = tmpBuf[i];
 #endif
         float f = *((float *)&s);
+
+        if (f > max)
+            max = f;
+
+        if (f < min)
+            min = f;
+
+        rowStr += formatFloatString(f, 6);
+        rowStr += "    ";
+
+        if (i > 0 && ((i + 1) % a_rowSize == 0 || i == size - 1))
+        {
+            rowStr += '\n';
+            dumpFile << rowStr;
+            rowStr = "";
+        }
+    }
+
+    dumpFile << "\n\nMin: " << min << " , max: " << max;
+
+    dumpFile.close();
+
+    return retVal;
+}
+
+int32_t dumpDoubleDataBuffer(const uint8_t* a_buffer, size_t a_size, const std::string& a_filename, uint32_t a_rowSize)
+{
+    int32_t retVal = FITS_GENERAL_SUCCESS;
+
+    std::ofstream dumpFile;
+
+    std::string rowStr = "";
+
+    double min = 0.0, max = 0.0;
+
+    // checking for buffer granularity
+    if (a_size % sizeof(double) != 0)
+        return FITS_GENERAL_ERROR;
+
+    int64_t *tmpBuf = (int64_t*)(a_buffer);
+
+    dumpFile.open(a_filename);
+
+    if (!dumpFile)
+        return FITS_GENERAL_ERROR;
+
+    size_t size = a_size / sizeof(float);
+
+    for (size_t i = 0; i < size; ++i)
+    {
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+        int64_t s = swap64(tmpBuf[i]);
+#else
+        int64_t s = tmpBuf[i];
+#endif
+        double f = *((double *)&s);
 
         if (f > max)
             max = f;

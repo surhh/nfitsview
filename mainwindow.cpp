@@ -951,20 +951,19 @@ void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current
 
                 fitToWindow();
 
-                if (std::abs(bitpix) >= 8)
-                {
-                    m_bEnableGammaWidgets = true;
-                    enableGammaWidgets(m_bEnableGammaWidgets);
-                }
-
                 if (bitpix == -32 || bitpix == -64)
-                {
                     m_bEnableMappingWidgets = true;
-                    enableMappingWidgets(m_bEnableMappingWidgets);
-                }
+                else
+                    m_bEnableMappingWidgets = false;
+
+                enableMappingWidgets(m_bEnableMappingWidgets);
 
                 m_bEnableZoomWidget = true;
                 enableZoomWidgets(m_bEnableZoomWidget);
+
+                m_bEnableGammaWidgets = true;
+                enableGammaWidgets(m_bEnableGammaWidgets);
+
                 enableImageExportWidgets();
                 enableImageExportSettigsWidgets();
 

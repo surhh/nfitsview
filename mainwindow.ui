@@ -293,7 +293,7 @@
                   </size>
                  </property>
                  <property name="text">
-                  <string>R,G,B adjustment: -100% to +100% interval</string>
+                  <string/>
                  </property>
                 </widget>
                </item>
@@ -307,7 +307,7 @@
                  </property>
                  <property name="sizeHint" stdset="0">
                   <size>
-                   <width>20</width>
+                   <width>1</width>
                    <height>20</height>
                   </size>
                  </property>
@@ -356,6 +356,37 @@
                  <property name="text">
                   <string>Reset RGB</string>
                  </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="labelMappping">
+                 <property name="text">
+                  <string>Mapping:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QComboBox" name="comboBoxMapping">
+                 <item>
+                  <property name="text">
+                   <string>Original</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Linear: [0,1]</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Linear: [-1,1]</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Linear: [-1,0]</string>
+                  </property>
+                 </item>
                 </widget>
                </item>
                <item>
@@ -627,7 +658,7 @@
                   </size>
                  </property>
                  <property name="text">
-                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export image quality (0 - 100)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export image quality (0 - 100):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
                 </widget>
                </item>
@@ -708,7 +739,7 @@
                   </size>
                  </property>
                  <property name="text">
-                  <string>Export image format</string>
+                  <string>Export image format:</string>
                  </property>
                 </widget>
                </item>

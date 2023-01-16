@@ -36,6 +36,8 @@ static int32_t percentCallbackFunctionSample(int32_t a_percent, void* a_buffer)
 #define FITS_KEYWORD_ASCII_CHAR3                (0x2d)
 #define FITS_KEYWORD_ASCII_CHAR4                (0x5f)
 
+#define FITS_UNDEFINED_VALUE                    (-1)
+
 #define FITS_COMPRESS_MEMORY_CHUNK_SIZE         (16*1024*1024)      // 16 MB
 
 #define FITS_HEADER_RECORD_ASSIGNMENT_CHAR      '='
@@ -110,6 +112,15 @@ static int32_t percentCallbackFunctionSample(int32_t a_percent, void* a_buffer)
 #define FITS_HDU_TYPE_COMPRESSED_TABLE_XTENSION      (32)
 #define FITS_HDU_TYPE_RANDOM_GROUP_RECORDS           (64)
 
+#define FITS_FLOAT_DOUBLE_NO_TRANSFORM                          (0)
+#define FITS_FLOAT_DOUBLE_LINEAR_TRANSFORM_POSITIVE             (1)
+#define FITS_FLOAT_DOUBLE_LINEAR_TRANSFORM_NEGATIVE             (2)
+#define FITS_FLOAT_DOUBLE_LINEAR_TRANSFORM_NEGATIVE_POSITIVE    (3)
+
+#define FITS_FLOAT_DOUBLE_RANGE_MIN_ZERO             (0.0)
+#define FITS_FLOAT_DOUBLE_RANGE_MAX_ZERO             (0.0)
+#define FITS_FLOAT_DOUBLE_RANGE_MIN_NEGATIVE         (-1.0)
+#define FITS_FLOAT_DOUBLE_RANGE_MAX_POSITIVE         (1.0)
 
 
 #endif // LIBNFITS_DEFS_H

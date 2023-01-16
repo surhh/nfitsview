@@ -117,6 +117,8 @@ private slots:
 
     void on_resetRGBButton_clicked();
 
+    void on_comboBoxMapping_currentIndexChanged(int index);
+
 private:
     Ui::MainWindow *ui;
 
@@ -137,6 +139,7 @@ private:
 
     bool                m_bEnableGammaWidgets;
     bool                m_bEnableZoomWidget;
+    bool                m_bEnableMappingWidgets;
 
     bool                m_bGrayscale;
     bool                m_bEyeComfort;
@@ -147,6 +150,7 @@ private:
 private:
     void createStatusBarWidgets();
     void initGammaWidgetsValues();
+    void initMappingWidgetsValues();
     void initImageExportSettingsWidgetValues();
     void initHDUInfoWidgetValues();
     void enableGammaWidgets(bool a_flag = true);
@@ -156,6 +160,7 @@ private:
     void enableRestoreWidgets(bool a_flag = true);
     void enableImageExportWidgets(bool a_flag = true);
     void enableImageExportSettigsWidgets(bool a_flag = true);
+    void enableMappingWidgets(bool a_flag = true);
     void scrollToCenter();
     void scaleImage();
     void fitToWindow();
@@ -187,9 +192,11 @@ private:
 
     void changeRGBColorChannelLevel(uint8_t a_channel, int8_t a_value);
     void changeRGBColorChannelLevels(int8_t a_rValue, int8_t a_gValue, int8_t a_bValue);
-    void restoreRGBColorChannelLevelsImage(int32_t a_hduIndex);
+    void restoreRGBColorChannelLevelsImage(int32_t a_hduIndex, uint32_t a_transformType = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
     void grayScale();
     void eyeComfort();
+
+    int32_t convertComboIndexToTransformType(int32_t a_index) const;
 
     void resizeEvent(QResizeEvent *event);
 

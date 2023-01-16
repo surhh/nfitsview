@@ -18,6 +18,9 @@ struct GammaWidgetsStates
     bool        eyeEnabled;
 
     bool        rgbResetEnabled;
+
+    int32_t     mappingValue;
+    bool        mappingEnabled;
 };
 
 struct ExportWidgetsStates

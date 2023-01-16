@@ -32,6 +32,7 @@ MainWindow::MainWindow(QWidget *parent)
     , m_bImageChanged(false)
     , m_bEnableGammaWidgets(false)
     , m_bEnableZoomWidget(false)
+    , m_bEnableMappingWidgets(false)
     , m_bGrayscale(false)
     , m_bEyeComfort(false)
     , m_exportFormat(IMAGE_EXPORT_TYPE_PNG)
@@ -63,8 +64,10 @@ MainWindow::MainWindow(QWidget *parent)
     enableZoomWidgets(m_bEnableZoomWidget);
     enableImageExportWidgets(false);
     enableImageExportSettigsWidgets(false);
+    enableMappingWidgets(m_bEnableMappingWidgets);
 
     initGammaWidgetsValues();
+    initMappingWidgetsValues();
     initImageExportSettingsWidgetValues();
 
     ui->toolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
@@ -175,6 +178,8 @@ void MainWindow::enableFileOpenRelatedWidgets(bool a_flag)
 void MainWindow::on_checkBoxGrayscale_stateChanged(int arg1)
 {
     enableRGBWidgets(!arg1);
+    enableMappingWidgets(!arg1);
+
     ui->checkBoxEyeComfort->setEnabled(!arg1);    
 
     int32_t scrollX = ui->workspaceWidget->getScrollPosX();
@@ -382,6 +387,7 @@ qint32 MainWindow::closeFITSFile()
 
     clearWidgets();
     initGammaWidgetsValues();
+    initMappingWidgetsValues();
     enableImageExportWidgets(false);
     enableImageExportSettigsWidgets(false);
 
@@ -458,6 +464,11 @@ void MainWindow::initGammaWidgetsValues()
     ui->checkBoxEyeComfort->setChecked(false);
 }
 
+void MainWindow::initMappingWidgetsValues()
+{
+    ui->comboBoxMapping->setCurrentIndex(0);
+}
+
 void MainWindow::on_tableWidgetHDUs_itemActivated(QTableWidgetItem *item)
 {
     //// This slot is not used anymore. For better compatibility for all the supported platforms
@@ -478,12 +489,15 @@ void MainWindow::clearWidgets()
 
     m_sliderZoom->setValue(m_scaleFactor);
 
+    ui->comboBoxMapping->setCurrentIndex(0);
+
     m_bEnableGammaWidgets = false;
     m_bEnableZoomWidget = false;
+    m_bEnableMappingWidgets = false;
 
     enableZoomWidgets(m_bEnableZoomWidget);
     enableGammaWidgets(m_bEnableGammaWidgets);
-
+    enableMappingWidgets(m_bEnableMappingWidgets);
     enableFileOpenRelatedWidgets(false);
 
     initHDUInfoWidgetValues();
@@ -695,6 +709,7 @@ void MainWindow::restoreOriginalImage()
     ui->workspaceWidget->scaleImage(m_scaleFactor);
 
     initGammaWidgetsValues();
+    initMappingWidgetsValues();
     enableRestoreWidgets(false);
 
     m_bImageChanged = false;
@@ -796,6 +811,12 @@ void MainWindow::enableImageExportSettigsWidgets(bool a_flag)
     }
 }
 
+void MainWindow::enableMappingWidgets(bool a_flag)
+{
+    ui->labelMappping->setEnabled(a_flag);
+    ui->comboBoxMapping->setEnabled(a_flag);
+}
+
 void MainWindow::on_comboBoxFormat_currentIndexChanged(const QString &arg1)
 {
     m_exportFormat = QString(arg1.toLower());
@@ -867,14 +888,12 @@ void MainWindow::on_actionAbout_triggered()
     dlg.exec();
 }
 
-
 void MainWindow::on_actionQuit_triggered()
 {
     closeFITSFile();
 
     qApp->exit();
 }
-
 
 void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current, QTableWidgetItem *previous)
 {
@@ -922,9 +941,13 @@ void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current
 
             if (bSuccess)
             {
+                WidgetsStates widgetsStates;
+                int32_t hduIndex = ui->workspaceWidget->findImageHDUIndexByTableIndex(row);
+
                 ui->workspaceWidget->imageSetVisible(true);
                 //ui->workspaceWidget->setImage(hdu.getPayload(), axises[0], axises[1], hdu.getPayloadOffset(), m_fitsFile.getSize(), bitpix);
-                ui->workspaceWidget->setImage(row);
+                //ui->workspaceWidget->setImage(row);
+                ui->workspaceWidget->setImage(row, widgetsStates.gammaStates.mappingValue);
 
                 fitToWindow();
 
@@ -934,26 +957,53 @@ void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current
                     enableGammaWidgets(m_bEnableGammaWidgets);
                 }
 
+                if (bitpix == -32 || bitpix == -64)
+                {
+                    m_bEnableMappingWidgets = true;
+                    enableMappingWidgets(m_bEnableMappingWidgets);
+                }
+
                 m_bEnableZoomWidget = true;
                 enableZoomWidgets(m_bEnableZoomWidget);
                 enableImageExportWidgets();
                 enableImageExportSettigsWidgets();
 
-                WidgetsStates widgetStates;
-                int32_t hduIndex = ui->workspaceWidget->findImageHDUIndexByTableIndex(row);
+                //WidgetsStates widgetsStates;
+                //int32_t hduIndex = ui->workspaceWidget->findImageHDUIndexByTableIndex(row);
 
                 if (hduIndex != -1)
                 {
-                    ui->workspaceWidget->getImageHDUWidgetsStates(hduIndex, widgetStates);
-                    if (widgetStates.stored)
+                    ui->workspaceWidget->getImageHDUWidgetsStates(hduIndex, widgetsStates);
+
+                    libnfits::LOG("HDU changed to hduIndex = %" , hduIndex);
+
+                    if (widgetsStates.stored)
                     {
                         //libnfits::LOG("widgetStates.imageChanged = % , widgetStates.gammaStates.gray = % , widgetStates.gammaStates.eye = %",
                         //              widgetStates.imageChanged, widgetStates.gammaStates.gray, widgetStates.gammaStates.eye);
-                        setWidgetsStates(widgetStates);
+                        setWidgetsStates(widgetsStates);
 
                         int32_t index = ui->workspaceWidget->getCurrentImageHDUIndex();
 
-                        if (widgetStates.gammaStates.gray)
+                        //// This commented part below is not needed anymore, as all the logic is done in the
+                        //// transform type combobox slot
+                        /*
+                        if (widgetsStates.gammaStates.mappingValue != FITS_FLOAT_DOUBLE_NO_TRANSFORM)
+                        {
+                            //ui->workspaceWidget->setImage(index, widgetsStates.gammaStates.mappingValue);
+                            m_bImageChanged = false;
+                            libnfits::LOG("HDU item change, m_bImageChanged = % ", m_bImageChanged);
+                            ui->workspaceWidget->reloadImageWithTransformation(widgetsStates.gammaStates.mappingValue);
+                            backupOriginalImage();
+                            changeRGBColorChannelLevels(widgetsStates.gammaStates.rLevel,
+                                                        widgetsStates.gammaStates.gLevel,
+                                                        widgetsStates.gammaStates.bLevel);
+                            //restoreRGBColorChannelLevelsImage(index, widgetsStates.gammaStates.mappingValue); /// TODO: RGB changing and mapping are not working together, need to fix it
+                            ui->workspaceWidget->scaleImage(m_scaleFactor);
+                        }
+                        */
+
+                        if (widgetsStates.gammaStates.gray)
                         {
 
                             //libnfits::LOG("gray: index = % , hduIndex = %", index, hduIndex);
@@ -962,14 +1012,13 @@ void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current
                             ui->workspaceWidget->scaleImage(m_scaleFactor);
                         }
 
-                        if (widgetStates.gammaStates.eye)
+                        if (widgetsStates.gammaStates.eye)
                         {
                             //libnfits::LOG("eye: index = % , hduIndex = %", index, hduIndex);
                             restoreRGBColorChannelLevelsImage(index);
                             eyeComfort();
                             ui->workspaceWidget->scaleImage(m_scaleFactor);
                         }
-
                     }
                     else
                     {
@@ -978,6 +1027,7 @@ void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current
                         m_bGrayscale = false;
 
                         initGammaWidgetsValues();
+                        initMappingWidgetsValues();
                     }
                 }
             }
@@ -986,10 +1036,12 @@ void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current
         {
             m_bEnableGammaWidgets = false;
             m_bEnableZoomWidget = false;
+            m_bEnableMappingWidgets = false;
             enableGammaWidgets(m_bEnableGammaWidgets);
             enableZoomWidgets(m_bEnableZoomWidget);
             enableImageExportWidgets(false);
             enableImageExportSettigsWidgets(false);
+            enableMappingWidgets(m_bEnableMappingWidgets);
 
             //ui->workspaceWidget->imageSetVisible(false);
 
@@ -1013,6 +1065,7 @@ void MainWindow::on_workspaceWidget_sendGammaCorrectionTabEnabled(bool a_flag)
 {
     enableGammaWidgets(m_bEnableGammaWidgets & a_flag);
     enableZoomWidgets(m_bEnableZoomWidget & a_flag);
+    enableMappingWidgets(m_bEnableMappingWidgets & a_flag);
 }
 
 void MainWindow::setProgress(int32_t a_progress)
@@ -1053,13 +1106,15 @@ qint32 MainWindow::setAllWorkspaceImages()
 
             uint8_t HDUType = hdu.getType();
 
+            //WidgetsStates widgetStates = getWidgetsStates(); // (2) <-> (1)
+
             if ((HDUType == FITS_HDU_TYPE_IMAGE_XTENSION || HDUType == FITS_HDU_TYPE_PRIMARY) && (axisesNumber >= 2 && bSuccess) && (axises.size() >= 2))
             {
                 int32_t bitpix = hdu.getKeywordValue<int32_t>(FITS_KEYWORD_BITPIX, bSuccess);
 
                 if (bSuccess)
                 {
-                    WidgetsStates widgetStates = getWidgetsStates();
+                    WidgetsStates widgetStates = getWidgetsStates(); // (1) <-> (2)
 
                     //// The old function, in the new one packed params into the structure
                     //ui->workspaceWidget->insertImage(hdu.getPayload(), axises[0], axises[1], hdu.getPayloadOffset(), m_fitsFile.getSize(),
@@ -1121,12 +1176,17 @@ WidgetsStates MainWindow::getWidgetsStates() const
     gammaStates.eyeEnabled = ui->checkBoxEyeComfort->isEnabled();    
     gammaStates.rgbResetEnabled = ui->resetRGBButton->isEnabled();
 
+    gammaStates.mappingValue = ui->comboBoxMapping->currentIndex();
+    gammaStates.mappingEnabled = ui->comboBoxMapping->isEnabled();
+
+
 
     exportStates.format = ui->comboBoxFormat->currentIndex();
     exportStates.formatEnabled = ui->comboBoxFormat->isEnabled();
 
     exportStates.quality = ui->horizontalSliderQuality->value();
     exportStates.qualityEnabled = ui->horizontalSliderQuality->isEnabled();
+
 
 
     zoomStates.factor = m_sliderZoom->value();
@@ -1185,6 +1245,9 @@ void MainWindow::setWidgetsStates(const WidgetsStates& a_widgetsStates)
     ui->checkBoxEyeComfort->setEnabled(a_widgetsStates.gammaStates.eyeEnabled);
     ui->resetRGBButton->setEnabled(a_widgetsStates.gammaStates.rgbResetEnabled);
 
+    ui->comboBoxMapping->setCurrentIndex(a_widgetsStates.gammaStates.mappingValue);
+    ui->labelMappping->setEnabled(a_widgetsStates.gammaStates.mappingEnabled);
+    ui->comboBoxMapping->setEnabled(a_widgetsStates.gammaStates.mappingEnabled);
 
     ui->comboBoxFormat->setCurrentIndex(a_widgetsStates.exportStates.format);
     ui->comboBoxFormat->setEnabled(a_widgetsStates.exportStates.formatEnabled);
@@ -1214,6 +1277,8 @@ void MainWindow::setWidgetsStates(const WidgetsStates& a_widgetsStates)
 void MainWindow::on_checkBoxEyeComfort_stateChanged(int arg1)
 {
     enableRGBWidgets(!arg1);
+    enableMappingWidgets(!arg1);
+
     ui->checkBoxGrayscale->setEnabled(!arg1);
 
     int32_t scrollX = ui->workspaceWidget->getScrollPosX();
@@ -1301,7 +1366,7 @@ void MainWindow::changeRGBColorChannelLevels(int8_t a_rValue, int8_t a_gValue, i
     changeRGBColorChannelLevel(2, a_bValue);
 }
 
-void MainWindow::restoreRGBColorChannelLevelsImage(int32_t a_hduIndex)
+void MainWindow::restoreRGBColorChannelLevelsImage(int32_t a_hduIndex, uint32_t a_transformType)
 {
     int8_t rValue = ui->horizontalSliderR->value();
     int8_t gValue = ui->horizontalSliderG->value();
@@ -1310,7 +1375,7 @@ void MainWindow::restoreRGBColorChannelLevelsImage(int32_t a_hduIndex)
     if (rValue != 0 || gValue != 0 || bValue != 0)
     {
         //libnfits::LOG("in restoreRGBColorChannelLevelsImage(), if case, a_hduIndex = %", a_hduIndex);
-        ui->workspaceWidget->setImage(a_hduIndex);
+        ui->workspaceWidget->setImage(a_hduIndex, a_transformType);
         changeRGBColorChannelLevels(rValue, gValue, bValue);
     }
     else
@@ -1367,3 +1432,55 @@ void MainWindow::on_resetRGBButton_clicked()
     }
 }
 
+
+void MainWindow::on_comboBoxMapping_currentIndexChanged(int index)
+{
+    int32_t scrollX = ui->workspaceWidget->getScrollPosX();
+    int32_t scrollY = ui->workspaceWidget->getScrollPosY();
+
+    if (!m_fitsFile.isOpen())
+        return;
+
+    int32_t transformType = convertComboIndexToTransformType(index);
+
+    if (transformType == FITS_UNDEFINED_VALUE)
+        return;
+
+    enableRestoreWidgets(false);  //// legacy code calling, those menu and button items are not used anymore
+
+    libnfits::LOG("Transform type changed to: % ", transformType);
+
+    ui->workspaceWidget->reloadImageWithTransformation(transformType);
+    m_bImageChanged = false;
+    backupOriginalImage();
+    restoreRGBColorChannelLevelsImage(ui->workspaceWidget->getCurrentImageHDUIndex(), transformType);
+
+    ui->workspaceWidget->scaleImage(m_scaleFactor);
+    ui->workspaceWidget->setScrollPosX(scrollX);
+    ui->workspaceWidget->setScrollPosY(scrollY);
+}
+
+int32_t MainWindow::convertComboIndexToTransformType(int32_t a_index) const
+{
+    int32_t transformType = FITS_UNDEFINED_VALUE;
+
+    switch (a_index)
+    {
+        case 0:
+            transformType = FITS_FLOAT_DOUBLE_NO_TRANSFORM;
+            break;
+        case 1:
+            transformType = FITS_FLOAT_DOUBLE_LINEAR_TRANSFORM_POSITIVE;
+            break;
+        case 2:
+            transformType = FITS_FLOAT_DOUBLE_LINEAR_TRANSFORM_NEGATIVE_POSITIVE;
+            break;
+        case 3:
+            transformType = FITS_FLOAT_DOUBLE_LINEAR_TRANSFORM_NEGATIVE;
+            break;
+        default:
+            break;
+    }
+
+    return transformType;
+}

@@ -164,10 +164,6 @@ void WorkspaceTabWidget::setImage(const uint8_t* a_image, uint32_t a_width, uint
     m_fitsImage->setData(a_image);
     m_fitsImage->createRGB32FlatData();
 
-    //// image float data dumping for debugging purposes
-    //// m_fitsImage->dumpFloatDataBuffer("./image_dump.txt", 8);
-    //// end of debugging dump
-
     reloadImage();
 }
 
@@ -191,7 +187,8 @@ void WorkspaceTabWidget::insertImage(const uint8_t* a_image, uint32_t a_width, u
     m_vecFitsImages.push_back(imageHDU);
 }
 
-void WorkspaceTabWidget::insertImage(const uint8_t* a_image, ImageParams& a_imageParams, const WidgetsStates& a_widgetStates)
+void WorkspaceTabWidget::insertImage(const uint8_t* a_image, ImageParams& a_imageParams, const WidgetsStates& a_widgetStates,
+                                     uint32_t a_transformType)
 {
     FITSImageHDU imageHDU;
 
@@ -203,7 +200,14 @@ void WorkspaceTabWidget::insertImage(const uint8_t* a_image, ImageParams& a_imag
     image->setBZero(a_imageParams.bzero);
     image->setBScale(a_imageParams.bscale);
     image->setData(a_image);
-    image->createRGB32FlatData();
+
+    uint8_t bytesNum = std::abs(a_imageParams.bitpix) / 8;
+    if (bytesNum == sizeof(float))
+          image->getBufferMinMax<float>();
+    else if (bytesNum == sizeof(double))
+          image->getBufferMinMax<double>();
+
+    image->createRGB32FlatData(a_transformType);
 
     imageHDU.index = a_imageParams.hduIndex;
     imageHDU.image = image;
@@ -340,7 +344,7 @@ void WorkspaceTabWidget::on_WorkspaceTabWidget_currentChanged(int index)
     if (index != 0)
         emit sendGammaCorrectionTabEnabled(false);
     else
-        sendGammaCorrectionTabEnabled(true);
+        emit sendGammaCorrectionTabEnabled(true);
 }
 
 QSize WorkspaceTabWidget::getImageLabelSize() const
@@ -376,16 +380,36 @@ void WorkspaceTabWidget::clearImages()
     m_fitsImageHDUIndex = -1;
 }
 
-void WorkspaceTabWidget::setImage(uint32_t a_hduIndex)
+void WorkspaceTabWidget::setImage(uint32_t a_hduIndex, uint32_t a_transformType, bool a_bRecreate)
 {
     for (auto it = m_vecFitsImages.begin(); it < m_vecFitsImages.end(); ++it)
+    {
         if (it->index == a_hduIndex)
         {
             m_fitsImage = it->image;
             m_fitsImageHDUIndex = it->index;
 
+            //// this part is added due to image mapping/transformation support
+            if (a_bRecreate)
+            {
+                m_fitsImage->deletAllData();
+                m_fitsImage->createRGB32FlatData(a_transformType);
+                libnfits::LOG("in setImage(uint32_t a_hduIndex, uint32_t a_transformType), a_transformType = % ", a_transformType);
+            }
+            ////
+
             reloadImage();
         }
+    }
+}
+
+libnfits::Image* WorkspaceTabWidget::getImage(uint32_t a_hduIndex) const
+{
+    for (auto it = m_vecFitsImages.begin(); it < m_vecFitsImages.end(); ++it)
+        if (it->index == a_hduIndex)
+            return it->image;
+
+    return nullptr;
 }
 
 int32_t WorkspaceTabWidget::getScrollPosX() const
@@ -462,4 +486,30 @@ void WorkspaceTabWidget::setNoImageDataImage()
     m_imageLabel->setPixmap(QPixmap("://icons/no_image_data.png"));
 
     m_imageLabel->adjustSize();
+}
+
+void WorkspaceTabWidget::reloadImageWithTransformation(uint32_t a_transformType)
+{
+    setImage(getCurrentImageHDUIndex(), a_transformType, true);
+
+    reloadImage();
+}
+
+uint32_t WorkspaceTabWidget::getTransformType() const
+{
+    return m_fitsImage->getTransformType();
+}
+
+uint32_t WorkspaceTabWidget::getTransformType(uint32_t a_hduIndex) const
+{
+    uint32_t type = FITS_FLOAT_DOUBLE_NO_TRANSFORM;
+
+    libnfits::Image* image = nullptr;
+
+    image = getImage(a_hduIndex);
+
+    if (image != nullptr)
+        type = image->getTransformType();
+
+    return type;
 }

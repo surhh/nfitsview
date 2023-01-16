@@ -12,9 +12,13 @@ Image::Image():
     m_rgbDataBuffer(nullptr), m_rgb32DataBuffer(nullptr), m_rgb32FlatDataBuffer(nullptr),
     m_rgbDataBackupBuffer(nullptr), m_rgb32DataBackupBuffer(nullptr), m_rgb32FlatDataBackupBuffer(nullptr), m_maxDataBufferSize(0), m_baseOffset(0),
     m_width(0), m_height(0), m_colorDepth(0), m_bitpix(0), m_isCompressed(false), m_bzero(FITS_BZERO_DEFAULT_VALUE),
-    m_bscale(FITS_BSCALE_DEFAULT_VALUE), m_title(""), m_callbackFunc(nullptr), m_callbackFuncParam(nullptr)
+    m_bscale(FITS_BSCALE_DEFAULT_VALUE), m_title(""), m_callbackFunc(nullptr), m_callbackFuncParam(nullptr),
+    m_transformType(FITS_FLOAT_DOUBLE_NO_TRANSFORM)
 {
     m_colorStats = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+    m_minValue = std::numeric_limits<double>::min();
+    m_maxValue = std::numeric_limits<double>::max();
 }
 
 Image::Image(const uint8_t* a_dataBuffer, uint32_t a_witdth, uint32_t a_height, uint8_t a_colorDepth, int8_t a_bitpix,
@@ -36,6 +40,8 @@ Image::Image(const uint8_t* a_dataBuffer, uint32_t a_witdth, uint32_t a_height, 
     m_rgbDataBuffer = nullptr;
     m_rgb32DataBuffer = nullptr;
     m_rgb32FlatDataBuffer = nullptr;
+    m_transformType = FITS_FLOAT_DOUBLE_NO_TRANSFORM;
+
 }
 
 Image::~Image()
@@ -170,8 +176,9 @@ bool Image::isCompressed() const
 
 void Image::reset()
 {
-    deleteAllRGBData();
-    deleteAllBackupRGBData();
+    //deleteAllRGBData();
+    //deleteAllBackupRGBData();
+    deletAllData();
 
     m_width = 0;
     m_height = 0;
@@ -186,6 +193,12 @@ void Image::reset()
     m_title.clear();
 
     m_colorStats = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+    m_minValue = std::numeric_limits<double>::min();
+    m_maxValue = std::numeric_limits<double>::max();
+
+    m_transformType = FITS_FLOAT_DOUBLE_NO_TRANSFORM;
+
 }
 
 void Image::backupRGBData()
@@ -317,13 +330,19 @@ void Image::deleteRGB32FlatData()
     _deleteRGB32FlatData(m_rgb32FlatDataBuffer);
 }
 
-int32_t Image::createRGBData()
+void Image::deletAllData()
+{
+    deleteAllRGBData();
+    deleteAllBackupRGBData();
+}
+
+int32_t Image::createRGBData(uint32_t a_transformType)
 {
     int32_t retVal = FITS_GENERAL_SUCCESS;
 
     uint8_t bytesNum = std::abs(m_bitpix) / 8;
 
-    if (bytesNum != 1 && bytesNum != 2 && bytesNum != 4 && bytesNum != 8)   //// TODO: in the future it's needed to support other 8/16/32/64/ bit images
+    if (bytesNum != 1 && bytesNum != 2 && bytesNum != 4 && bytesNum != 8)
         return FITS_GENERAL_ERROR;
 
     // the image has been converted to RGB already
@@ -410,11 +429,11 @@ int32_t Image::createRGBData()
                         convertBufferShort2RGB(tmpRow, tmpBufRowSize, tmpDestRow) :
                         convertBufferShortSZ2RGB(tmpRow, tmpBufRowSize, m_bzero, m_bscale, tmpDestRow);
             else if (m_bitpix == -32)
-                convertBufferFloat2RGB(tmpRow, tmpBufRowSize);
+                convertBufferFloat2RGB(tmpRow, tmpBufRowSize, m_minValue, m_maxValue, a_transformType);
             else if (m_bitpix == 32)
                 convertBufferInt2RGB(tmpRow, tmpBufRowSize);
             else if (m_bitpix == -64)
-                convertBufferDouble2RGB(tmpRow, tmpBufRowSize);
+                convertBufferDouble2RGB(tmpRow, tmpBufRowSize, m_minValue, m_maxValue, a_transformType);
             else if (m_bitpix == 64)
                 convertBufferLong2RGB(tmpRow, tmpBufRowSize);
 
@@ -444,13 +463,13 @@ int32_t Image::createRGBData()
     return retVal;
 }
 
-int32_t Image::createRGB32Data()
+int32_t Image::createRGB32Data(uint32_t a_transformType)
 {
     int32_t retVal = FITS_GENERAL_SUCCESS;
 
     uint8_t bytesNum = std::abs(m_bitpix) / 8;
 
-    if (bytesNum != 1 && bytesNum != 2 && bytesNum != 4 && bytesNum != 8)   //// TODO: in the future it's needed to support other 8/16/32/64/ bit images
+    if (bytesNum != 1 && bytesNum != 2 && bytesNum != 4 && bytesNum != 8)
         return FITS_GENERAL_ERROR;
 
     // the image has been converted to RGB already
@@ -466,6 +485,7 @@ int32_t Image::createRGB32Data()
 
     m_rgb32DataBuffer = new uint8_t*[m_height]();
 
+    //// the image has been converted to RGB already
     if (m_rgb32DataBuffer == nullptr)
         return FITS_GENERAL_ERROR;
 
@@ -512,11 +532,11 @@ int32_t Image::createRGB32Data()
                         convertBufferShort2RGB(tmpRow, tmpBufRowSize, tmpDestRow) :
                         convertBufferShortSZ2RGB(tmpRow, tmpBufRowSize, m_bzero, m_bscale, tmpDestRow);
             else if (m_bitpix == -32)
-                convertBufferFloat2RGB(tmpRow, tmpBufRowSize);
+                convertBufferFloat2RGB(tmpRow, tmpBufRowSize, m_minValue, m_maxValue, a_transformType);
             else if (m_bitpix == 32)
                 convertBufferInt2RGB(tmpRow, tmpBufRowSize);
             else if (m_bitpix == -64)
-                convertBufferDouble2RGB(tmpRow, tmpBufRowSize);
+                convertBufferDouble2RGB(tmpRow, tmpBufRowSize, m_minValue, m_maxValue, a_transformType);
             else if (m_bitpix == 64)
                 convertBufferLong2RGB(tmpRow, tmpBufRowSize);
 
@@ -546,29 +566,32 @@ int32_t Image::createRGB32Data()
     return retVal;
 }
 
-int32_t Image::createRGB32FlatData()
+int32_t Image::createRGB32FlatData(uint32_t a_transformType)
 {
     int32_t retVal = FITS_GENERAL_SUCCESS;
 
     uint8_t bytesNum = std::abs(m_bitpix) / 8;
 
-    if (bytesNum != 1 && bytesNum != 2 && bytesNum != 4 && bytesNum != 8) ///// TODO: in the future it's needed to support other 8/16/32/64/ bit images
+    if (bytesNum != 1 && bytesNum != 2 && bytesNum != 4 && bytesNum != 8)
         return FITS_GENERAL_ERROR;
 
-    // the image has been converted to RGB already
+    //// the image has been converted to RGB already
     if (m_rgb32FlatDataBuffer != nullptr)
         return FITS_GENERAL_ERROR;
 
-    // calculating the PNG pixel buffer size. This way is more understandable in terms of logic
-    // thow we need to have only RGB data, we actually need to have it 32-bit aligned for some future use cases,
-    // that's why it's multipled by 4 instead of 3 (kind of tricky stuff, but works fine)
+    //// calculating the PNG pixel buffer size. This way is more understandable in terms of logic
+    //// thow we need to have only RGB data, we actually need to have it 32-bit aligned for some future use cases,
+    //// that's why it's multipled by 4 instead of 3 (kind of tricky stuff, but works fine)
 
-    size_t tmpBufRowSize = m_width * bytesNum * (m_colorDepth / (sizeof(uint8_t) * 8)) * sizeof(uint8_t);  // 32/64-bit element buffer for temp ussage
+    size_t tmpBufRowSize = m_width * bytesNum * (m_colorDepth / (sizeof(uint8_t) * 8)) * sizeof(uint8_t);  //// 32/64-bit element buffer for temp ussage
 
     size_t flatBufSize = m_height * m_width * 4;
 
-    m_rgb32FlatDataBuffer = new uint8_t[flatBufSize];
-    std::memset(m_rgb32FlatDataBuffer, 0, flatBufSize);
+    if (m_rgb32FlatDataBuffer == nullptr)
+    {
+        m_rgb32FlatDataBuffer = new uint8_t[flatBufSize];
+        std::memset(m_rgb32FlatDataBuffer, 0, flatBufSize);
+    }
 
     if (m_rgb32FlatDataBuffer == nullptr)
         return FITS_GENERAL_ERROR;
@@ -612,11 +635,11 @@ int32_t Image::createRGB32FlatData()
                         convertBufferShort2RGB(tmpRow, tmpBufRowSize, tmpDestRow) :
                         convertBufferShortSZ2RGB(tmpRow, tmpBufRowSize, m_bzero, m_bscale, tmpDestRow);
             else if (m_bitpix == -32)
-                convertBufferFloat2RGB(tmpRow, tmpBufRowSize);
+                convertBufferFloat2RGB(tmpRow, tmpBufRowSize, m_minValue, m_maxValue, a_transformType);
             else if (m_bitpix == 32)
                 convertBufferInt2RGB(tmpRow, tmpBufRowSize);
             else if (m_bitpix == -64)
-                convertBufferDouble2RGB(tmpRow, tmpBufRowSize);
+                convertBufferDouble2RGB(tmpRow, tmpBufRowSize, m_minValue, m_maxValue, a_transformType);
             else if (m_bitpix == 64)
                 convertBufferLong2RGB(tmpRow, tmpBufRowSize);
 
@@ -630,6 +653,8 @@ int32_t Image::createRGB32FlatData()
                 m_rgb32FlatDataBuffer[indexDest + 2] = tmpFinalRow[indexSource];
                 m_rgb32FlatDataBuffer[indexDest + 3] = 0xff;
             }
+
+            m_transformType = a_transformType;
         }
     }
     catch (...)
@@ -1172,6 +1197,68 @@ void Image::processRGBB32FlatBrightnessFilter(uint8_t a_threshold)
         }
 }
 
+
+void Image::setMinValue(double a_value)
+{
+    m_minValue = a_value;
+}
+
+double Image::getMinValue() const
+{
+    return m_minValue;
+}
+
+void Image::setMaxValue(double a_value)
+{
+    m_maxValue = a_value;
+}
+
+double Image::getMaxValue() const
+{
+    return m_maxValue;
+}
+
+void Image::setMinMaxValues(double a_minValue, double a_maxValue)
+{
+    m_minValue = a_minValue;
+    m_maxValue = a_maxValue;
+}
+
+template<typename T> void Image::getBufferMinMax()
+{
+    T param;
+    float minValueF = 0.0, maxValueF = 0.0;
+    double minValueD = 0.0, maxValueD = 0.0;
+
+    size_t size = m_width * m_height * sizeof(T);
+
+    if (m_baseOffset + size <= m_maxDataBufferSize)
+    {
+        if (sizeof(param) == sizeof(float))
+        {
+            libnfits::getFloatBufferMinMax(m_dataBuffer, size, minValueF, maxValueF);
+
+            m_minValue = minValueF;
+            m_maxValue = maxValueF;
+        }
+
+        if (sizeof(param) == sizeof(double))
+        {
+            libnfits::getDoubleBufferMinMax(m_dataBuffer, size, minValueD, maxValueD)
+                    ;
+            m_minValue = minValueD;
+            m_maxValue = maxValueD;
+        }
+    }
+}
+
+template void Image::getBufferMinMax<float>();
+template void Image::getBufferMinMax<double>();
+
+uint32_t Image::getTransformType() const
+{
+    return  m_transformType;
+}
 //// these functions are for debugging purposes only, they are slow
 int32_t Image::dumpFloatDataBuffer(const std::string& a_filename, uint32_t a_rowSize)
 {

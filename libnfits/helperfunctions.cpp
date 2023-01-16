@@ -422,13 +422,26 @@ void swapBuffer64(uint8_t* a_buffer, size_t a_size)
 #endif
 }
 
-void convertBufferFloat2RGBA(uint8_t* a_buffer, size_t a_size)
+void convertBufferFloat2RGBA(uint8_t* a_buffer, size_t a_size, float a_min, float a_max, uint32_t a_type)
 {
     // checking for buffer granularity
     if (a_size % sizeof(float) != 0)
         return;
 
     uint32_t *tmpBuf = (uint32_t*)(a_buffer);
+
+    float min = FITS_FLOAT_DOUBLE_RANGE_MIN_ZERO, max = FITS_FLOAT_DOUBLE_RANGE_MAX_POSITIVE;
+
+    if (a_type == FITS_FLOAT_DOUBLE_LINEAR_TRANSFORM_NEGATIVE)
+    {
+        min = FITS_FLOAT_DOUBLE_RANGE_MIN_NEGATIVE;
+        max = FITS_FLOAT_DOUBLE_RANGE_MAX_ZERO;
+    }
+    else if (a_type == FITS_FLOAT_DOUBLE_LINEAR_TRANSFORM_NEGATIVE_POSITIVE)
+    {
+        min = FITS_FLOAT_DOUBLE_RANGE_MIN_NEGATIVE;
+        max = FITS_FLOAT_DOUBLE_RANGE_MAX_POSITIVE;
+    }
 
     for (size_t i = 0; i < a_size / sizeof(float); ++i)
     {
@@ -438,17 +451,34 @@ void convertBufferFloat2RGBA(uint8_t* a_buffer, size_t a_size)
         int32_t s = tmpBuf[i];
 #endif
         float f = *((float *)&s);
+
+        if (a_type =! FITS_FLOAT_DOUBLE_NO_TRANSFORM)
+            f = normalizeValue<float>(f, a_min, a_max, min, max);
+
         tmpBuf[i] = convertFloat2RGBA(f);
     }
 }
 
-void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size)
+void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size, float a_min, float a_max, uint32_t a_type)
 {
     // checking for buffer granularity
     if (a_size % sizeof(float) != 0)
         return;
 
     uint32_t *tmpBuf = (uint32_t*)(a_buffer);
+
+    float min = FITS_FLOAT_DOUBLE_RANGE_MIN_ZERO, max = FITS_FLOAT_DOUBLE_RANGE_MAX_POSITIVE;
+
+    if (a_type == FITS_FLOAT_DOUBLE_LINEAR_TRANSFORM_NEGATIVE)
+    {
+        min = FITS_FLOAT_DOUBLE_RANGE_MIN_NEGATIVE;
+        max = FITS_FLOAT_DOUBLE_RANGE_MAX_ZERO;
+    }
+    else if (a_type == FITS_FLOAT_DOUBLE_LINEAR_TRANSFORM_NEGATIVE_POSITIVE)
+    {
+        min = FITS_FLOAT_DOUBLE_RANGE_MIN_NEGATIVE;
+        max = FITS_FLOAT_DOUBLE_RANGE_MAX_POSITIVE;
+    }
 
     for (size_t i = 0; i < a_size / sizeof(float); ++i)
     {
@@ -460,6 +490,9 @@ void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size)
         float f = *((float *)&s);
 
         uint8_t red, green, blue;
+
+        if (a_type != FITS_FLOAT_DOUBLE_NO_TRANSFORM)
+            f = normalizeValue<float>(f, a_min, a_max, min, max);
 
         convertFloat2RGB(f, red, green, blue);
 
@@ -554,13 +587,26 @@ void convertBufferRGB32Flat2Grayscale(uint8_t* a_buffer, uint32_t a_width, uint3
         }
 }
 
-void convertBufferDouble2RGBA(uint8_t* a_buffer, size_t a_size)
+void convertBufferDouble2RGBA(uint8_t* a_buffer, size_t a_size, double a_min, double a_max, uint32_t a_type)
 {
     // checking for buffer granularity
     if (a_size % sizeof(double) != 0)
         return;
 
     uint64_t *tmpBuf = (uint64_t*)(a_buffer);
+
+    double min = FITS_FLOAT_DOUBLE_RANGE_MIN_ZERO, max = FITS_FLOAT_DOUBLE_RANGE_MAX_POSITIVE;
+
+    if (a_type == FITS_FLOAT_DOUBLE_LINEAR_TRANSFORM_NEGATIVE)
+    {
+        min = FITS_FLOAT_DOUBLE_RANGE_MIN_NEGATIVE;
+        max = FITS_FLOAT_DOUBLE_RANGE_MAX_ZERO;
+    }
+    else if (a_type == FITS_FLOAT_DOUBLE_LINEAR_TRANSFORM_NEGATIVE_POSITIVE)
+    {
+        min = FITS_FLOAT_DOUBLE_RANGE_MIN_NEGATIVE;
+        max = FITS_FLOAT_DOUBLE_RANGE_MAX_POSITIVE;
+    }
 
     for (size_t i = 0; i < a_size / sizeof(double); ++i)
     {
@@ -571,19 +617,35 @@ void convertBufferDouble2RGBA(uint8_t* a_buffer, size_t a_size)
 #endif
         double f = *((double *)&s);
 
+        if (a_type != FITS_FLOAT_DOUBLE_NO_TRANSFORM)
+            f = normalizeValue<double>(f, a_min, a_max, min, max);
+
         uint64_t val = convertDouble2RGBA(f);
 
         tmpBuf[i] = (val << 32) & 0xffffffff00000000;
     }
 }
 
-void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size)
+void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size, double a_min, double a_max, uint32_t a_type)
 {
     // checking for buffer granularity
     if (a_size % sizeof(double) != 0)
         return;
 
     uint64_t *tmpBuf = (uint64_t*)(a_buffer);
+
+    double min = FITS_FLOAT_DOUBLE_RANGE_MIN_ZERO, max = FITS_FLOAT_DOUBLE_RANGE_MAX_POSITIVE;
+
+    if (a_type == FITS_FLOAT_DOUBLE_LINEAR_TRANSFORM_NEGATIVE)
+    {
+        min = FITS_FLOAT_DOUBLE_RANGE_MIN_NEGATIVE;
+        max = FITS_FLOAT_DOUBLE_RANGE_MAX_ZERO;
+    }
+    else if (a_type == FITS_FLOAT_DOUBLE_LINEAR_TRANSFORM_NEGATIVE_POSITIVE)
+    {
+        min = FITS_FLOAT_DOUBLE_RANGE_MIN_NEGATIVE;
+        max = FITS_FLOAT_DOUBLE_RANGE_MAX_POSITIVE;
+    }
 
     for (size_t i = 0; i < a_size / sizeof(double); ++i)
     {
@@ -595,6 +657,9 @@ void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size)
         double f = *((double *)&s);
 
         uint8_t red, green, blue;
+
+        if (a_type != FITS_FLOAT_DOUBLE_NO_TRANSFORM)
+            f = normalizeValue<double>(f, a_min, a_max, min, max);
 
         convertDouble2RGB(f, red, green, blue);
 
@@ -1038,8 +1103,8 @@ void getFloatBufferMinMax(uint8_t* a_buffer, size_t a_size, float& a_min, float&
 
     uint32_t *tmpBuf = (uint32_t*)(a_buffer);
 
-    float minVal = std::numeric_limits<float>::min();
-    float maxVal = std::numeric_limits<float>::max();
+    float minVal = std::numeric_limits<float>::max();
+    float maxVal = std::numeric_limits<float>::min();
 
     for (size_t i = 0; i < a_size / sizeof(float); ++i)
     {
@@ -1069,8 +1134,8 @@ void getDoubleBufferMinMax(uint8_t* a_buffer, size_t a_size, double& a_min, doub
 
     uint64_t *tmpBuf = (uint64_t*)(a_buffer);
 
-    double minVal = std::numeric_limits<double>::min();
-    double maxVal = std::numeric_limits<double>::max();
+    double minVal = std::numeric_limits<double>::max();
+    double maxVal = std::numeric_limits<double>::min();
 
     for (size_t i = 0; i < a_size / sizeof(double); ++i)
     {

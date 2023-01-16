@@ -149,9 +149,12 @@ int32_t PNGFile::createFromPixelData(const uint8_t* a_pixelBuffer)
 
                 for (uint32_t i = 0; i < tmpBufRowSize / 4; ++i)
                 {
-                    pngRows[y][i*3]     = pngTmpRow[i*4];
-                    pngRows[y][i*3 + 1] = pngTmpRow[i*4 + 1];
-                    pngRows[y][i*3 + 2] = pngTmpRow[i*4 + 2];
+                    uint32_t baseIndex3 = i*3;
+                    uint32_t baseIndex4 = i*4;
+
+                    pngRows[y][baseIndex3]     = pngTmpRow[baseIndex4];
+                    pngRows[y][baseIndex3 + 1] = pngTmpRow[baseIndex4 + 1];
+                    pngRows[y][baseIndex3 + 2] = pngTmpRow[baseIndex4 + 2];
                 }
             }
             else

@@ -58,10 +58,12 @@ public:
 
     void insertImage(const uint8_t* a_image, uint32_t a_width, uint32_t a_height, size_t a_HDUBaseOffset,
                      size_t a_maxDataBufferSize, int8_t a_bitpix, uint32_t a_hduIndex, const WidgetsStates& a_widgetStates);
-    void insertImage(const uint8_t* a_image, ImageParams& a_imageParams, const WidgetsStates& a_widgetStates);
+    void insertImage(const uint8_t* a_image, ImageParams& a_imageParams, const WidgetsStates& a_widgetStates,
+                     uint32_t a_transformType = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
     void clearImages();
-    void setImage(uint32_t a_hduIndex);
+    void setImage(uint32_t a_hduIndex, uint32_t a_transformType = FITS_FLOAT_DOUBLE_NO_TRANSFORM, bool a_bRecreate = false);
+    libnfits::Image* getImage(uint32_t a_hduIndex) const;
 
     int32_t getScrollPosX() const;
     int32_t getScrollPosY() const;
@@ -76,6 +78,11 @@ public:
     int32_t findImageHDUIndexByTableIndex(int32_t a_index);
 
     void setNoImageDataImage();
+
+    void reloadImageWithTransformation(uint32_t a_transformType);
+
+    uint32_t getTransformType() const;
+    uint32_t getTransformType(uint32_t a_hduIndex) const;
 
 private slots:
     void on_WorkspaceTabWidget_currentChanged(int index);

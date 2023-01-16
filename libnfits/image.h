@@ -57,6 +57,9 @@ private:
     int8_t              m_bitpix;
     double              m_bzero;
     double              m_bscale;
+    double              m_minValue;
+    double              m_maxValue;
+    uint32_t            m_transformType;
     size_t              m_maxDataBufferSize;
     size_t              m_baseOffset;
     std::string         m_title;
@@ -108,17 +111,17 @@ public:
     void setCallbackFunction(CallbackFunctionPtr a_callbackFunc, void* a_callbackFuncParam);
     int32_t exportPNG(const std::string& a_fileName);
 
-    int32_t createRGBData();
+    int32_t createRGBData(uint32_t a_transformType = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
     uint8_t** getRGBData() const;
     void setRGBData(uint8_t** a_rgbDataBuffer);
     void copyRGBData(uint8_t** a_rgbDataBufferDest, uint8_t** a_rgbDataBufferSrc);
 
-    int32_t createRGB32Data();
+    int32_t createRGB32Data(uint32_t a_transformType = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
     uint8_t** getRGB32Data() const;
     void setRGB32Data(uint8_t** a_rgbDataBuffer);
     void copyRGB32Data(uint8_t** a_rgbDataBufferDest, uint8_t** a_rgbDataBufferSrc);
 
-    int32_t createRGB32FlatData();
+    int32_t createRGB32FlatData(uint32_t a_transformType = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
     uint8_t* getRGB32FlatData() const;
     void setRGB32FlatData(uint8_t* a_rgbFlatDataBuffer);
     void copyRGB32FlatData(uint8_t* a_rgbFlatDataBufferDest, uint8_t* a_rgbFlatDataBufferSrc);
@@ -153,6 +156,7 @@ public:
     void deleteRGB32FlatData();
     void deleteAllRGBData();
     void deleteAllBackupRGBData();
+    void deletAllData();
 
     void normalize(float a_min, float a_max, float a_minNew, float a_maxNew);
 
@@ -174,7 +178,16 @@ public:
     void processRGB32BrightnessFilter(uint8_t a_threshold);
     void processRGBB32FlatBrightnessFilter(uint8_t a_threshold);
 
-    //// thiese functions are for debugging purposes only, is slow
+    void setMinValue(double a_value);
+    double getMinValue() const;
+    void setMaxValue(double a_value);
+    double getMaxValue() const;
+    void setMinMaxValues(double a_minValue, double a_maxValue);
+    uint32_t getTransformType() const;
+
+    template<typename T> void getBufferMinMax();
+
+    //// thiese functions are for debugging purposes only, they are slow
     int32_t dumpFloatDataBuffer(const std::string& a_filename, uint32_t a_rowSize);
     int32_t dumpDoubleDataBuffer(const std::string& a_filename, uint32_t a_rowSize);
 };

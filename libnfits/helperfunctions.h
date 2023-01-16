@@ -612,13 +612,17 @@ inline void convertByteSZ2Grayscale(uint8_t a_value, int8_t a_bscale, int8_t a_b
 }
 
 //// array of pixels (buffer) conversion functions based on the single pixel conversion functions
-void convertBufferFloat2RGBA(uint8_t* a_buffer, size_t a_size);
+void convertBufferFloat2RGBA(uint8_t* a_buffer, size_t a_size, float a_min = 0.0, float a_max = 0.0,
+                             uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
-void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size);
+void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size, float a_min = 0.0, float a_max = 0.0,
+                            uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
-void convertBufferDouble2RGBA(uint8_t* a_buffer, size_t a_size);
+void convertBufferDouble2RGBA(uint8_t* a_buffer, size_t a_size, double a_min = 0.0, double a_max = 0.0,
+                              uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
-void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size);
+void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size, double a_min = 0.0, double a_max = 0.0,
+                             uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
 void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer, bool a_gray = true);
 

@@ -345,7 +345,7 @@ int32_t Image::createRGBData(uint32_t a_transformType)
     if (bytesNum != 1 && bytesNum != 2 && bytesNum != 4 && bytesNum != 8)
         return FITS_GENERAL_ERROR;
 
-    // the image has been converted to RGB already
+    //// the image has been converted to RGB already
     if (m_rgbDataBuffer != nullptr)
         return FITS_GENERAL_ERROR;
 

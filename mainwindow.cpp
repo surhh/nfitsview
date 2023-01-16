@@ -985,24 +985,6 @@ void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current
 
                         int32_t index = ui->workspaceWidget->getCurrentImageHDUIndex();
 
-                        //// This commented part below is not needed anymore, as all the logic is done in the
-                        //// transform type combobox slot
-                        /*
-                        if (widgetsStates.gammaStates.mappingValue != FITS_FLOAT_DOUBLE_NO_TRANSFORM)
-                        {
-                            //ui->workspaceWidget->setImage(index, widgetsStates.gammaStates.mappingValue);
-                            m_bImageChanged = false;
-                            libnfits::LOG("HDU item change, m_bImageChanged = % ", m_bImageChanged);
-                            ui->workspaceWidget->reloadImageWithTransformation(widgetsStates.gammaStates.mappingValue);
-                            backupOriginalImage();
-                            changeRGBColorChannelLevels(widgetsStates.gammaStates.rLevel,
-                                                        widgetsStates.gammaStates.gLevel,
-                                                        widgetsStates.gammaStates.bLevel);
-                            //restoreRGBColorChannelLevelsImage(index, widgetsStates.gammaStates.mappingValue); /// TODO: RGB changing and mapping are not working together, need to fix it
-                            ui->workspaceWidget->scaleImage(m_scaleFactor);
-                        }
-                        */
-
                         if (widgetsStates.gammaStates.gray)
                         {
 

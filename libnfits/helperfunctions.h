@@ -661,7 +661,13 @@ std::string convertBuffer2HexString(uint8_t* a_buffer, size_t size, uint32_t a_a
 
 void getFloatBufferMinMax(uint8_t* a_buffer, size_t a_size, float& a_min, float& a_max);
 
-void getDoubleBufferMinMax(uint8_t* a_buffer, size_t a_size, double &a_min, double &a_max);
+void getDoubleBufferMinMax(uint8_t* a_buffer, size_t a_size, double& a_min, double& a_max);
+
+void getShortBufferMinMax(uint8_t* a_buffer, size_t a_size, uint16_t& a_min, uint16_t& a_max);
+
+void getIntBufferMinMax(uint8_t* a_buffer, size_t a_size, uint32_t& a_min, uint32_t& a_max);
+
+void getLongBufferMinMax(uint8_t* a_buffer, size_t a_size, uint64_t& a_min, uint64_t& a_max);
 
 
 //// these functions are for debugging purposes only, they are slow

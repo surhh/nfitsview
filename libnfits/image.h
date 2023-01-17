@@ -59,6 +59,8 @@ private:
     double              m_bscale;
     double              m_minValue;
     double              m_maxValue;
+    int64_t             m_minValueL;
+    int64_t             m_maxValueL;
     uint32_t            m_transformType;
     size_t              m_maxDataBufferSize;
     size_t              m_baseOffset;
@@ -183,6 +185,13 @@ public:
     void setMaxValue(double a_value);
     double getMaxValue() const;
     void setMinMaxValues(double a_minValue, double a_maxValue);
+
+    void setMinValueL(uint64_t a_value);
+    uint64_t getMinValueL() const;
+    void setMaxValueL(uint64_t a_value);
+    uint64_t getMaxValueL() const;
+    void setMinMaxValuesL(uint64_t a_minValue, uint64_t a_maxValue);
+
     uint32_t getTransformType() const;
 
     template<typename T> void getBufferMinMax();

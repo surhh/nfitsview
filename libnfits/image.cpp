@@ -19,6 +19,9 @@ Image::Image():
 
     m_minValue = std::numeric_limits<double>::min();
     m_maxValue = std::numeric_limits<double>::max();
+
+    m_minValueL = std::numeric_limits<uint64_t>::min();
+    m_maxValueL = std::numeric_limits<uint64_t>::max();
 }
 
 Image::Image(const uint8_t* a_dataBuffer, uint32_t a_witdth, uint32_t a_height, uint8_t a_colorDepth, int8_t a_bitpix,
@@ -196,6 +199,9 @@ void Image::reset()
 
     m_minValue = std::numeric_limits<double>::min();
     m_maxValue = std::numeric_limits<double>::max();
+
+    m_minValueL = std::numeric_limits<uint64_t>::min();
+    m_maxValueL = std::numeric_limits<uint64_t>::max();
 
     m_transformType = FITS_FLOAT_DOUBLE_NO_TRANSFORM;
 
@@ -1197,7 +1203,6 @@ void Image::processRGBB32FlatBrightnessFilter(uint8_t a_threshold)
         }
 }
 
-
 void Image::setMinValue(double a_value)
 {
     m_minValue = a_value;
@@ -1224,36 +1229,99 @@ void Image::setMinMaxValues(double a_minValue, double a_maxValue)
     m_maxValue = a_maxValue;
 }
 
+void Image::setMinValueL(uint64_t a_value)
+{
+    m_minValueL = a_value;
+}
+
+uint64_t Image::getMinValueL() const
+{
+    return m_minValueL;
+}
+
+void Image::setMaxValueL(uint64_t a_value)
+{
+    m_maxValueL = a_value;
+}
+
+uint64_t Image::getMaxValueL() const
+{
+    return m_maxValueL ;
+}
+
+void Image::setMinMaxValuesL(uint64_t a_minValue, uint64_t a_maxValue)
+{
+    m_minValueL = a_minValue;
+    m_maxValueL = a_maxValue;
+}
+
 template<typename T> void Image::getBufferMinMax()
 {
     T param;
+
     float minValueF = 0.0, maxValueF = 0.0;
     double minValueD = 0.0, maxValueD = 0.0;
+
+    uint16_t minValue16 = 0, maxValue16 = 0;
+    uint32_t minValue32 = 0, maxValue32 = 0;
+    uint64_t minValue64 = 0, maxValue64 = 0;
 
     size_t size = m_width * m_height * sizeof(T);
 
     if (m_baseOffset + size <= m_maxDataBufferSize)
     {
-        if (sizeof(param) == sizeof(float))
+        if (std::is_same<T, float>::value)
         {
             libnfits::getFloatBufferMinMax(m_dataBuffer, size, minValueF, maxValueF);
 
             m_minValue = minValueF;
             m_maxValue = maxValueF;
+            return;
         }
 
-        if (sizeof(param) == sizeof(double))
+        if (std::is_same<T, double>::value)
         {
-            libnfits::getDoubleBufferMinMax(m_dataBuffer, size, minValueD, maxValueD)
-                    ;
+            libnfits::getDoubleBufferMinMax(m_dataBuffer, size, minValueD, maxValueD);
+
             m_minValue = minValueD;
             m_maxValue = maxValueD;
+            return;
+        }
+
+        if (std::is_same<T, uint16_t>::value)
+        {
+            libnfits::getShortBufferMinMax(m_dataBuffer, size, minValue16, minValue16);
+
+            m_minValueL = minValue16;
+            m_maxValueL = maxValue16;
+            return;
+        }
+
+        if (std::is_same<T, uint32_t>::value)
+        {
+            libnfits::getIntBufferMinMax(m_dataBuffer, size, minValue32, minValue32);
+
+            m_minValueL = minValue32;
+            m_maxValueL = maxValue32;
+            return;
+        }
+
+        if (std::is_same<T, uint64_t>::value)
+        {
+            libnfits::getLongBufferMinMax(m_dataBuffer, size, minValue64, minValue64);
+
+            m_minValueL = minValue64;
+            m_maxValueL = maxValue64;
+            return;
         }
     }
 }
 
 template void Image::getBufferMinMax<float>();
 template void Image::getBufferMinMax<double>();
+template void Image::getBufferMinMax<uint16_t>();
+template void Image::getBufferMinMax<uint32_t>();
+template void Image::getBufferMinMax<uint64_t>();
 
 uint32_t Image::getTransformType() const
 {

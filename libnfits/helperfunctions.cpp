@@ -1157,6 +1157,96 @@ void getDoubleBufferMinMax(uint8_t* a_buffer, size_t a_size, double& a_min, doub
     a_max = maxVal;
 }
 
+void getShortBufferMinMax(uint8_t* a_buffer, size_t a_size, uint16_t& a_min, uint16_t& a_max)
+{
+    // checking for buffer granularity
+    if (a_size % sizeof(uint16_t) != 0)
+        return;
+
+    uint16_t *tmpBuf = (uint16_t*)(a_buffer);
+
+    uint16_t minVal = std::numeric_limits<uint16_t>::max();
+    uint16_t maxVal = std::numeric_limits<uint16_t>::min();
+
+    for (size_t i = 0; i < a_size / sizeof(uint16_t); ++i)
+    {
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+        uint16_t s = swap16(tmpBuf[i]);
+#else
+        uint16_t s = tmpBuf[i];
+#endif
+
+        if (s > maxVal)
+            maxVal = s;
+
+        if (s < minVal)
+            minVal = s;
+    }
+
+    a_min = minVal;
+    a_max = maxVal;
+}
+
+void getIntBufferMinMax(uint8_t* a_buffer, size_t a_size, uint32_t& a_min, uint32_t& a_max)
+{
+    // checking for buffer granularity
+    if (a_size % sizeof(uint32_t) != 0)
+        return;
+
+    uint32_t *tmpBuf = (uint32_t*)(a_buffer);
+
+    uint32_t minVal = std::numeric_limits<uint32_t>::max();
+    uint32_t maxVal = std::numeric_limits<uint32_t>::min();
+
+    for (size_t i = 0; i < a_size / sizeof(uint32_t); ++i)
+    {
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+        uint32_t s = swap32(tmpBuf[i]);
+#else
+        uint32_t s = tmpBuf[i];
+#endif
+
+        if (s > maxVal)
+            maxVal = s;
+
+        if (s < minVal)
+            minVal = s;
+    }
+
+    a_min = minVal;
+    a_max = maxVal;
+}
+
+void getLongBufferMinMax(uint8_t* a_buffer, size_t a_size, uint64_t& a_min, uint64_t& a_max)
+{
+    // checking for buffer granularity
+    if (a_size % sizeof(uint64_t) != 0)
+        return;
+
+    uint64_t *tmpBuf = (uint64_t*)(a_buffer);
+
+    uint64_t minVal = std::numeric_limits<uint64_t>::max();
+    uint64_t maxVal = std::numeric_limits<uint64_t>::min();
+
+    for (size_t i = 0; i < a_size / sizeof(uint64_t); ++i)
+    {
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+        uint64_t s = swap64(tmpBuf[i]);
+#else
+        uint64_t s = tmpBuf[i];
+#endif
+
+        if (s > maxVal)
+            maxVal = s;
+
+        if (s < minVal)
+            minVal = s;
+    }
+
+    a_min = minVal;
+    a_max = maxVal;
+}
+
 
 //// use for debug purposes only, slow functions
 int32_t dumpFloatDataBuffer(const uint8_t* a_buffer, size_t a_size, const std::string& a_filename, uint32_t a_rowSize)

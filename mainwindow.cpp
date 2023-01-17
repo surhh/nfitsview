@@ -1429,7 +1429,7 @@ void MainWindow::on_comboBoxMapping_currentIndexChanged(int index)
 
     enableRestoreWidgets(false);  //// legacy code calling, those menu and button items are not used anymore
 
-    libnfits::LOG("Transform type changed to: % ", transformType);
+    //libnfits::LOG("Transform type changed to: % ", transformType);
 
     ui->workspaceWidget->reloadImageWithTransformation(transformType);
     m_bImageChanged = false;

@@ -792,13 +792,19 @@ int32_t Image::_changeRGB32FlatColorChannelLevel(uint8_t a_channel, float a_quat
         return FITS_GENERAL_ERROR;
 
     for (uint32_t y = 0; y < m_height; ++y)
+    {
+        size_t indexY = y*m_width;
+
         for (uint32_t x = 0; x < m_width; ++x)
         {
-            uint32_t channelVal = m_rgb32FlatDataBuffer[4*(y*m_width + x) + a_channel];
+            size_t index = 4*(indexY + x) + a_channel;
+
+            uint32_t channelVal = m_rgb32FlatDataBuffer[index];
             channelVal = (float)channelVal * a_quatient;
             //channelVal = (float)channelVal + (float)channelVal * a_quatient;
-            m_rgb32FlatDataBuffer[4*(y*m_width + x) + a_channel] = max256(channelVal);
+            m_rgb32FlatDataBuffer[index] = max256(channelVal);
         }
+    }
 
     return retVal;
 }

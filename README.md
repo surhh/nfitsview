@@ -6,8 +6,7 @@ Currently nFITSview supports the following formats and features:
 -    8-bit images
 -    16-bit integer images
 -    32-bit floating point and integer images
--    64-bit floating point and integer images (experimental, may still not work   
-     as it should)
+-    64-bit floating point and integer images (experimental, may still not work as it should)
 -    Exporting image HDUs as PNG/TIFF/JPEG/BMP files
 -    Bulk exporting of all image HDUs as PNG files
 -    RGB gamma correction, grayscale and "Eye Comfort" filter

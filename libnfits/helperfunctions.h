@@ -299,6 +299,11 @@ template<typename T> T normalizeValue(T a_value, T a_min, T a_max, T a_minNew, T
     return a_minNew + (a_value - a_min)*(std::abs(a_maxNew - a_minNew)/std::abs(a_max - a_min));
 }
 
+template<typename T> T normalizeValueIntLong(T a_value, T a_min, T a_max, T a_minNew, T a_maxNew)
+{
+    return a_minNew + (double)(a_value - a_min)*((double)std::labs(a_maxNew - a_minNew)/(double)std::labs(a_max - a_min));
+}
+
 void normalizeFloatBuffer(uint8_t* a_buffer, size_t a_size, float a_min, float a_max, float a_minNew, float a_maxNew);
 
 void normalizeDoubleBuffer(uint8_t* a_buffer, size_t a_size, double a_min, double a_max, double a_minNew, double a_maxNew);
@@ -624,17 +629,21 @@ void convertBufferDouble2RGBA(uint8_t* a_buffer, size_t a_size, double a_min = 0
 void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size, double a_min = 0.0, double a_max = 0.0,
                              uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
-void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer, bool a_gray = true);
+void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer, bool a_gray = true,
+                            uint16_t a_min = 0, uint16_t a_max = 0, uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
-void convertBufferShortSZ2RGB(uint8_t* a_buffer, size_t a_size, double a_bzero, double a_bscale, uint8_t* a_destBuffer, bool a_gray = true);
+void convertBufferShortSZ2RGB(uint8_t* a_buffer, size_t a_size, double a_bzero, double a_bscale, uint8_t* a_destBuffer, bool a_gray = true,
+                              uint16_t a_min = 0, uint16_t a_max = 0, uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
 void convertBufferByte2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer);
 
 void convertBufferByteSZ2RGB(uint8_t* a_buffer, size_t a_size, int8_t a_bzero, int8_t a_bscale, uint8_t* a_destBuffer);
 
-void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size);
+void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size, uint32_t a_min = 0, uint32_t a_max = 0,
+                          uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
-void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size);
+void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size, uint64_t a_min = 0, uint64_t a_max = 0,
+                           uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
 
 //// functions to convert buffers to grayscale

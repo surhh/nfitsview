@@ -951,7 +951,7 @@ void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current
 
                 fitToWindow();
 
-                if (bitpix == -32 || bitpix == -64)
+                if (std::abs(bitpix) > 8)
                     m_bEnableMappingWidgets = true;
                 else
                     m_bEnableMappingWidgets = false;

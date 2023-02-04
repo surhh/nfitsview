@@ -201,11 +201,17 @@ void WorkspaceTabWidget::insertImage(const uint8_t* a_image, ImageParams& a_imag
     image->setBScale(a_imageParams.bscale);
     image->setData(a_image);
 
-    uint8_t bytesNum = std::abs(a_imageParams.bitpix) / 8;
-    if (bytesNum == sizeof(float))
-          image->getBufferMinMax<float>();
-    else if (bytesNum == sizeof(double))
-          image->getBufferMinMax<double>();
+    if (a_imageParams.bitpix == -64)
+            image->getBufferMinMax<double>();
+    else if (a_imageParams.bitpix == 64)
+            image->getBufferMinMax<uint64_t>();
+    else if (a_imageParams.bitpix == -32)
+            image->getBufferMinMax<float>();
+    else if (a_imageParams.bitpix == 32)
+            image->getBufferMinMax<uint32_t>();
+    else if (a_imageParams.bitpix == 16)
+            image->getBufferMinMax<uint16_t>();
+
 
     image->createRGB32FlatData(a_transformType);
 
@@ -394,7 +400,7 @@ void WorkspaceTabWidget::setImage(uint32_t a_hduIndex, uint32_t a_transformType,
             {
                 m_fitsImage->deletAllData();
                 m_fitsImage->createRGB32FlatData(a_transformType);
-                libnfits::LOG("in setImage(uint32_t a_hduIndex, uint32_t a_transformType), a_transformType = % ", a_transformType);
+                //libnfits::LOG("in setImage(uint32_t a_hduIndex, uint32_t a_transformType), a_transformType = % ", a_transformType);
             }
             ////
 

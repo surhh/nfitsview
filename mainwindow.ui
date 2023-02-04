@@ -369,22 +369,22 @@
                 <widget class="QComboBox" name="comboBoxMapping">
                  <item>
                   <property name="text">
-                   <string>Original</string>
+                   <string>Original (Raw HDU data)</string>
                   </property>
                  </item>
                  <item>
                   <property name="text">
-                   <string>Linear: [0,1]</string>
+                   <string>Linear: Float-[0.0,1.0]; Int-[minInt, maxInt]</string>
                   </property>
                  </item>
                  <item>
                   <property name="text">
-                   <string>Linear: [-1,1]</string>
+                   <string>Linear: Float-[-1.0,1.0]; Int-[minInt, maxInt]</string>
                   </property>
                  </item>
                  <item>
                   <property name="text">
-                   <string>Linear: [-1,0]</string>
+                   <string>Linear: Float-[-1.0,0.0]; Int-[minInt, maxInt]</string>
                   </property>
                  </item>
                 </widget>

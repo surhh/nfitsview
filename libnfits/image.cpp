@@ -45,6 +45,11 @@ Image::Image(const uint8_t* a_dataBuffer, uint32_t a_witdth, uint32_t a_height, 
     m_rgb32FlatDataBuffer = nullptr;
     m_transformType = FITS_FLOAT_DOUBLE_NO_TRANSFORM;
 
+    m_minValue = std::numeric_limits<double>::min();
+    m_maxValue = std::numeric_limits<double>::max();
+
+    m_minValueL = std::numeric_limits<uint64_t>::min();
+    m_maxValueL = std::numeric_limits<uint64_t>::max();
 }
 
 Image::~Image()
@@ -432,16 +437,18 @@ int32_t Image::createRGBData(uint32_t a_transformType)
                 convertBufferByte2RGB(tmpRow, tmpBufRowSize, tmpDestRow);
             else if (m_bitpix == 16)
                 areEqual(m_bzero, FITS_BZERO_DEFAULT_VALUE) && areEqual(m_bscale, FITS_BSCALE_DEFAULT_VALUE) ?
-                        convertBufferShort2RGB(tmpRow, tmpBufRowSize, tmpDestRow) :
-                        convertBufferShortSZ2RGB(tmpRow, tmpBufRowSize, m_bzero, m_bscale, tmpDestRow);
+                        convertBufferShort2RGB(tmpRow, tmpBufRowSize, tmpDestRow, true,
+                                               m_minValueL, m_maxValueL, a_transformType) :
+                        convertBufferShortSZ2RGB(tmpRow, tmpBufRowSize, m_bzero, m_bscale, tmpDestRow, true,
+                                               m_minValueL, m_maxValueL, a_transformType);
             else if (m_bitpix == -32)
                 convertBufferFloat2RGB(tmpRow, tmpBufRowSize, m_minValue, m_maxValue, a_transformType);
             else if (m_bitpix == 32)
-                convertBufferInt2RGB(tmpRow, tmpBufRowSize);
+                convertBufferInt2RGB(tmpRow, tmpBufRowSize, m_minValueL, m_maxValueL, a_transformType);
             else if (m_bitpix == -64)
                 convertBufferDouble2RGB(tmpRow, tmpBufRowSize, m_minValue, m_maxValue, a_transformType);
             else if (m_bitpix == 64)
-                convertBufferLong2RGB(tmpRow, tmpBufRowSize);
+                convertBufferLong2RGB(tmpRow, tmpBufRowSize, m_minValueL, m_maxValueL, a_transformType);
 
             for (uint32_t x = 0; x < m_width; ++x)
             {
@@ -535,16 +542,18 @@ int32_t Image::createRGB32Data(uint32_t a_transformType)
                 convertBufferByte2RGB(tmpRow, tmpBufRowSize, tmpDestRow);
             else if (m_bitpix == 16)
                 areEqual(m_bzero, FITS_BZERO_DEFAULT_VALUE) && areEqual(m_bscale, FITS_BSCALE_DEFAULT_VALUE) ?
-                        convertBufferShort2RGB(tmpRow, tmpBufRowSize, tmpDestRow) :
-                        convertBufferShortSZ2RGB(tmpRow, tmpBufRowSize, m_bzero, m_bscale, tmpDestRow);
+                        convertBufferShort2RGB(tmpRow, tmpBufRowSize, tmpDestRow, true,
+                                               m_minValueL, m_maxValueL, a_transformType) :
+                        convertBufferShortSZ2RGB(tmpRow, tmpBufRowSize, m_bzero, m_bscale, tmpDestRow, true,
+                                               m_minValueL, m_maxValueL, a_transformType);
             else if (m_bitpix == -32)
                 convertBufferFloat2RGB(tmpRow, tmpBufRowSize, m_minValue, m_maxValue, a_transformType);
             else if (m_bitpix == 32)
-                convertBufferInt2RGB(tmpRow, tmpBufRowSize);
+                convertBufferInt2RGB(tmpRow, tmpBufRowSize, m_minValueL, m_maxValueL, a_transformType);
             else if (m_bitpix == -64)
                 convertBufferDouble2RGB(tmpRow, tmpBufRowSize, m_minValue, m_maxValue, a_transformType);
             else if (m_bitpix == 64)
-                convertBufferLong2RGB(tmpRow, tmpBufRowSize);
+                convertBufferLong2RGB(tmpRow, tmpBufRowSize, m_minValueL, m_maxValueL, a_transformType);
 
             for (uint32_t x = 0; x < m_width; ++x)
             {
@@ -638,16 +647,18 @@ int32_t Image::createRGB32FlatData(uint32_t a_transformType)
                 convertBufferByte2RGB(tmpRow, tmpBufRowSize, tmpDestRow);
             else if (m_bitpix == 16)
                 areEqual(m_bzero, FITS_BZERO_DEFAULT_VALUE) && areEqual(m_bscale, FITS_BSCALE_DEFAULT_VALUE) ?
-                        convertBufferShort2RGB(tmpRow, tmpBufRowSize, tmpDestRow) :
-                        convertBufferShortSZ2RGB(tmpRow, tmpBufRowSize, m_bzero, m_bscale, tmpDestRow);
+                            convertBufferShort2RGB(tmpRow, tmpBufRowSize, tmpDestRow, true,
+                                                   m_minValueL, m_maxValueL, a_transformType) :
+                            convertBufferShortSZ2RGB(tmpRow, tmpBufRowSize, m_bzero, m_bscale, tmpDestRow, true,
+                                                     m_minValueL, m_maxValueL, a_transformType);
             else if (m_bitpix == -32)
                 convertBufferFloat2RGB(tmpRow, tmpBufRowSize, m_minValue, m_maxValue, a_transformType);
             else if (m_bitpix == 32)
-                convertBufferInt2RGB(tmpRow, tmpBufRowSize);
+                convertBufferInt2RGB(tmpRow, tmpBufRowSize, m_minValueL, m_maxValueL, a_transformType);
             else if (m_bitpix == -64)
                 convertBufferDouble2RGB(tmpRow, tmpBufRowSize, m_minValue, m_maxValue, a_transformType);
             else if (m_bitpix == 64)
-                convertBufferLong2RGB(tmpRow, tmpBufRowSize);
+                convertBufferLong2RGB(tmpRow, tmpBufRowSize, m_minValueL, m_maxValueL, a_transformType);
 
             for (uint32_t x = 0; x < m_width; ++x)
             {

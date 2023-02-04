@@ -676,13 +676,17 @@ void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size, double a_min, dou
     }
 }
 
-void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer, bool a_gray)
+void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer, bool a_gray,
+                            uint16_t a_min, uint16_t a_max, uint32_t a_type)
 {
     // checking for buffer granularity
     if (a_size % sizeof(uint16_t) != 0)
         return;
 
     uint16_t *tmpBuf = (uint16_t*)(a_buffer);
+
+    uint16_t min = std::numeric_limits<uint16_t>::min();
+    uint16_t max = std::numeric_limits<uint16_t>::max();
 
     convertBufferShort  ptrConvertFunction = convertShort2Grayscale;
 
@@ -699,6 +703,9 @@ void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuf
         uint16_t s = tmpBuf[i];
 #endif
 
+        if (a_type != FITS_FLOAT_DOUBLE_NO_TRANSFORM)
+            s = normalizeValueIntLong<uint16_t>(s, a_min, a_max, min, max);
+
         ptrConvertFunction(s, pixel);
 
         size_t indexBase = i*4;
@@ -710,13 +717,17 @@ void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuf
     }
 }
 
-void convertBufferShortSZ2RGB(uint8_t* a_buffer, size_t a_size, double a_bzero, double a_bscale, uint8_t* a_destBuffer, bool a_gray)
+void convertBufferShortSZ2RGB(uint8_t* a_buffer, size_t a_size, double a_bzero, double a_bscale, uint8_t* a_destBuffer, bool a_gray,
+                              uint16_t a_min, uint16_t a_max, uint32_t a_type)
 {
     // checking for buffer granularity
     if (a_size % sizeof(uint16_t) != 0)
         return;
 
     uint16_t *tmpBuf = (uint16_t*)(a_buffer);
+
+    uint16_t min = std::numeric_limits<uint16_t>::min();
+    uint16_t max = std::numeric_limits<uint16_t>::max();
 
     convertBufferShortSZ  ptrConvertFunctionSZ = convertShortSZ2Grayscale;
 
@@ -732,6 +743,9 @@ void convertBufferShortSZ2RGB(uint8_t* a_buffer, size_t a_size, double a_bzero, 
 #else
         uint16_t s = tmpBuf[i];
 #endif
+
+        if (a_type != FITS_FLOAT_DOUBLE_NO_TRANSFORM)
+            s = normalizeValueIntLong<uint16_t>(s, a_min, a_max, min, max);
 
         ptrConvertFunctionSZ(s, a_bscale, a_bzero, pixel);
 
@@ -778,13 +792,16 @@ void convertBufferByteSZ2RGB(uint8_t* a_buffer, size_t a_size, int8_t a_bzero, i
     }
 }
 
-void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size)
+void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size, uint32_t a_min, uint32_t a_max, uint32_t a_type)
 {
     // checking for buffer granularity
     if (a_size % sizeof(int32_t) != 0)
         return;
 
     uint32_t *tmpBuf = (uint32_t*)(a_buffer);
+
+    uint32_t min = std::numeric_limits<uint32_t>::min();
+    uint32_t max = std::numeric_limits<uint32_t>::max();
 
     for (size_t i = 0; i < a_size / sizeof(uint32_t); ++i)
     {
@@ -795,6 +812,9 @@ void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size)
 #endif
 
         uint8_t red, green, blue;
+
+        if (a_type != FITS_FLOAT_DOUBLE_NO_TRANSFORM)
+            s = normalizeValueIntLong<uint32_t>(s, a_min, a_max, min, max);
 
         convertInt2RGB(s, red, green, blue);
 
@@ -807,13 +827,16 @@ void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size)
     }
 }
 
-void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size)
+void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size, uint64_t a_min, uint64_t a_max, uint32_t a_type)
 {
     // checking for buffer granularity
     if (a_size % sizeof(int64_t) != 0)
         return;
 
     uint64_t *tmpBuf = (uint64_t*)(a_buffer);
+
+    uint64_t min = std::numeric_limits<uint64_t>::min();
+    uint64_t max = std::numeric_limits<uint64_t>::max();
 
     for (size_t i = 0; i < a_size / sizeof(uint64_t); ++i)
     {
@@ -824,6 +847,9 @@ void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size)
 #endif
 
         uint8_t red, green, blue;
+
+        if (a_type != FITS_FLOAT_DOUBLE_NO_TRANSFORM)
+            s = normalizeValueIntLong<uint64_t>(s, a_min, a_max, min, max);
 
         convertLong2RGB(s, red, green, blue);
 

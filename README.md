@@ -6,7 +6,7 @@ Currently nFITSview supports the following formats and features:
 -    8-bit images
 -    16-bit integer images
 -    32-bit floating point and integer images
--    64-bit floating point and integer images (experimental, may still not work as it should)
+-    64-bit floating point and integer images
 -    Exporting image HDUs as PNG/TIFF/JPEG/BMP files
 -    Bulk exporting of all image HDUs as PNG files
 -    RGB gamma correction, grayscale and "Eye Comfort" filter
@@ -26,13 +26,13 @@ The original development of nFITSview is done under Linux, so the easiest and th
 - just build in Qt Creator. 
 - it should be also possible to build using CMake from the command line.
 
-The latest version (1.8) of nFITSview install package for Linux 64-bit (Debian-based) is available for download too. The dependencies for installing are: 
+The latest version (1.9) of nFITSview install package for Linux 64-bit (Debian-based) is available for download too. The dependencies for installing are: 
 
 libboost-iostreams1.74.0 (>= 1.74.0), libc6 (>= 2.34), libgcc-s1 (>= 3.0), libpng16-16 (>= 1.6.2-1)
 
 libqt5core5a (>= 5.15.1), libqt5gui5 (>= 5.0.2), libqt5gui5-gles (>= 5.0.2), libqt5widgets5 (>= 5.15.1), libstdc++6 (>= 11)
 
-[nfitsview1_8-x64.deb](https://github.com/surhh/nfitsview/releases/download/v1.8/nfitsview1_8-x64.deb)
+[nfitsview1_9-x64.deb](https://github.com/surhh/nfitsview/releases/download/v1.9/nfitsview1_9-x64.deb)
 
 
 # How to build under Windows
@@ -41,20 +41,20 @@ Normally there is no need to build under Windows as the install package is provi
 Anyway, for building under Windows one would need to download/install/build all the dependencies (boost, zlib, libpng), then fix the
 corresponding pathes for the libraries in the CMakeLists.txt file and then build the project using Qt Creator.
 
-The latest version (1.8) of nFITSview for Windows 64-bit to download:
+The latest version (1.9) of nFITSview for Windows 64-bit to download:
 
-[nfitsview1_8-setup-x64.exe](https://github.com/surhh/nfitsview/releases/download/v1.8/nfitsview1_8-setup-x64.exe)
+[nfitsview1_9-setup-x64.exe](https://github.com/surhh/nfitsview/releases/download/v1.9/nfitsview1_9-setup-x64.exe)
 
 
 
 # Screenshots
 
-![nfitsview1_8_screenshot_1](https://user-images.githubusercontent.com/109148999/212899955-acf95a8b-744a-4b7b-b577-3752cae9ba3a.png)
-![nfitsview1_8_screenshot_2](https://user-images.githubusercontent.com/109148999/212899960-62cd3e6c-f235-495d-b99c-06d64c3885f3.png)
-![nfitsview1_8_screenshot_3](https://user-images.githubusercontent.com/109148999/212899965-f366681d-4ba5-4718-aff2-34386c65707b.png)
-![nfitsview1_8_screenshot_4](https://user-images.githubusercontent.com/109148999/212899974-fa6f6e0b-f3ba-4ed0-959c-dd4a30370f3f.png)
-![nfitsview1_8_screenshot_5](https://user-images.githubusercontent.com/109148999/212899980-338dec6c-6be0-4bd1-81c5-552cfe41bfea.png)
-
+![nfitsview1_9_screenshot_1](https://user-images.githubusercontent.com/109148999/216837974-c10fdd42-956c-497b-8bf0-64ada017d75e.png)
+![nfitsview1_9_screenshot_2](https://user-images.githubusercontent.com/109148999/216837976-2f2ffea9-5ddf-4f29-a46e-6f79ab638e7f.png)
+![nfitsview1_9_screenshot_3](https://user-images.githubusercontent.com/109148999/216837979-b246c657-a14c-4e1a-aa69-9a10ddbcfa75.png)
+![nfitsview1_9_screenshot_4](https://user-images.githubusercontent.com/109148999/216837981-a13858b5-1179-45aa-9848-b39a40811b9e.png)
+![nfitsview1_9_screenshot_5](https://user-images.githubusercontent.com/109148999/216837984-2e3cc287-75c8-4e94-8b84-b31b540d95c6.png)
+![nfitsview1_9_screenshot_6](https://user-images.githubusercontent.com/109148999/216837987-750b8ec7-97e7-47a9-ba63-cd8164cc115e.png)
 
 
 # About FITS format

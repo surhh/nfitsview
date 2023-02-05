@@ -200,6 +200,8 @@ private:
 
     void resizeEvent(QResizeEvent *event);
 
+    void enableDisableMappingComboItem(uint32_t a_index, bool a_enable = true);
+
 signals:
     void sendProgressChanged(qint32 a_value);
 };

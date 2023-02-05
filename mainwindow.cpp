@@ -4,6 +4,8 @@
 #include <QFileDialog>
 #include <QTextEdit>
 #include <QMessageBox>
+#include <QStandardItemModel>
+
 
 #include "libnfits/hdu.h"
 #include "libnfits/fitsfile.h"
@@ -958,6 +960,10 @@ void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current
 
                 enableMappingWidgets(m_bEnableMappingWidgets);
 
+                bool bPosBitpix = bitpix > 0 ? false : true;
+                enableDisableMappingComboItem(2, bPosBitpix);
+                enableDisableMappingComboItem(3, bPosBitpix);
+
                 m_bEnableZoomWidget = true;
                 enableZoomWidgets(m_bEnableZoomWidget);
 
@@ -1464,4 +1470,20 @@ int32_t MainWindow::convertComboIndexToTransformType(int32_t a_index) const
     }
 
     return transformType;
+}
+
+
+void MainWindow::enableDisableMappingComboItem(uint32_t a_index, bool a_enable)
+{
+    QStandardItemModel *model = qobject_cast<QStandardItemModel *>(ui->comboBoxMapping->model());
+
+    if (model == nullptr)
+        return;
+
+    QStandardItem *item = model->item(a_index);
+
+    if (item == nullptr)
+        return;
+
+    item->setFlags(!a_enable ? item->flags() & ~Qt::ItemIsEnabled: item->flags() | Qt::ItemIsEnabled);
 }

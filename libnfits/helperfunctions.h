@@ -296,12 +296,12 @@ template<typename T> std::string int2hex(T a_value)
 //// color normalization functions
 template<typename T> T normalizeValue(T a_value, T a_min, T a_max, T a_minNew, T a_maxNew)
 {
-    return a_minNew + (a_value - a_min)*(std::abs(a_maxNew - a_minNew)/std::abs(a_max - a_min));
+    return a_minNew + (a_value - a_min)*(std::fabs(a_maxNew - a_minNew)/std::fabs(a_max - a_min));
 }
 
 template<typename T> T normalizeValueIntLong(T a_value, T a_min, T a_max, T a_minNew, T a_maxNew)
 {
-    return a_minNew + (double)(a_value - a_min)*((double)std::labs(a_maxNew - a_minNew)/(double)std::labs(a_max - a_min));
+    return a_minNew + (double)(a_value - a_min)*((double)std::llabs(a_maxNew - a_minNew)/(double)std::llabs(a_max - a_min));
 }
 
 void normalizeFloatBuffer(uint8_t* a_buffer, size_t a_size, float a_min, float a_max, float a_minNew, float a_maxNew);

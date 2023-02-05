@@ -369,7 +369,7 @@
                 <widget class="QComboBox" name="comboBoxMapping">
                  <item>
                   <property name="text">
-                   <string>Original (Raw HDU data)</string>
+                   <string>Original (Raw data)</string>
                   </property>
                  </item>
                  <item>

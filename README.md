@@ -28,7 +28,7 @@ The original development of nFITSview is done under Linux, so the easiest and th
 
 The latest version (1.9) of nFITSview install package for Linux 64-bit (Debian-based) is available for download too. The dependencies for installing are: 
 
-libboost-iostreams1.74.0 (>= 1.74.0), libc6 (>= 2.34), libgcc-s1 (>= 3.0), libpng16-16 (>= 1.6.2-1)
+libboost-iostreams1.74.0 (>= 1.74.0), libc6 (>= 2.34), libgcc-s1 (>= 3.0), libpng16-16 (>= 1.6.2-1), libgomp1 (>= 4.9)
 
 libqt5core5a (>= 5.15.1), libqt5gui5 (>= 5.0.2), libqt5gui5-gles (>= 5.0.2), libqt5widgets5 (>= 5.15.1), libstdc++6 (>= 11)
 

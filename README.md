@@ -13,7 +13,8 @@ Currently nFITSview supports the following formats and features:
 -    Image zoom in/out
 -    HDU header syntax view
 -    Raw data hex preview
--    Only uncompressed FITS data is supported 
+-    Only uncompressed FITS data is supported
+-    OpenMP is used to improve performance where possibe
 -    Command line exporting of FITS file  (see -h, -e command line switches).
      
      *Note: the console output is not visible on Windows platform. The command line 

@@ -16,6 +16,9 @@ static int32_t percentCallbackFunctionSample(int32_t a_percent, void* a_buffer)
 
 //#define DEBUG_MODE                            // enabling and disabling the debug logging used in libnfits::LOG()
 
+#define ENABLE_OPENMP
+#define OPENMP_THREADS_DISABLE_NUMBER           (2)
+
 #define LIBNFITS_MAJOR_VERSION                  2
 #define LIBNFITS_MINOR_VERSION                  0
 #define LIBNFITS_BUILD_NUMBER                   0

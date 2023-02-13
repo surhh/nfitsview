@@ -121,3 +121,14 @@ endif()
 # target_link_libraries(nfitsview PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)  # the original one
 target_link_libraries(nfitsview PRIVATE Qt${QT_VERSION_MAJOR}::Widgets ${Boost_LIBRARIES} ${PNG_LIBRARY}) # added for libnfits
 
+# OpenMP support
+set(ENABLE_OPENMP ON)
+
+if(ENABLE_OPENMP)
+find_package(OpenMP REQUIRED)
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(nfitsview PRIVATE OpenMP::OpenMP_CXX)
+endif()
+endif()
+# End of OpenMP support block
+

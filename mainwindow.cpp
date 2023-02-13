@@ -6,6 +6,7 @@
 #include <QMessageBox>
 #include <QStandardItemModel>
 
+#include <omp.h>
 
 #include "libnfits/hdu.h"
 #include "libnfits/fitsfile.h"
@@ -74,13 +75,20 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->toolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 
-    ui->tableWidgetHDUs->setColumnWidth(0,50);
-    ui->tableWidgetHDUs->setColumnWidth(1,120);
-    ui->tableWidgetHDUs->setColumnWidth(2,50);
+    ui->tableWidgetHDUs->setColumnWidth(0, 50);
+    ui->tableWidgetHDUs->setColumnWidth(1, 120);
+    ui->tableWidgetHDUs->setColumnWidth(2, 50);
 
     ui->actionZoomIn->setShortcut(QKeySequence::ZoomIn);
 
     setWindowTitle(NFITSVIEW_APP_NAME);
+
+#if defined(ENABLE_OPENMP)
+    int32_t numThreads = omp_get_max_threads();
+    numThreads = numThreads > 2 ? numThreads - OPENMP_THREADS_DISABLE_NUMBER : numThreads;
+    omp_set_num_threads(numThreads);
+    //omp_set_num_threads(omp_get_max_threads() / 2);
+#endif
 }
 
 MainWindow::~MainWindow()
@@ -1472,15 +1480,14 @@ int32_t MainWindow::convertComboIndexToTransformType(int32_t a_index) const
     return transformType;
 }
 
-
 void MainWindow::enableDisableMappingComboItem(uint32_t a_index, bool a_enable)
 {
-    QStandardItemModel *model = qobject_cast<QStandardItemModel *>(ui->comboBoxMapping->model());
+    QStandardItemModel* model = qobject_cast<QStandardItemModel*>(ui->comboBoxMapping->model());
 
     if (model == nullptr)
         return;
 
-    QStandardItem *item = model->item(a_index);
+    QStandardItem* item = model->item(a_index);
 
     if (item == nullptr)
         return;

@@ -379,12 +379,12 @@
                  </item>
                  <item>
                   <property name="text">
-                   <string>Linear: Float-[-1.0,1.0]; Int-[minInt, maxInt]</string>
+                   <string>Linear: Float-[-1.0,1.0]</string>
                   </property>
                  </item>
                  <item>
                   <property name="text">
-                   <string>Linear: Float-[-1.0,0.0]; Int-[minInt, maxInt]</string>
+                   <string>Linear: Float-[-1.0,0.0]</string>
                   </property>
                  </item>
                 </widget>

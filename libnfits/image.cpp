@@ -630,7 +630,6 @@ int32_t Image::createRGB32FlatData(uint32_t a_transformType)
         //uint32_t indexBase = bytesNum * (bytesNum == 2 ? 2 : 1);
         uint32_t indexBase = bytesNum * (bytesNum <= 2 ? 32/std::abs(m_bitpix) : 1);
 
-
         for (int64_t y = m_height - 1; y >= 0; --y) //// this loop is for correcting Y-axis upside down showing
         {
             //// this memcpy is for correcting Y-axis upside down showing
@@ -702,6 +701,9 @@ void Image::copyRGBData(uint8_t** a_rgbDataBufferDest, uint8_t** a_rgbDataBuffer
 {
     uint8_t bytesNum = 3;
 
+#if defined(ENABLE_OPENMP)
+#pragma omp parallel for
+#endif
     for (uint32_t y = 0; y < m_height; ++y)
         std::memcpy(a_rgbDataBufferDest[y], a_rgbDataBufferSrc[y], m_width * bytesNum);
 }
@@ -720,6 +722,9 @@ void Image::copyRGB32Data(uint8_t** a_rgb32DataBufferDest, uint8_t** a_rgb32Data
 {
     uint8_t bytesNum = 4;
 
+#if defined(ENABLE_OPENMP)
+#pragma omp parallel for
+#endif
     for (uint32_t y = 0; y < m_height; ++y)
         std::memcpy(a_rgb32DataBufferDest[y], a_rgb32DataBufferSrc[y], m_width * bytesNum);
 }
@@ -801,7 +806,9 @@ int32_t Image::_changeRGB32FlatColorChannelLevel(uint8_t a_channel, float a_quat
     // R-channel = 0, G-channel = 1, B-channel = 2
     if ((m_rgb32FlatDataBuffer == nullptr))
         return FITS_GENERAL_ERROR;
-
+#if defined(ENABLE_OPENMP)
+#pragma omp parallel for
+#endif
     for (uint32_t y = 0; y < m_height; ++y)
     {
         size_t indexY = y*m_width;
@@ -1087,17 +1094,23 @@ void Image::_convertBufferRGB32Flat2EyeComfortColors()
     if (m_rgb32FlatDataBuffer == nullptr)
         return;
 
+#if defined(ENABLE_OPENMP)
+#pragma omp parallel for
+#endif
     for (uint32_t y = 0; y < m_height; ++y)
         for (uint32_t x = 0; x < m_width; ++x)
         {
             uint8_t red, green, blue;
-            _convertRGB2AltColors(m_rgb32FlatDataBuffer[4*(y*m_width + x) + 2], m_rgb32FlatDataBuffer[4*(y*m_width + x) + 1],
-                                  m_rgb32FlatDataBuffer[4*(y*m_width + x)], red, green, blue);
 
-            m_rgb32FlatDataBuffer[4*(y*m_width + x)] = blue;
-            m_rgb32FlatDataBuffer[4*(y*m_width + x) + 1] = green;
-            m_rgb32FlatDataBuffer[4*(y*m_width + x) + 2] = red;
-            m_rgb32FlatDataBuffer[4*(y*m_width + x) + 3] = 0xff;
+            size_t indexBase = 4*(y*m_width + x);
+
+            _convertRGB2AltColors(m_rgb32FlatDataBuffer[indexBase + 2], m_rgb32FlatDataBuffer[indexBase + 1],
+                                  m_rgb32FlatDataBuffer[indexBase], red, green, blue);
+
+            m_rgb32FlatDataBuffer[indexBase] = blue;
+            m_rgb32FlatDataBuffer[indexBase + 1] = green;
+            m_rgb32FlatDataBuffer[indexBase + 2] = red;
+            m_rgb32FlatDataBuffer[indexBase + 3] = 0xff;
         }
 }
 

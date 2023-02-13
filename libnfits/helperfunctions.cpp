@@ -443,6 +443,9 @@ void convertBufferFloat2RGBA(uint8_t* a_buffer, size_t a_size, float a_min, floa
         max = FITS_FLOAT_DOUBLE_RANGE_MAX_POSITIVE;
     }
 
+#if defined(ENABLE_OPENMP)
+#pragma omp parallel for
+#endif
     for (size_t i = 0; i < a_size / sizeof(float); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -480,6 +483,9 @@ void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size, float a_min, float
         max = FITS_FLOAT_DOUBLE_RANGE_MAX_POSITIVE;
     }
 
+#if defined(ENABLE_OPENMP)
+#pragma omp parallel for
+#endif
     for (size_t i = 0; i < a_size / sizeof(float); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -513,6 +519,9 @@ void convertBufferRGB2Grayscale(uint8_t* a_buffer, size_t a_size)
 
     uint32_t *tmpBuf = (uint32_t*)(a_buffer);
 
+#if defined(ENABLE_OPENMP)
+#pragma omp parallel for
+#endif
     for (size_t i = 0; i < a_size / sizeof(float); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -538,6 +547,9 @@ void convertBufferRGB2Grayscale(uint8_t** a_buffer, uint32_t a_width, uint32_t a
     if (a_buffer == nullptr)
         return;
 
+#if defined(ENABLE_OPENMP)
+#pragma omp parallel for
+#endif
     for (uint32_t y = 0; y < a_height; ++y)
         for (uint32_t x = 0; x < a_width; ++x)
         {
@@ -556,6 +568,9 @@ void convertBufferRGB322Grayscale(uint8_t** a_buffer, uint32_t a_width, uint32_t
     if (a_buffer == nullptr)
         return;
 
+#if defined(ENABLE_OPENMP)
+#pragma omp parallel for
+#endif
     for (uint32_t y = 0; y < a_height; ++y)
         for (uint32_t x = 0; x < a_width; ++x)
         {
@@ -574,6 +589,9 @@ void convertBufferRGB32Flat2Grayscale(uint8_t* a_buffer, uint32_t a_width, uint3
     if (a_buffer == nullptr)
         return;
 
+#if defined(ENABLE_OPENMP)
+#pragma omp parallel for
+#endif
     for (uint32_t y = 0; y < a_height; ++y)
         for (uint32_t x = 0; x < a_width; ++x)
         {
@@ -608,6 +626,9 @@ void convertBufferDouble2RGBA(uint8_t* a_buffer, size_t a_size, double a_min, do
         max = FITS_FLOAT_DOUBLE_RANGE_MAX_POSITIVE;
     }
 
+#if defined(ENABLE_OPENMP)
+#pragma omp parallel for
+#endif
     for (size_t i = 0; i < a_size / sizeof(double); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -647,6 +668,9 @@ void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size, double a_min, dou
         max = FITS_FLOAT_DOUBLE_RANGE_MAX_POSITIVE;
     }
 
+#if defined(ENABLE_OPENMP)
+#pragma omp parallel for
+#endif
     for (size_t i = 0; i < a_size / sizeof(double); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -695,6 +719,9 @@ void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuf
     if (!a_gray)
         ptrConvertFunction = convertShort2RGB;
 
+#if defined(ENABLE_OPENMP)
+#pragma omp parallel for
+#endif
     for (size_t i = 0; i < a_size / sizeof(uint16_t); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -736,6 +763,9 @@ void convertBufferShortSZ2RGB(uint8_t* a_buffer, size_t a_size, double a_bzero, 
     if (!a_gray)
         ptrConvertFunctionSZ = convertShortSZ2RGB;
 
+#if defined(ENABLE_OPENMP)
+#pragma omp parallel for
+#endif
     for (size_t i = 0; i < a_size / sizeof(uint16_t); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -762,6 +792,9 @@ void convertBufferByte2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuff
 {
     RGBPixel pixel;
 
+#if defined(ENABLE_OPENMP)
+#pragma omp parallel for
+#endif
     for (size_t i = 0; i < a_size; ++i)
     {
         convertByte2Grayscale(a_buffer[i], pixel);
@@ -779,6 +812,9 @@ void convertBufferByteSZ2RGB(uint8_t* a_buffer, size_t a_size, int8_t a_bzero, i
 {
     RGBPixel pixel;
 
+#if defined(ENABLE_OPENMP)
+#pragma omp parallel for
+#endif
     for (size_t i = 0; i < a_size; ++i)
     {
         convertByteSZ2Grayscale(a_buffer[i], a_bzero, a_bscale, pixel);
@@ -803,6 +839,9 @@ void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size, uint32_t a_min, uint
     uint32_t min = std::numeric_limits<uint32_t>::min();
     uint32_t max = std::numeric_limits<uint32_t>::max();
 
+#if defined(ENABLE_OPENMP)
+#pragma omp parallel for
+#endif
     for (size_t i = 0; i < a_size / sizeof(uint32_t); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -838,6 +877,9 @@ void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size, uint64_t a_min, uin
     uint64_t min = std::numeric_limits<uint64_t>::min();
     uint64_t max = std::numeric_limits<uint64_t>::max();
 
+#if defined(ENABLE_OPENMP)
+#pragma omp parallel for
+#endif
     for (size_t i = 0; i < a_size / sizeof(uint64_t); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN

@@ -14,6 +14,8 @@ set(CMAKE_VERBOSE_MAKEFILE ON)      # added for libnfits
 
 set(Boost_USE_MULTITHREADED ON)     # added for libnfits
 
+set(ENABLE_OPENMP ON) # Enable OpenMP support
+
 # windows build specific (MinGW)
 if(WIN32)
     include_directories("d:/build-lpng1637-Desktop-Release")
@@ -31,7 +33,9 @@ if(WIN32)
 
     include_directories(${Boost_INCLUDE_DIR})
 
+if(!ENABLE_OPENMP)
     add_link_options("-static")
+endif()
 
     set(PNG_PNG_INCLUDE_DIR "d:/lpng1637")
     set(PNG_LIBRARY "d:/build-lpng1637-Desktop-Release/libpng.a")
@@ -113,16 +117,13 @@ else()
 endif()
 
 # windows build specific (MinGW)
-if(WIN32)
-    qt5_import_plugins(${PROJECT_NAME} INCLUDE Qt5::QSvgPlugin)
-endif()
+#if(WIN32)
+#    qt5_import_plugins(${PROJECT_NAME} INCLUDE Qt5::QSvgPlugin)
+#endif()
 # end of windows build specific (MinGW)
 
 # target_link_libraries(nfitsview PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)  # the original one
 target_link_libraries(nfitsview PRIVATE Qt${QT_VERSION_MAJOR}::Widgets ${Boost_LIBRARIES} ${PNG_LIBRARY}) # added for libnfits
-
-# OpenMP support
-set(ENABLE_OPENMP ON)
 
 if(ENABLE_OPENMP)
 find_package(OpenMP REQUIRED)

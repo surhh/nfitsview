@@ -14,7 +14,7 @@ set(CMAKE_VERBOSE_MAKEFILE ON)      # added for libnfits
 
 set(Boost_USE_MULTITHREADED ON)     # added for libnfits
 
-set(ENABLE_OPENMP ON) # Enable OpenMP support
+set(ENABLE_OPENMP OFF) # Enable OpenMP support
 
 # windows build specific (MinGW)
 if(WIN32)

@@ -33,7 +33,7 @@ if(WIN32)
 
     include_directories(${Boost_INCLUDE_DIR})
 
-if(!ENABLE_OPENMP)
+if(NOT DEFINED ${ENABLE_OPENMP})
     add_link_options("-static")
 endif()
 

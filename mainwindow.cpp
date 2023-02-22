@@ -323,7 +323,8 @@ void MainWindow::populateRawDataWidget(int32_t a_hduIndex)
 
 qint32 MainWindow::openFITSFile()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, "Open FITS file", "~/", "FITS Files (*.fit *.fts *.fits)");
+    QString filter = "FITS Files (*.fit *.fts *.fits)";
+    QString fileName = QFileDialog::getOpenFileName(this, "Open FITS file", "~/", filter);
 
     return openFITSFileByName(fileName);    
 }
@@ -747,8 +748,8 @@ bool MainWindow::exportImage()
     QDir path = QFileInfo(m_fitsFileName).absoluteDir();
     QString dir = path.absolutePath();
 
-    QString fileName = QFileDialog::getSaveFileName(this, QString("Export ") + m_exportFormat + QString(" file"), dir,
-                                                    m_exportFormat + QString(" Files (*")  + m_exportFormat.toLower() + QString(")"));
+    QString filter = m_exportFormat + QString(" Files (*")  + m_exportFormat.toLower() + QString(")");
+    QString fileName = QFileDialog::getSaveFileName(this, QString("Export ") + m_exportFormat + QString(" file"), dir, filter);
 
     if (fileName.isEmpty())
         return false;

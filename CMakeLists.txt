@@ -116,10 +116,10 @@ else()
     endif()
 endif()
 
-# windows build specific (MinGW)
-#if(WIN32)
-#    qt5_import_plugins(${PROJECT_NAME} INCLUDE Qt5::QSvgPlugin)
-#endif()
+# windows build specific (MinGW), is needed to have icons visible in the toolbar and menu
+if(WIN32)
+    qt5_import_plugins(${PROJECT_NAME} INCLUDE Qt5::QSvgPlugin)
+endif()
 # end of windows build specific (MinGW)
 
 # target_link_libraries(nfitsview PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)  # the original one

@@ -18,10 +18,10 @@ static int32_t percentCallbackFunctionSample(int32_t a_percent, void* a_buffer)
 
 //#define ENABLE_OPENMP                         // enabling/disabling the usage of OpenMP
                                                 // Currently OpenMP is not suitable for some of the algorithms
-//#define OPENMP_THREADS_DISABLE_NUMBER           (2)
+//#define OPENMP_THREADS_DISABLE_NUMBER           (2) // Number of excluded OpenMP threads
 
 #define LIBNFITS_MAJOR_VERSION                  2
-#define LIBNFITS_MINOR_VERSION                  1
+#define LIBNFITS_MINOR_VERSION                  2
 #define LIBNFITS_BUILD_NUMBER                   0
 
 #define	FITS_BSCALE_DEFAULT_VALUE               (1.0)

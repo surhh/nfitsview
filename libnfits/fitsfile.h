@@ -38,8 +38,8 @@ public:
     int32_t setOffset(size_t a_offset);
     size_t getOffset() const;
     size_t getSize() const;
-    int32_t exportImageHDU(uint32_t a_hduIndex);
-    int32_t exportAllImageHDUs();
+    int32_t exportImageHDU(uint32_t a_hduIndex, int32_t a_transform = FITS_FLOAT_DOUBLE_NO_TRANSFORM, bool a_gray = false);
+    int32_t exportAllImageHDUs(int32_t a_transform = FITS_FLOAT_DOUBLE_NO_TRANSFORM, bool a_gray = false);
     void setCallbackFunction(CallbackFunctionPtr a_callbackFunc, void* a_callbackFuncParam);
     int32_t getHDU(uint32_t a_index, HDU& a_hdu) const;
     std::string getFileName() const;

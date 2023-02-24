@@ -398,7 +398,7 @@ void WorkspaceTabWidget::setImage(uint32_t a_hduIndex, uint32_t a_transformType,
             //// this part is added due to image mapping/transformation support
             if (a_bRecreate)
             {
-                m_fitsImage->deletAllData();
+                m_fitsImage->deleteAllData();
                 m_fitsImage->createRGB32FlatData(a_transformType);
                 //libnfits::LOG("in setImage(uint32_t a_hduIndex, uint32_t a_transformType), a_transformType = % ", a_transformType);
             }

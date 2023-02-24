@@ -52,7 +52,7 @@ public:
     ~MainWindow();
 
     qint32 openFITSFileByNameFromCmdLine(const QString& a_fileName);
-    qint32 exportFITSFileFromCmdLine(const QString& a_fileName);
+    qint32 exportFITSFileFromCmdLine(const QString& a_fileName, int32_t a_transform = FITS_FLOAT_DOUBLE_NO_TRANSFORM, bool a_gray = false);
 
 private slots:
     void on_checkBoxGrayscale_stateChanged(int arg1);
@@ -168,9 +168,9 @@ private:
     void restoreOriginalImage();
 
     qint32 openFITSFile();
-    qint32 openFITSFileByName(const QString& a_fileName);
+    qint32 openFITSFileByName(const QString& a_fileName, bool a_bShowMsg = true);
     qint32 closeFITSFile();
-    qint32 exportAllImages(bool a_msgFlag = true);
+    qint32 exportAllImages(bool a_msgFlag = true, int32_t a_transform = FITS_FLOAT_DOUBLE_NO_TRANSFORM, bool a_gray = false);
     bool   exportImage();
     qint32 setAllWorkspaceImages();
 

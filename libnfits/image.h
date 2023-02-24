@@ -111,7 +111,7 @@ public:
     uint8_t* getData() const;
 
     void setCallbackFunction(CallbackFunctionPtr a_callbackFunc, void* a_callbackFuncParam);
-    int32_t exportPNG(const std::string& a_fileName);
+    int32_t exportPNG(const std::string& a_fileName, int32_t a_transform = FITS_FLOAT_DOUBLE_NO_TRANSFORM, bool a_gray = false);
 
     int32_t createRGBData(uint32_t a_transformType = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
     uint8_t** getRGBData() const;
@@ -158,7 +158,7 @@ public:
     void deleteRGB32FlatData();
     void deleteAllRGBData();
     void deleteAllBackupRGBData();
-    void deletAllData();
+    void deleteAllData();
 
     void normalize(float a_min, float a_max, float a_minNew, float a_maxNew);
 

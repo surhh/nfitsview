@@ -111,6 +111,8 @@ int32_t PNGFile::createFromPixelData(const uint8_t* a_pixelBuffer)
        title_text.compression = PNG_TEXT_COMPRESSION_NONE;
        title_text.key = (char *)FITS_PNG_TITLE_KEY;
        title_text.text = (char *)m_title.c_str();
+       title_text.text_length = m_title.length();
+       title_text.itxt_length = m_title.length();
        png_set_text(pPng, pInfo, &title_text, 1);
     }
 

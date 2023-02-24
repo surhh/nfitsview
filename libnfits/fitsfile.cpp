@@ -224,7 +224,7 @@ void FitsFile::reset()
     m_mapFile.closeFile();
 }
 
-int32_t FitsFile::exportImageHDU(uint32_t a_hduIndex)
+int32_t FitsFile::exportImageHDU(uint32_t a_hduIndex, int32_t a_transform, bool a_gray)
 {
     int32_t retVal = FITS_GENERAL_SUCCESS;
     bool bSuccess;
@@ -262,24 +262,35 @@ int32_t FitsFile::exportImageHDU(uint32_t a_hduIndex)
     image.setBaseOffset(m_HDUs[a_hduIndex].getPayloadOffset());
     image.setCallbackFunction(m_callbackFunc, m_callbackFuncParam);
 
+    if (bitpix == -64)
+            image.getBufferMinMax<double>();
+    else if (bitpix == 64)
+            image.getBufferMinMax<uint64_t>();
+    else if (bitpix == -32)
+            image.getBufferMinMax<float>();
+    else if (bitpix == 32)
+            image.getBufferMinMax<uint32_t>();
+    else if (bitpix == 16)
+            image.getBufferMinMax<uint16_t>();
+
     if (bZSuccess)
         image.setBZero(bzero);
 
     if (bSSuccess)
         image.setBScale(bscale);
 
-    retVal = image.exportPNG(fileName);
+    retVal = image.exportPNG(fileName, a_transform, a_gray);
 
     return retVal;
 }
 
-int32_t FitsFile::exportAllImageHDUs()
+int32_t FitsFile::exportAllImageHDUs(int32_t a_transform, bool a_gray)
 {
     int32_t retVal = 0, err = 0;
 
     for (uint32_t i = 0; i < m_HDUs.size(); ++i)
     {
-        int32_t resExport = exportImageHDU(i);
+        int32_t resExport = exportImageHDU(i, a_transform, a_gray);
 
         if (resExport == FITS_GENERAL_SUCCESS)
             ++retVal;

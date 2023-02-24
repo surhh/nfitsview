@@ -83,7 +83,7 @@ void Image::setCallbackFunction(CallbackFunctionPtr a_callbackFunc, void* a_call
     m_callbackFuncParam = a_callbackFuncParam;
 }
 
-int32_t Image::exportPNG(const std::string& a_fileName)
+int32_t Image::exportPNG(const std::string& a_fileName, int32_t a_transform, bool a_gray)
 {
     int32_t retVal = FITS_GENERAL_SUCCESS;
     //uint8_t *pixelBuffer = nullptr;
@@ -103,7 +103,7 @@ int32_t Image::exportPNG(const std::string& a_fileName)
     //// TODO: RGBA and grayscale should be supported as well
     //pixelBuffer = m_dataBuffer;
 
-    if (bytesNum == 2 | bytesNum == 3 || bytesNum == 4 || bytesNum == 8)
+    if (bytesNum >= 1 && bytesNum <= 8)
         colorType = FITS_PNG_COLOR_RGB;  // the FITS_PNG_COLOR_RGB_ALPHA seems not to work as expected on the FITS pixel array
     else
         return FITS_PNG_EXPORT_ERROR;
@@ -116,10 +116,18 @@ int32_t Image::exportPNG(const std::string& a_fileName)
     // the generic working version, processing the float data, not used anymore
     //retVal = pngFile.createFromPixelData(pixelBuffer);
 
-    createRGBData();
-    //convertRGB2Grayscale();
+
+    //// we transform the color mapping only in case of bitpix > 2
+    if (bytesNum > 2 && a_transform != FITS_FLOAT_DOUBLE_NO_TRANSFORM)
+        createRGBData(a_transform);
+    else
+        createRGBData();
+
+    if (a_gray)
+        convertRGB2Grayscale();
+
     retVal = pngFile.createFromRGBData((const uint8_t**)m_rgbDataBuffer);
-    deleteRGBData(); // 24-bit RGB buffer may not be needed anymore, preferrable to have 32-bit RGB buffer
+    deleteAllData(); //deleteRGBData(); // 24-bit RGB buffer may not be needed anymore, preferrable to have 32-bit RGB buffer
 
     if (m_callbackFunc != nullptr)
         m_callbackFunc(100, m_callbackFuncParam); // sample callback to send info 100% of work is done
@@ -184,9 +192,7 @@ bool Image::isCompressed() const
 
 void Image::reset()
 {
-    //deleteAllRGBData();
-    //deleteAllBackupRGBData();
-    deletAllData();
+    deleteAllData();
 
     m_width = 0;
     m_height = 0;
@@ -341,7 +347,7 @@ void Image::deleteRGB32FlatData()
     _deleteRGB32FlatData(m_rgb32FlatDataBuffer);
 }
 
-void Image::deletAllData()
+void Image::deleteAllData()
 {
     deleteAllRGBData();
     deleteAllBackupRGBData();

@@ -336,7 +336,7 @@ qint32 MainWindow::openFITSFileByNameFromCmdLine(const QString& a_fileName)
     return resOpen;
 }
 
-qint32 MainWindow::openFITSFileByName(const QString& a_fileName)
+qint32 MainWindow::openFITSFileByName(const QString& a_fileName, bool a_bShowMsg)
 {
     qint32 result = FITS_GENERAL_ERROR;
 
@@ -376,7 +376,7 @@ qint32 MainWindow::openFITSFileByName(const QString& a_fileName)
 
         setProgress(100);
     }
-    else
+    else if (a_bShowMsg)
     {
         QMessageBox messageBox;
         messageBox.critical(this, FITS_MSG_ERROR_TYPE, FITS_MSG_ERROR_OPENING_FILE);
@@ -417,14 +417,14 @@ qint32 MainWindow::closeFITSFile()
     return FITS_GENERAL_SUCCESS;
 }
 
-qint32 MainWindow::exportFITSFileFromCmdLine(const QString &a_fileName)
+qint32 MainWindow::exportFITSFileFromCmdLine(const QString& a_fileName, int32_t a_transform, bool a_gray)
 {
     qint32 retVal;
 
-    retVal = openFITSFileByName(a_fileName);
+    retVal = openFITSFileByName(a_fileName, false);
 
     if (retVal == FITS_GENERAL_SUCCESS)
-        return exportAllImages(false);
+        return exportAllImages(false, a_transform, a_gray);
 
     return retVal;
 }
@@ -514,17 +514,16 @@ void MainWindow::clearWidgets()
     initHDUInfoWidgetValues();
 }
 
-qint32 MainWindow::exportAllImages(bool a_msgFlag)
+qint32 MainWindow::exportAllImages(bool a_msgFlag, int32_t a_transform, bool a_gray)
 {
     setStatus(STATUS_MESSAGE_IMAGE_EXPORT_HDUS);
 
     setProgress(50);
 
-    qint32 retVal = m_fitsFile.exportAllImageHDUs();    
+    qint32 retVal = m_fitsFile.exportAllImageHDUs(a_transform, a_gray);
 
     setStatus(STATUS_MESSAGE_READY);
 
-    //if (retVal == FITS_GENERAL_SUCCESS)
     if (a_msgFlag)
     {
         if (retVal > FITS_PNG_EXPORT_ERROR)

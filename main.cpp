@@ -39,16 +39,18 @@ int main(int argc, char *argv[])
             std::cout << "Command line usage:" << std::endl << std::endl;
             std::cout << "nfitsview [FITS file]" << std::endl << std::endl;
             std::cout << "  or" << std::endl << std::endl;
-            std::cout << "nfitsview <command> <color mapping mode> <colorful/grayscale> [FITS file]" << std::endl << std::endl;
+            std::cout << "nfitsview <command> <color mapping mode> <color option> [FITS file]" << std::endl << std::endl;
             std::cout << "Commands available:" << std::endl << std::endl;
-            std::cout << "  " << CMDLINE_SWITCH_EXPORT<< "  Export all image HDU(s) of the FITS file to PNG file(s)" << std::endl;
+            std::cout << "  " << CMDLINE_SWITCH_EXPORT<< "  Export all image HDUs of the FITS file to PNG files" << std::endl;
             std::cout << "  " << CMDLINE_SWITCH_HELP << "  Show this help" << std::endl << std::endl;
-            std::cout << "Options available:" << std::endl << std::endl;
-            std::cout << "  " << CMDLINE_SWITCH_EXPORT_OPTION_COLOR_MODE_0 << "  Export image HDU(s) in original color mapping" << std::endl;
-            std::cout << "  " << CMDLINE_SWITCH_EXPORT_OPTION_COLOR_MODE_1 << "  Export image HDU(s) in positive range float/integer color mapping" << std::endl;
-            std::cout << "  " << CMDLINE_SWITCH_EXPORT_OPTION_COLOR_RGB << "   Export image HDU(s) in original colors" << std::endl;
-            std::cout << "  " << CMDLINE_SWITCH_EXPORT_OPTION_COLOR_GRAY << "   Export image HDU(s) in grayscale" << std::endl << std::endl;
-            std::cout << "Examples: " << std::endl;
+            std::cout << "Color mapping modes available:" << std::endl << std::endl;
+            std::cout << "  " << CMDLINE_SWITCH_EXPORT_OPTION_COLOR_MODE_0 << "  Export image HDUs in original color mapping" << std::endl;
+            std::cout << "  " << CMDLINE_SWITCH_EXPORT_OPTION_COLOR_MODE_1 << "  Export image HDUs in positive range float/integer color mapping"
+                      << std::endl << std::endl;
+            std::cout << "Color options available: " << std::endl << std::endl;
+            std::cout << "  " << CMDLINE_SWITCH_EXPORT_OPTION_COLOR_RGB << "   Export image HDUs in original colors" << std::endl;
+            std::cout << "  " << CMDLINE_SWITCH_EXPORT_OPTION_COLOR_GRAY << "   Export image HDUs in grayscale" << std::endl << std::endl;
+            std::cout << "Examples: " << std::endl << std::endl;
             std::cout << "  nfitsview -e m0 g example.fits" << std::endl;
             std::cout << "  nfitsview -e m1 c example.fits" << std::endl << std::endl;
 

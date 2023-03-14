@@ -6,6 +6,7 @@
 #include <QScrollBar>
 
 #include "defsui.h"
+#include "qfitsimagelabel.h"
 
 #include "libnfits/hdu.h"
 #include "libnfits/image.h"
@@ -84,6 +85,8 @@ public:
     uint32_t getTransformType() const;
     uint32_t getTransformType(uint32_t a_hduIndex) const;
 
+    QFITSImageLabel* getFITSImageLabel() const;
+
 private slots:
     void on_WorkspaceTabWidget_currentChanged(int index);
 
@@ -93,11 +96,10 @@ signals:
 private:
     Ui::WorkspaceTabWidget *ui;
 
-    QLabel                          *m_imageLabel;
+    QFITSImageLabel                 *m_imageLabel;
     libnfits::Image                 *m_fitsImage;
     std::vector<FITSImageHDU>        m_vecFitsImages;
     int32_t                          m_fitsImageHDUIndex;
-
 };
 
 #endif // WORKSPACETABWIDGET_H

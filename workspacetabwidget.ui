@@ -46,25 +46,6 @@
     </item>
    </layout>
   </widget>
-  <widget class="QWidget" name="tabTable">
-   <attribute name="title">
-    <string>Table</string>
-   </attribute>
-   <layout class="QGridLayout" name="gridLayout_3">
-    <item row="0" column="0">
-     <widget class="QTableWidget" name="tableWidgetTable">
-      <property name="rowCount">
-       <number>1</number>
-      </property>
-      <property name="columnCount">
-       <number>1</number>
-      </property>
-      <row/>
-      <column/>
-     </widget>
-    </item>
-   </layout>
-  </widget>
   <widget class="QWidget" name="tabRawData">
    <attribute name="title">
     <string>Raw Data Preview</string>

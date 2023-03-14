@@ -21,7 +21,7 @@ static int32_t percentCallbackFunctionSample(int32_t a_percent, void* a_buffer)
 //#define OPENMP_THREADS_DISABLE_NUMBER           (2) // Number of excluded OpenMP threads
 
 #define LIBNFITS_MAJOR_VERSION                  2
-#define LIBNFITS_MINOR_VERSION                  3
+#define LIBNFITS_MINOR_VERSION                  4
 #define LIBNFITS_BUILD_NUMBER                   0
 
 #define	FITS_BSCALE_DEFAULT_VALUE               (1.0)
@@ -42,7 +42,8 @@ static int32_t percentCallbackFunctionSample(int32_t a_percent, void* a_buffer)
 
 #define FITS_UNDEFINED_VALUE                    (-1)
 
-#define FITS_COMPRESS_MEMORY_CHUNK_SIZE         (16*1024*1024)      // 16 MB
+#define FITS_COMPRESS_MEMORY_CHUNK_MB           (16)                // 16 MB
+#define FITS_COMPRESS_MEMORY_CHUNK_SIZE         (FITS_COMPRESS_MEMORY_CHUNK_MB * 1024 * 1024)
 
 #define FITS_HEADER_RECORD_ASSIGNMENT_CHAR      '='
 #define FITS_PADDING_SPACE_CHAR                 ' '

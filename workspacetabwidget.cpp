@@ -11,23 +11,15 @@ WorkspaceTabWidget::WorkspaceTabWidget(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    // table tab so far is not needed and is hidden now
-    ui->tableWidgetTable->setColumnCount(1);
-    ui->tableWidgetTable->setRowCount(1);
-    ui->tableWidgetTable->setEnabled(false);
-    ui->tableWidgetTable->setVisible(false);
-    setTabVisible(1, false);
-
     //ui->scrollArea->setBackgroundRole(QPalette::Dark);
 
-    m_imageLabel = new QLabel;
+    m_imageLabel = new QFITSImageLabel;
     m_imageLabel->adjustSize();
     m_imageLabel->setScaledContents(true);
     //m_imageLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 
     ui->scrollArea->setAlignment(Qt::AlignCenter);
     ui->scrollArea->setWidget(m_imageLabel);
-
     ui->scrollArea->setWidgetResizable(false);
 
     scaleImage(0);
@@ -55,6 +47,7 @@ WorkspaceTabWidget::~WorkspaceTabWidget()
 
         m_imageLabel = nullptr;
     }
+
 
     //// We don't need this anymore as we work with list of images for each HDU being created run-time
     //// if (m_fitsImage != nullptr)
@@ -147,7 +140,6 @@ void WorkspaceTabWidget::populateRawDataWidget(const libnfits::HDU& a_hdu)
 
 void WorkspaceTabWidget::clearWidgets() const
 {
-    ui->tableWidgetTable->clear();
     ui->textEditRawData->clear();
     ui->textEditHeader->clear();
 
@@ -518,4 +510,9 @@ uint32_t WorkspaceTabWidget::getTransformType(uint32_t a_hduIndex) const
         type = image->getTransformType();
 
     return type;
+}
+
+QFITSImageLabel* WorkspaceTabWidget::getFITSImageLabel() const
+{
+    return m_imageLabel;
 }

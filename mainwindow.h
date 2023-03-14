@@ -119,6 +119,8 @@ private slots:
 
     void on_comboBoxMapping_currentIndexChanged(int index);
 
+    void on_workspaceWidget_sendMousewheelZoomChanged(int32_t a_scaleFactor);
+
 private:
     Ui::MainWindow *ui;
 

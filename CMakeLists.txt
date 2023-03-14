@@ -61,6 +61,8 @@ set(PROJECT_SOURCES
         aboutdialog.h
         aboutdialog.cpp
         defsui.h
+        qfitsimagelabel.cpp
+        qfitsimagelabel.h
         mainwindow.ui
         workspacetabwidget.ui
         aboutdialog.ui

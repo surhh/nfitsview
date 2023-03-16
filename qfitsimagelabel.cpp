@@ -2,9 +2,20 @@
 
 #include <QWheelEvent>
 
-QFITSImageLabel::QFITSImageLabel()
+QFITSImageLabel::QFITSImageLabel():
+    m_zoomable(true)
 {
 
+}
+
+void QFITSImageLabel::setZoomable(bool a_zoomable)
+{
+    m_zoomable = a_zoomable;
+}
+
+bool QFITSImageLabel::isZoomable() const
+{
+    return m_zoomable;
 }
 
 void QFITSImageLabel::wheelEvent(QWheelEvent* e)
@@ -13,6 +24,12 @@ void QFITSImageLabel::wheelEvent(QWheelEvent* e)
 
     QPoint numDegrees = e->angleDelta();
     int32_t degreesY = e->angleDelta().y();
+
+    if (!m_zoomable)
+    {
+        e->ignore();
+        return;
+    }
 
     if (!numDegrees.isNull())
     {

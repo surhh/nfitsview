@@ -31,7 +31,6 @@ WorkspaceTabWidget::WorkspaceTabWidget(QWidget *parent) :
     newFont.setItalic(false);
     ui->tabHeader->setFont(newFont);
     ui->tabRawData->setFont(newFont);
-    ui->tabTable->setFont(newFont);
 #endif
 }
 

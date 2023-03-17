@@ -292,6 +292,19 @@ void MainWindow::populateHDUsWidget()
             ui->tableWidgetHDUs->setItem(ui->tableWidgetHDUs->rowCount()-1, 0, itemType);
             ui->tableWidgetHDUs->setItem(ui->tableWidgetHDUs->rowCount()-1, 1, itemSize);
             ui->tableWidgetHDUs->setItem(ui->tableWidgetHDUs->rowCount()-1, 2, itemBitpix);
+
+            uint32_t axisesNumber = hdu.getKeywordValue<uint32_t>(FITS_KEYWORD_NAXIS, bSuccess);
+            std::vector<uint32_t> axises = hdu.getAxises();
+
+            if ((HDUtype == FITS_HDU_TYPE_IMAGE_XTENSION || HDUtype == FITS_HDU_TYPE_PRIMARY) &&
+                (axisesNumber >= 2 && bSuccess) && (axises.size() >= 2))
+            {
+                QBrush color = Qt::cyan;
+
+                ui->tableWidgetHDUs->item(ui->tableWidgetHDUs->rowCount()-1, 0)->setBackground(color);
+                ui->tableWidgetHDUs->item(ui->tableWidgetHDUs->rowCount()-1, 1)->setBackground(color);
+                ui->tableWidgetHDUs->item(ui->tableWidgetHDUs->rowCount()-1, 2)->setBackground(color);
+            }
         }
     }
 
@@ -947,7 +960,8 @@ void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current
 
         uint8_t HDUType = hdu.getType();
 
-        if ((HDUType == FITS_HDU_TYPE_IMAGE_XTENSION || HDUType == FITS_HDU_TYPE_PRIMARY) && (axisesNumber >= 2 && bSuccess) && (axises.size() >= 2))
+        if ((HDUType == FITS_HDU_TYPE_IMAGE_XTENSION || HDUType == FITS_HDU_TYPE_PRIMARY) &&
+            (axisesNumber >= 2 && bSuccess) && (axises.size() >= 2))
         {
             int32_t bitpix = hdu.getKeywordValue<int32_t>(FITS_KEYWORD_BITPIX, bSuccess);
 

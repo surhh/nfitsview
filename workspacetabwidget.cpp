@@ -13,7 +13,7 @@ WorkspaceTabWidget::WorkspaceTabWidget(QWidget *parent) :
 
     //ui->scrollArea->setBackgroundRole(QPalette::Dark);
 
-    m_imageLabel = new QFITSImageLabel;
+    m_imageLabel = new FITSImageLabel;
     m_imageLabel->adjustSize();
     m_imageLabel->setScaledContents(true);
     //m_imageLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
@@ -515,7 +515,7 @@ uint32_t WorkspaceTabWidget::getTransformType(uint32_t a_hduIndex) const
     return type;
 }
 
-QFITSImageLabel* WorkspaceTabWidget::getFITSImageLabel() const
+FITSImageLabel* WorkspaceTabWidget::getFITSImageLabel() const
 {
     return m_imageLabel;
 }

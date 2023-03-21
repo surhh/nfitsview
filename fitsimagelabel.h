@@ -1,9 +1,9 @@
-#ifndef QFITSIMAGELABEL_H
-#define QFITSIMAGELABEL_H
+#ifndef FITSIMAGELABEL_H
+#define FITSIMAGELABEL_H
 
 #include <QLabel>
 
-class QFITSImageLabel : public QLabel
+class FITSImageLabel : public QLabel
 {
     Q_OBJECT
 
@@ -11,7 +11,7 @@ private:
     bool    m_zoomable;
 
 public:
-    QFITSImageLabel();
+    FITSImageLabel();
 
     void wheelEvent(QWheelEvent* e);
     void setZoomable(bool a_zoomable = true);

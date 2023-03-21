@@ -1,24 +1,24 @@
-#include "qfitsimagelabel.h"
+#include "fitsimagelabel.h"
 
 #include <QWheelEvent>
 
-QFITSImageLabel::QFITSImageLabel():
+FITSImageLabel::FITSImageLabel():
     m_zoomable(true)
 {
 
 }
 
-void QFITSImageLabel::setZoomable(bool a_zoomable)
+void FITSImageLabel::setZoomable(bool a_zoomable)
 {
     m_zoomable = a_zoomable;
 }
 
-bool QFITSImageLabel::isZoomable() const
+bool FITSImageLabel::isZoomable() const
 {
     return m_zoomable;
 }
 
-void QFITSImageLabel::wheelEvent(QWheelEvent* e)
+void FITSImageLabel::wheelEvent(QWheelEvent* e)
 {
     int32_t scaleFactor = 5;
 

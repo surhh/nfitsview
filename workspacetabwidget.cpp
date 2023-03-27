@@ -11,8 +11,6 @@ WorkspaceTabWidget::WorkspaceTabWidget(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    //ui->scrollArea->setBackgroundRole(QPalette::Dark);
-
     m_imageLabel = new FITSImageLabel;
     m_imageLabel->adjustSize();
     m_imageLabel->setScaledContents(true);

@@ -40,5 +40,6 @@
         <file>icons/help-about-22x22.svg</file>
         <file>icons/nfitsview.png</file>
         <file>icons/no_image_data.png</file>
+        <file>icons/system-upgrade-22x22.svg</file>
     </qresource>
 </RCC>

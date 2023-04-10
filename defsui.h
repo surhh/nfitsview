@@ -3,6 +3,9 @@
 
 #include <cstdint>
 
+#define UPDATE_CHECK_URL        "https://raw.githubusercontent.com/surhh/nfitsview/main/_lastversion.txt"
+#define UPDATE_DOWNLOAD_URL     "surhh.github.io"
+
 struct GammaWidgetsStates
 {
     int8_t      rLevel;

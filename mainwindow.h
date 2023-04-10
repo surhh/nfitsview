@@ -9,6 +9,7 @@
 
 #include "defsui.h"
 #include "libnfits/fitsfile.h"
+#include "updatemanager/filedownloader.h"
 
 #define MIN_IMAGE_SCALE_FACTOR              (1)
 #define MAX_IMAGE_SCALE_FACTOR              (200)
@@ -36,8 +37,13 @@
 #define TOSTR(x)                            #x
 #define TOSTRING(x)                         TOSTR(x)
 
-#define NFITSVIEW_VERSION                   TOSTRING(LIBNFITS_MAJOR_VERSION) "." TOSTRING(LIBNFITS_MINOR_VERSION)
+#define NFITSVIEW_MAJOR_VERSION             LIBNFITS_MAJOR_VERSION
+#define NFITSVIEW_MINOR_VERSION             LIBNFITS_MINOR_VERSION
+
+#define NFITSVIEW_VERSION                   TOSTRING(NFITSVIEW_MAJOR_VERSION) "." TOSTRING(NFITSVIEW_MINOR_VERSION)
+#define NFITSVIEW_VERSION_INT               TOSTRING(NFITSVIEW_MAJOR_VERSION)TOSTRING(NFITSVIEW_MINOR_VERSION)
 #define NFITSVIEW_APP_FULL_NAME             NFITSVIEW_APP_NAME " " NFITSVIEW_VERSION
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -121,6 +127,12 @@ private slots:
 
     void on_workspaceWidget_sendMousewheelZoomChanged(int32_t a_scaleFactor);
 
+    void on_actionCheckForUpdateToolBar_triggered();
+
+    void on_actionCheckForUpdate_triggered();
+
+    int32_t updateChecked();
+
 private:
     Ui::MainWindow *ui;
 
@@ -148,6 +160,8 @@ private:
 
     QString             m_exportFormat;
     int32_t             m_exportQuality;
+
+    FileDownloader     *m_fileDownloader;
 
 private:
     void createStatusBarWidgets();
@@ -203,6 +217,8 @@ private:
     void resizeEvent(QResizeEvent *event);
 
     void enableDisableMappingComboItem(uint32_t a_index, bool a_enable = true);
+
+    void checkForUpdate();
 
 signals:
     void sendProgressChanged(qint32 a_value);

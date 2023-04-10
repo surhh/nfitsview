@@ -12,6 +12,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_VERBOSE_MAKEFILE ON)      # added for libnfits
 
+find_package(Qt5Network REQUIRED)
+
 set(Boost_USE_MULTITHREADED ON)     # added for libnfits
 
 set(ENABLE_OPENMP OFF) # Enable OpenMP support
@@ -90,6 +92,9 @@ set(PROJECT_SOURCES
         libnfits/pngfile.h
         libnfits/fits2png.cpp
         libnfits/fits2png.h
+
+        updatemanager/filedownloader.cpp
+        updatemanager/filedownloader.h
 )
 
 # windows build specific (MinGW)
@@ -126,6 +131,7 @@ endif()
 
 # target_link_libraries(nfitsview PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)  # the original one
 target_link_libraries(nfitsview PRIVATE Qt${QT_VERSION_MAJOR}::Widgets ${Boost_LIBRARIES} ${PNG_LIBRARY}) # added for libnfits
+target_link_libraries(nfitsview PRIVATE Qt${QT_VERSION_MAJOR}::Network) # Added for network support
 
 if(ENABLE_OPENMP)
 find_package(OpenMP REQUIRED)

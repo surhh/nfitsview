@@ -5,6 +5,7 @@
 #include <QTextEdit>
 #include <QMessageBox>
 #include <QStandardItemModel>
+#include <QDesktopServices>
 
 #include <omp.h>
 
@@ -15,6 +16,7 @@
 #include "libnfits/headerrecord.h"
 
 #include "aboutdialog.h"
+#include "updatemanager/filedownloader.h"
 
 // This function acts as a wrapper over the callback method of signal/slot.
 // "this" pointer of MainWindow is passed to callback function and then it
@@ -85,6 +87,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     setWindowTitle(NFITSVIEW_APP_NAME);
 
+    //// checking for the new version
+    m_fileDownloader = new FileDownloader(QUrl(UPDATE_CHECK_URL));
+    if (m_fileDownloader != nullptr)
+        connect(m_fileDownloader, SIGNAL(downloaded()),this, SLOT(updateChecked()));
+
 #if defined(ENABLE_OPENMP)
     int32_t numThreads = omp_get_max_threads();
     numThreads = numThreads > 2 ? numThreads - OPENMP_THREADS_DISABLE_NUMBER : numThreads;
@@ -100,6 +107,8 @@ MainWindow::~MainWindow()
     delete m_labelZoomRight;
     delete m_labelZoomLevel;
     delete m_sliderZoom;
+
+    delete m_fileDownloader;
 
     delete ui;
 }
@@ -1517,3 +1526,48 @@ void MainWindow::on_workspaceWidget_sendMousewheelZoomChanged(int32_t a_scaleFac
 
     scaleImage();
 }
+
+void MainWindow::checkForUpdate()
+{
+    ui->actionCheckForUpdate->setEnabled(false);
+    ui->actionCheckForUpdateToolBar->setEnabled(false);
+
+    m_fileDownloader->doRequest();
+}
+
+int32_t MainWindow::updateChecked()
+{
+    ui->actionCheckForUpdate->setEnabled(true);
+    ui->actionCheckForUpdateToolBar->setEnabled(true);
+
+    QByteArray data = m_fileDownloader->getDownloadedData();
+
+    int32_t newVersion = data.toInt();
+    int32_t curVersion = QString(NFITSVIEW_VERSION_INT).toInt();
+
+    if (curVersion <= newVersion)
+    {
+        QString text = "Your current version of nFITSview is " + QString(TOSTRING(NFITSVIEW_MAJOR_VERSION)) + "." +
+                       QString(TOSTRING(NFITSVIEW_MINOR_VERSION)) + ". The latest version is " +
+                       QString::number(newVersion / 10) + "." + QString::number(newVersion % 10) +
+                       " and is available for download. Do you want to upgrade to the latest version?";
+
+        QMessageBox::StandardButton reply = QMessageBox::question(this, "Update status", text, QMessageBox::Yes|QMessageBox::No);
+
+        if (reply == QMessageBox::Yes)
+            QDesktopServices::openUrl(QUrl(UPDATE_DOWNLOAD_URL));
+    }
+
+    return newVersion;
+}
+
+void MainWindow::on_actionCheckForUpdateToolBar_triggered()
+{
+    checkForUpdate();
+}
+
+void MainWindow::on_actionCheckForUpdate_triggered()
+{
+    checkForUpdate();
+}
+

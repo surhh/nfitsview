@@ -1547,17 +1547,25 @@ int32_t MainWindow::updateChecked()
     int32_t newVersion = data.toInt();
     int32_t curVersion = QString(NFITSVIEW_VERSION_INT).toInt();
 
+    QString text = "";
+    QString caption = "Update status";
+
     if (curVersion < newVersion)
     {
-        QString text = "Your current version of nFITSview is " + QString(TOSTRING(NFITSVIEW_MAJOR_VERSION)) + "." +
-                       QString(TOSTRING(NFITSVIEW_MINOR_VERSION)) + ". The latest version is " +
-                       QString::number(newVersion / 10) + "." + QString::number(newVersion % 10) +
-                       " and is available for download. Do you want to upgrade to the latest version?";
+        text = "Your current version of nFITSview is " + QString(TOSTRING(NFITSVIEW_MAJOR_VERSION)) + "." +
+               QString(TOSTRING(NFITSVIEW_MINOR_VERSION)) + ". The latest version is " +
+               QString::number(newVersion / 10) + "." + QString::number(newVersion % 10) +
+               " and is available for download. Do you want to upgrade to the latest version?";
 
-        QMessageBox::StandardButton reply = QMessageBox::question(this, "Update status", text, QMessageBox::Yes|QMessageBox::No);
+        QMessageBox::StandardButton reply = QMessageBox::question(this, caption, text, QMessageBox::Yes|QMessageBox::No);
 
         if (reply == QMessageBox::Yes)
             QDesktopServices::openUrl(QUrl(UPDATE_DOWNLOAD_URL));
+    }
+    else
+    {
+        text = "You already have the latest version of nFITSview!";
+        QMessageBox::question(this, caption, text, QMessageBox::Ok);
     }
 
     return newVersion;

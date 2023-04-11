@@ -7,7 +7,9 @@
 #include <QStandardItemModel>
 #include <QDesktopServices>
 
+#if defined(ENABLE_OPENMP)
 #include <omp.h>
+#endif
 
 #include "libnfits/hdu.h"
 #include "libnfits/fitsfile.h"

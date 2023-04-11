@@ -1545,7 +1545,7 @@ int32_t MainWindow::updateChecked()
     int32_t newVersion = data.toInt();
     int32_t curVersion = QString(NFITSVIEW_VERSION_INT).toInt();
 
-    if (curVersion <= newVersion)
+    if (curVersion < newVersion)
     {
         QString text = "Your current version of nFITSview is " + QString(TOSTRING(NFITSVIEW_MAJOR_VERSION)) + "." +
                        QString(TOSTRING(NFITSVIEW_MINOR_VERSION)) + ". The latest version is " +

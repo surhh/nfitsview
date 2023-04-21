@@ -11,9 +11,16 @@ class FileDownloader : public QObject
 {
     Q_OBJECT
 
+private:
+    QNetworkAccessManager  *m_netAccessManager;
+    QUrl                    m_url;
+    QByteArray              m_downloadedData;
+
 public:
-    explicit FileDownloader(QUrl a_url, QObject* parent = nullptr);
+    FileDownloader(QUrl a_url, QObject* parent = nullptr);
+    FileDownloader(QObject* parent = nullptr);
     virtual ~FileDownloader();
+    void setCheckURL(const QString& a_url);
     void doRequest();
     QByteArray getDownloadedData() const;
 
@@ -22,11 +29,6 @@ signals:
 
 private slots:
     void fileDownloaded(QNetworkReply* a_pReply);
-
-private:
-    QNetworkAccessManager  *m_netAccessManager;
-    QUrl                    m_url;
-    QByteArray              m_downloadedData;
 };
 
 #endif // FILEDOWNLOADER_H

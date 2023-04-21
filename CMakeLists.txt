@@ -95,6 +95,8 @@ set(PROJECT_SOURCES
 
         updatemanager/filedownloader.cpp
         updatemanager/filedownloader.h
+        updatemanager/updatechecker.cpp
+        updatemanager/updatechecker.h
 )
 
 # windows build specific (MinGW)

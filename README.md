@@ -49,12 +49,12 @@ The latest version (2.5) of nFITSview for Windows 64-bit to download:
 
 # Screenshots
 
-![nfitsview1_9_screenshot_1](https://user-images.githubusercontent.com/109148999/216837974-c10fdd42-956c-497b-8bf0-64ada017d75e.png)
-![nfitsview1_9_screenshot_2](https://user-images.githubusercontent.com/109148999/216837976-2f2ffea9-5ddf-4f29-a46e-6f79ab638e7f.png)
-![nfitsview1_9_screenshot_3](https://user-images.githubusercontent.com/109148999/216837979-b246c657-a14c-4e1a-aa69-9a10ddbcfa75.png)
-![nfitsview1_9_screenshot_4](https://user-images.githubusercontent.com/109148999/216837981-a13858b5-1179-45aa-9848-b39a40811b9e.png)
-![nfitsview1_9_screenshot_5](https://user-images.githubusercontent.com/109148999/216837984-2e3cc287-75c8-4e94-8b84-b31b540d95c6.png)
-![nfitsview1_9_screenshot_6](https://user-images.githubusercontent.com/109148999/216837987-750b8ec7-97e7-47a9-ba63-cd8164cc115e.png)
+![nfitsview2_5_screenshot_1](https://user-images.githubusercontent.com/109148999/233595717-fcc28b53-f58b-4e61-93fe-df0afe66eb12.png)
+![nfitsview2_5_screenshot_2](https://user-images.githubusercontent.com/109148999/233595727-223111b6-fe2d-4f18-a7d9-5c7767bec441.png)
+![nfitsview2_5_screenshot_3](https://user-images.githubusercontent.com/109148999/233595739-56ff3969-6f1a-44d9-82bc-2843328edd55.png)
+![nfitsview2_5_screenshot_4](https://user-images.githubusercontent.com/109148999/233595743-0eff2e2c-4726-4f50-8a65-da60c278b7c2.png)
+![nfitsview2_5_screenshot_5](https://user-images.githubusercontent.com/109148999/233595762-94da0668-4a56-4bd6-a99b-3410605242cb.png)
+![nfitsview2_5_screenshot_6](https://user-images.githubusercontent.com/109148999/233595766-1a21ceb6-3b98-4604-8a6f-925c3f704daf.png)
 
 
 # About FITS format

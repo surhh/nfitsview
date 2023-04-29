@@ -76,8 +76,9 @@ int main(int argc, char *argv[])
         if (arg1 == CMDLINE_SWITCH_EXPORT)
         {
             int32_t transform;
+
             if (arg2 == CMDLINE_SWITCH_EXPORT_OPTION_COLOR_MODE_0)
-                transform = transform = FITS_FLOAT_DOUBLE_NO_TRANSFORM;
+                transform = FITS_FLOAT_DOUBLE_NO_TRANSFORM;
             else if (arg2 == CMDLINE_SWITCH_EXPORT_OPTION_COLOR_MODE_1)
                 transform = FITS_FLOAT_DOUBLE_LINEAR_TRANSFORM_POSITIVE;
             else

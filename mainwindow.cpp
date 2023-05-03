@@ -52,8 +52,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_sliderZoom, SIGNAL(valueChanged(int)), SLOT(om_m_sliderZoom_valueChanged(int)));
     connect(this, SIGNAL(sendProgressChanged(qint32)), SLOT(on_progressChanged(qint32)));
     connect(ui->workspaceWidget, SIGNAL(sendGammaCorrectionTabEnabled(bool)), this, SLOT(on_workspaceWidget_sendGammaCorrectionTabEnabled(bool)));
-    connect(ui->workspaceWidget->getFITSImageLabel(), SIGNAL(sendMousewheelZoomChanged(int32_t)), this, SLOT(on_workspaceWidget_sendMousewheelZoomChanged(int32_t)));
-
+    connect(ui->workspaceWidget->getFITSImageLabel(), SIGNAL(sendMousewheelZoomChanged(int32_t)), this, SLOT(onSendMousewheelZoomChanged(int32_t)));
 
     //// currently the Undo/Redo logic is not implemented, not needed so far, so disabling the controls
     ui->actionUndo->setVisible(false);
@@ -1522,7 +1521,7 @@ void MainWindow::enableDisableMappingComboItem(uint32_t a_index, bool a_enable)
     item->setFlags(!a_enable ? item->flags() & ~Qt::ItemIsEnabled: item->flags() | Qt::ItemIsEnabled);
 }
 
-void MainWindow::on_workspaceWidget_sendMousewheelZoomChanged(int32_t a_scaleFactor)
+void MainWindow::onSendMousewheelZoomChanged(int32_t a_scaleFactor)
 {
     m_scaleFactor += a_scaleFactor;
 

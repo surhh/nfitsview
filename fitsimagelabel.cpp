@@ -28,19 +28,16 @@ void FITSImageLabel::wheelEvent(QWheelEvent* e)
     if (!m_zoomable)
     {
         e->ignore();
+
         return;
     }
 
     if (!numDegrees.isNull())
     {
         if (degreesY > 0)
-        {
             emit sendMousewheelZoomChanged(scaleFactor);
-        }
         else if (degreesY < 0)
-        {
             emit sendMousewheelZoomChanged(-scaleFactor);
-        }
         else
             e->ignore();
     }

@@ -96,7 +96,7 @@ signals:
 private:
     Ui::WorkspaceTabWidget *ui;
 
-    FITSImageLabel                 *m_imageLabel;
+    FITSImageLabel                  *m_imageLabel;
     libnfits::Image                 *m_fitsImage;
     std::vector<FITSImageHDU>        m_vecFitsImages;
     int32_t                          m_fitsImageHDUIndex;

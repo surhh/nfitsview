@@ -98,6 +98,7 @@
    <addaction name="actionOpenToolBar"/>
    <addaction name="actionCloseToolBar"/>
    <addaction name="separator"/>
+   <addaction name="separator"/>
    <addaction name="actionExportToolBar"/>
    <addaction name="separator"/>
    <addaction name="actionUndoToolBar"/>
@@ -1054,7 +1055,7 @@
      <normaloff>:/icons/view-preview-22x22.svg</normaloff>:/icons/view-preview-22x22.svg</iconset>
    </property>
    <property name="text">
-    <string>Export Image</string>
+    <string>Export Current Image</string>
    </property>
    <property name="toolTip">
     <string>Exports current HDU as image</string>
@@ -1066,7 +1067,7 @@
      <normaloff>:/icons/view-preview-22x22.svg</normaloff>:/icons/view-preview-22x22.svg</iconset>
    </property>
    <property name="text">
-    <string>Export Image</string>
+    <string>Export Current Image</string>
    </property>
    <property name="toolTip">
     <string>Exports current HDU as image</string>
@@ -1100,6 +1101,10 @@
    </property>
   </action>
   <action name="actionCheckForUpdate">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/system-upgrade-22x22.svg</normaloff>:/icons/system-upgrade-22x22.svg</iconset>
+   </property>
    <property name="text">
     <string>Check for Update</string>
    </property>

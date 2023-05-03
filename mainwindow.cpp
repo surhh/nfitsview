@@ -832,6 +832,7 @@ void MainWindow::enableImageExportSettigsWidgets(bool a_flag)
     ui->comboBoxFormat->setEnabled(a_flag);
 
     QString currentItem = ui->comboBoxFormat->currentText();
+
     if (currentItem != QString(IMAGE_EXPORT_TYPE_JPG).toUpper())
     {
         ui->horizontalSliderQuality->setEnabled(false);

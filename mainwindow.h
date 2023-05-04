@@ -183,12 +183,12 @@ private:
     void backupOriginalImage();
     void restoreOriginalImage();
 
-    qint32 openFITSFile();
-    qint32 openFITSFileByName(const QString& a_fileName, bool a_bShowMsg = true);
-    qint32 closeFITSFile();
-    qint32 exportAllImages(bool a_msgFlag = true, int32_t a_transform = FITS_FLOAT_DOUBLE_NO_TRANSFORM, bool a_gray = false);
+    int32_t openFITSFile();
+    int32_t openFITSFileByName(const QString& a_fileName, bool a_bShowMsg = true);
+    int32_t closeFITSFile();
+    int32_t exportAllImages(bool a_msgFlag = true, int32_t a_transform = FITS_FLOAT_DOUBLE_NO_TRANSFORM, bool a_gray = false);
     bool   exportImage();
-    qint32 setAllWorkspaceImages();
+    int32_t setAllWorkspaceImages();
 
     void populateHDUsWidget();
     void populateHeaderWidget(int32_t a_hduIndex);

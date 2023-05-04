@@ -346,7 +346,7 @@ void MainWindow::populateRawDataWidget(int32_t a_hduIndex)
         ui->workspaceWidget->populateRawDataWidget(hdu);
 }
 
-qint32 MainWindow::openFITSFile()
+int32_t MainWindow::openFITSFile()
 {
     QString filter = "FITS Files (*.fit *.fts *.fits)";
     QString fileName = QFileDialog::getOpenFileName(this, "Open FITS file", "~/", filter);
@@ -354,16 +354,16 @@ qint32 MainWindow::openFITSFile()
     return openFITSFileByName(fileName);    
 }
 
-qint32 MainWindow::openFITSFileByNameFromCmdLine(const QString& a_fileName)
+int32_t MainWindow::openFITSFileByNameFromCmdLine(const QString& a_fileName)
 {
-    qint32 resOpen = openFITSFileByName(a_fileName);
+    int32_t resOpen = openFITSFileByName(a_fileName);
 
     return resOpen;
 }
 
-qint32 MainWindow::openFITSFileByName(const QString& a_fileName, bool a_bShowMsg)
+int32_t MainWindow::openFITSFileByName(const QString& a_fileName, bool a_bShowMsg)
 {
-    qint32 result = FITS_GENERAL_ERROR;
+    int32_t result = FITS_GENERAL_ERROR;
 
     if (!a_fileName.isEmpty())
     {
@@ -416,7 +416,7 @@ qint32 MainWindow::openFITSFileByName(const QString& a_fileName, bool a_bShowMsg
     return resTemp;
 }
 
-qint32 MainWindow::closeFITSFile()
+int32_t MainWindow::closeFITSFile()
 {
     if (m_fitsFile.closeFile() != FITS_MEMORY_MAP_FILE_SUCCESS)
         return FITS_GENERAL_ERROR;
@@ -442,9 +442,9 @@ qint32 MainWindow::closeFITSFile()
     return FITS_GENERAL_SUCCESS;
 }
 
-qint32 MainWindow::exportFITSFileFromCmdLine(const QString& a_fileName, int32_t a_transform, bool a_gray)
+int32_t MainWindow::exportFITSFileFromCmdLine(const QString& a_fileName, int32_t a_transform, bool a_gray)
 {
-    qint32 retVal;
+    int32_t retVal;
 
     retVal = openFITSFileByName(a_fileName, false);
 
@@ -539,13 +539,13 @@ void MainWindow::clearWidgets()
     initHDUInfoWidgetValues();
 }
 
-qint32 MainWindow::exportAllImages(bool a_msgFlag, int32_t a_transform, bool a_gray)
+int32_t MainWindow::exportAllImages(bool a_msgFlag, int32_t a_transform, bool a_gray)
 {
     setStatus(STATUS_MESSAGE_IMAGE_EXPORT_HDUS);
 
     setProgress(50);
 
-    qint32 retVal = m_fitsFile.exportAllImageHDUs(a_transform, a_gray);
+    int32_t retVal = m_fitsFile.exportAllImageHDUs(a_transform, a_gray);
 
     setStatus(STATUS_MESSAGE_READY);
 
@@ -1107,7 +1107,7 @@ void MainWindow::resizeEvent(QResizeEvent *event)
         fitToWindow();
 }
 
-qint32 MainWindow::setAllWorkspaceImages()
+int32_t MainWindow::setAllWorkspaceImages()
 {
     libnfits::HDU       hdu;
 

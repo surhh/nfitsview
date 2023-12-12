@@ -282,7 +282,7 @@ size_t compressDecompressData(const int8_t* a_inputBuffer, int8_t*& a_outputBuff
 {
     size_t              bufSize = 0, i = 0, chunkIndex = 0, chunkNumber = -1;
     char*               chunkBuffer = nullptr;
-    std::vector<char *> vectorChunkBuffers;
+    std::vector<char*> vectorChunkBuffers;
 
     boost::iostreams::filtering_streambuf<boost::iostreams::input> inBuf;
 
@@ -321,7 +321,7 @@ size_t compressDecompressData(const int8_t* a_inputBuffer, int8_t*& a_outputBuff
     a_outputBuffer = new int8_t[bufSize];
     i = 0;
 
-    for (std::vector<char *>::iterator it = vectorChunkBuffers.begin(); it < vectorChunkBuffers.end(); ++it, ++i)
+    for (std::vector<char*>::iterator it = vectorChunkBuffers.begin(); it < vectorChunkBuffers.end(); ++it, ++i)
     {
         size_t offset = i*FITS_COMPRESS_MEMORY_CHUNK_SIZE;
         std::memcpy(a_outputBuffer + offset, (*it), (bufSize - offset) > FITS_COMPRESS_MEMORY_CHUNK_SIZE ? FITS_COMPRESS_MEMORY_CHUNK_SIZE : chunkIndex);
@@ -1423,6 +1423,24 @@ int32_t dumpDoubleDataBuffer(const uint8_t* a_buffer, size_t a_size, const std::
     }
 
     dumpFile << "\n\nMin: " << min << " , max: " << max;
+
+    dumpFile.close();
+
+    return retVal;
+}
+
+int32_t dumpByteDataBuffer(const uint8_t* a_buffer, size_t a_size, const std::string& a_filename)
+{
+    int32_t retVal = FITS_GENERAL_SUCCESS;
+
+    std::ofstream dumpFile;
+
+    dumpFile.open(a_filename, std::ios::out | std::ios::binary);
+
+    if (!dumpFile)
+        return FITS_GENERAL_ERROR;
+
+    dumpFile.write(reinterpret_cast<char*>((uint8_t*)a_buffer), a_size);
 
     dumpFile.close();
 

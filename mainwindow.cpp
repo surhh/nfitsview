@@ -348,7 +348,7 @@ void MainWindow::populateRawDataWidget(int32_t a_hduIndex)
 
 int32_t MainWindow::openFITSFile()
 {
-    QString filter = "FITS Files (*.fit *.fts *.fits)";
+    QString filter = "FITS Files (*.fit *.fts *.fits *.fz)";
     QString fileName = QFileDialog::getOpenFileName(this, "Open FITS file", "~/", filter);
 
     return openFITSFileByName(fileName);    
@@ -1015,7 +1015,7 @@ void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current
                 {
                     ui->workspaceWidget->getImageHDUWidgetsStates(hduIndex, widgetsStates);
 
-                    libnfits::LOG("HDU changed to hduIndex = %" , hduIndex);
+                    //libnfits::LOG("HDU changed to hduIndex = %" , hduIndex);
 
                     if (widgetsStates.stored)
                     {

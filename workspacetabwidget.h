@@ -98,6 +98,7 @@ private:
 
     FITSImageLabel                  *m_imageLabel;
     libnfits::Image                 *m_fitsImage;
+
     std::vector<FITSImageHDU>        m_vecFitsImages;
     int32_t                          m_fitsImageHDUIndex;
 };

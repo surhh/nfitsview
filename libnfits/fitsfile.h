@@ -14,6 +14,8 @@ private:
     std::string         m_fileName;
     MapFile             m_mapFile;
     uint8_t*            m_memoryBuffer;
+    uint8_t*            m_memoryBufferBak;
+    uint8_t*            m_memoryDecompressedBuffer;
     size_t              m_fileSize;
     size_t              m_offset;
 
@@ -45,6 +47,7 @@ public:
     std::string getFileName() const;
     bool isOpen() const;
     void reset();
+    bool isGZIPCompressed() const;
 };
 
 }

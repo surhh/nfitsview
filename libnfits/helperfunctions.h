@@ -684,6 +684,8 @@ int32_t dumpFloatDataBuffer(const uint8_t* a_buffer, size_t a_size, const std::s
 
 int32_t dumpDoubleDataBuffer(const uint8_t* a_buffer, size_t a_size, const std::string& a_filename, uint32_t a_rowSize);
 
+int32_t dumpByteDataBuffer(const uint8_t* a_buffer, size_t a_size, const std::string& a_filename);
+
 }
 
 typedef     void (*convertBufferShort)       (uint16_t, libnfits::RGBPixel&);

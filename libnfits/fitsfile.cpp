@@ -8,20 +8,24 @@ namespace libnfits
 {
 
 FitsFile::FitsFile():
-    m_fileName(""), m_memoryBuffer(nullptr), m_fileSize(0), m_offset(0), m_callbackFunc(nullptr), m_callbackFuncParam(nullptr)
+    m_fileName(""), m_memoryBuffer(nullptr), m_memoryDecompressedBuffer(nullptr), m_fileSize(0),
+    m_offset(0), m_callbackFunc(nullptr), m_callbackFuncParam(nullptr)
 {
 
 }
 
 FitsFile::FitsFile(const std::string& a_fileName):
-    m_fileName(a_fileName), m_memoryBuffer(nullptr), m_fileSize(0), m_offset(0), m_callbackFunc(nullptr), m_callbackFuncParam(nullptr)
+    m_fileName(a_fileName), m_memoryBuffer(nullptr), m_memoryDecompressedBuffer(nullptr), m_fileSize(0),
+    m_offset(0), m_callbackFunc(nullptr), m_callbackFuncParam(nullptr)
 {
 
 }
 
 FitsFile::~FitsFile()
 {
-    reset();
+    closeFile();
+
+    //reset();
 }
 
 int32_t FitsFile::loadFile(const std::string& a_fileName)
@@ -40,6 +44,16 @@ int32_t FitsFile::loadFile(const std::string& a_fileName)
 
     m_fileName = a_fileName;
 
+    if (isGZIPCompressed())
+    {
+        size_t decSize = decompressData((const int8_t*)m_memoryBuffer, (int8_t*&)m_memoryDecompressedBuffer, m_mapFile.getFileSize());
+
+        m_memoryBufferBak = m_memoryBuffer; // backup for memory mapped pointer, backup-restore of this pointer may be also used in the future
+        m_memoryBuffer = m_memoryDecompressedBuffer;
+
+        m_fileSize = decSize; // here we adjust the FITS file size after decompression, so all the data from buffer can be read
+    }
+
     setOffset(0);
 
     retVal = findAllHDUs();
@@ -51,6 +65,8 @@ int32_t FitsFile::loadFile(const std::string& a_fileName)
 
 int32_t FitsFile::closeFile()
 {
+    m_memoryBuffer = m_memoryBufferBak;
+
     int32_t resUnmap = m_mapFile.closeFile();
 
     if (resUnmap == FITS_MEMORY_MAP_FILE_SUCCESS)
@@ -216,12 +232,17 @@ int32_t FitsFile::findAllHDUs()
 void FitsFile::reset()
 {
     m_fileName.clear();
-    m_memoryBuffer = nullptr;
+
+    delete [] m_memoryDecompressedBuffer;
+    m_memoryDecompressedBuffer = nullptr;
+
     m_fileSize = 0;
     m_offset = 0;
     m_callbackFunc = nullptr;
     m_HDUs.clear();
-    m_mapFile.closeFile();
+
+    //m_mapFile.closeFile();
+    m_memoryBuffer = nullptr;
 }
 
 int32_t FitsFile::exportImageHDU(uint32_t a_hduIndex, int32_t a_transform, bool a_gray)
@@ -325,6 +346,11 @@ std::string FitsFile::getFileName() const
 bool FitsFile::isOpen() const
 {
     return m_memoryBuffer != nullptr ? true : false;
+}
+
+bool FitsFile::isGZIPCompressed() const
+{
+    return (*(uint16_t*)m_memoryBuffer) == 0x8b1f ? true : false;
 }
 
 }

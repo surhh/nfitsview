@@ -2,6 +2,7 @@
 #include "ui_workspacetabwidget.h"
 
 #include <cstring>
+#include <QMovie>
 
 WorkspaceTabWidget::WorkspaceTabWidget(QWidget *parent) :
     QTabWidget(parent),
@@ -44,7 +45,6 @@ WorkspaceTabWidget::~WorkspaceTabWidget()
 
         m_imageLabel = nullptr;
     }
-
 
     //// We don't need this anymore as we work with list of images for each HDU being created run-time
     //// if (m_fitsImage != nullptr)

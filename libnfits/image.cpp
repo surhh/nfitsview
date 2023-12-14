@@ -43,6 +43,9 @@ Image::Image(const uint8_t* a_dataBuffer, uint32_t a_witdth, uint32_t a_height, 
     m_rgbDataBuffer = nullptr;
     m_rgb32DataBuffer = nullptr;
     m_rgb32FlatDataBuffer = nullptr;
+    m_rgbDataBackupBuffer = nullptr;
+    m_rgb32DataBackupBuffer = nullptr;
+    m_rgb32FlatDataBackupBuffer = nullptr;
     m_transformType = FITS_FLOAT_DOUBLE_NO_TRANSFORM;
 
     m_minValue = std::numeric_limits<double>::min();

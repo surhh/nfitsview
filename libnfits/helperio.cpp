@@ -15,8 +15,8 @@ MapFile::MapFile():
     m_memoryBuffer(nullptr), m_fileName(""), m_fileSize(0), m_rwFlag(false), m_fileDesc(0)
 {
 #if defined(__WIN32__) || defined(__WIN64__)
-    m_fileHandle = NULL;
-    m_mapHandle = NULL;
+    m_fileHandle = nullptr;
+    m_mapHandle = nullptr;
     m_pMapAddress = nullptr;
 #endif
 }
@@ -129,6 +129,8 @@ int32_t MapFile::loadFile(const std::string& a_fileName, bool a_rwFlag)
     return mapFileToMemoryU();
 #elif defined(__WIN32__) || defined(__WIN64__)
     return mapFileToMemoryW();
+#else
+    return FITS_MEMORY_MAP_FILE_MAP_ERROR;
 #endif
 }
 
@@ -148,6 +150,8 @@ int32_t MapFile::closeFile()
         m_memoryBuffer = nullptr;
 
     return resUnmap;
+#else
+    return FITS_MEMORY_MAP_FILE_MAP_ERROR;
 #endif
 }
 

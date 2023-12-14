@@ -8,14 +8,14 @@ namespace libnfits
 {
 
 FitsFile::FitsFile():
-    m_fileName(""), m_memoryBuffer(nullptr), m_memoryDecompressedBuffer(nullptr), m_fileSize(0),
+    m_fileName(""), m_memoryBuffer(nullptr), m_memoryDecompressedBuffer(nullptr), m_memoryBufferBak(nullptr), m_fileSize(0),
     m_offset(0), m_callbackFunc(nullptr), m_callbackFuncParam(nullptr)
 {
 
 }
 
 FitsFile::FitsFile(const std::string& a_fileName):
-    m_fileName(a_fileName), m_memoryBuffer(nullptr), m_memoryDecompressedBuffer(nullptr), m_fileSize(0),
+    m_fileName(a_fileName), m_memoryBuffer(nullptr), m_memoryDecompressedBuffer(nullptr),  m_memoryBufferBak(nullptr), m_fileSize(0),
     m_offset(0), m_callbackFunc(nullptr), m_callbackFuncParam(nullptr)
 {
 

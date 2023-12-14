@@ -168,7 +168,7 @@ inline uint8_t max256(uint32_t a_value)
 //inline uint8_t max3Index(uint64_t a_value1, uint64_t a_value2, uint64_t a_value3)
 inline uint8_t max3ByteIndex(uint8_t a_value1, uint8_t a_value2, uint8_t a_value3)
 {
-    if (a_value1 >= a_value2 && a_value1 >= a_value2)
+    if (a_value1 >= a_value2 && a_value1 >= a_value3)
         return 1;
     else if (a_value2 >= a_value1 && a_value2 >= a_value3)
         return 2;
@@ -178,7 +178,7 @@ inline uint8_t max3ByteIndex(uint8_t a_value1, uint8_t a_value2, uint8_t a_value
     return 1;
 }
 
-inline uint8_t max3Bytes(uint8_t a_pixel[3])
+inline uint8_t max3Bytes(const uint8_t a_pixel[3])
 {
     uint8_t maxValue = 0;
 
@@ -189,7 +189,7 @@ inline uint8_t max3Bytes(uint8_t a_pixel[3])
     return maxValue;
 }
 
-inline uint8_t min3Bytes(uint8_t a_pixel[3])
+inline uint8_t min3Bytes(const uint8_t a_pixel[3])
 {
     uint8_t minValue = 0xff;
 
@@ -240,7 +240,7 @@ inline uint8_t convertRGB2Grayscale(uint8_t a_red, uint8_t a_green, uint8_t a_bl
     ////return (max3Bytes(rgb) + min3Bytes(rgb))/2;
 }
 
-inline uint8_t convertRGB2Grayscale(RGBPixel& a_pixel)
+inline uint8_t convertRGB2Grayscale(const RGBPixel& a_pixel)
 {
     //// Average method - faster method
     //// return (a_pixel.red + a_pixel.green + a_pixel.blue) / 3;

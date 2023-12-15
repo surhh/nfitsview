@@ -387,10 +387,10 @@ int32_t MainWindow::openFITSFileByName(const QString& a_fileName, bool a_bShowMs
 
     resTemp = m_fitsFile.loadFile(m_fitsFileName.toStdString());
 
-    m_fitsFile.setCallbackFunction(progressCallbackFunction, (void *)this);
-
     if (resTemp == FITS_GENERAL_SUCCESS)
     {
+        m_fitsFile.setCallbackFunction(progressCallbackFunction, (void *)this);
+
         // this function loads all the image HDUs into the corresponding Image objects
         setAllWorkspaceImages();
 

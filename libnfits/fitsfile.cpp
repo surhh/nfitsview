@@ -51,7 +51,7 @@ int32_t FitsFile::loadFile(const std::string& a_fileName)
         m_memoryBufferBak = m_memoryBuffer; // backup for memory mapped pointer, backup-restore of this pointer may be also used in the future
         m_memoryBuffer = m_memoryDecompressedBuffer;
 
-        if (decSize <= 0)
+        if (decSize == 0)
         {
             m_mapFile.closeFile();
 

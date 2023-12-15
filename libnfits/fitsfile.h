@@ -28,6 +28,7 @@ private:
     int32_t findHDU();
     int32_t findAllHDUs();
     int32_t findPrimaryHDU();
+    void reset();
 
 public:
     FitsFile();
@@ -46,7 +47,6 @@ public:
     int32_t getHDU(uint32_t a_index, HDU& a_hdu) const;
     std::string getFileName() const;
     bool isOpen() const;
-    void reset();
     bool isGZIPCompressed() const;
 };
 

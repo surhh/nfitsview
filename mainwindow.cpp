@@ -20,6 +20,8 @@
 #include "aboutdialog.h"
 #include "updatemanager/filedownloader.h"
 
+#define FITS_FILE_EXTENSIONS    "FITS Files (*.fit *.fts *.fits *.fz)"
+
 // This function acts as a wrapper over the callback method of signal/slot.
 // "this" pointer of MainWindow is passed to callback function and then it
 // is used in order to emit the signal from MainWindow class.
@@ -348,7 +350,7 @@ void MainWindow::populateRawDataWidget(int32_t a_hduIndex)
 
 int32_t MainWindow::openFITSFile()
 {
-    QString filter = "FITS Files (*.fit *.fts *.fits *.fz)";
+    QString filter = FITS_FILE_EXTENSIONS;
     QString fileName = QFileDialog::getOpenFileName(this, "Open FITS file", "~/", filter);
 
     return openFITSFileByName(fileName);    

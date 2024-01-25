@@ -178,7 +178,7 @@ inline uint8_t max3ByteIndex(uint8_t a_value1, uint8_t a_value2, uint8_t a_value
     return 1;
 }
 
-inline uint8_t max3Bytes(const uint8_t a_pixel[3])
+inline uint8_t max3Bytes(const uint8_t (&a_pixel)[3])
 {
     uint8_t maxValue = 0;
 
@@ -189,7 +189,7 @@ inline uint8_t max3Bytes(const uint8_t a_pixel[3])
     return maxValue;
 }
 
-inline uint8_t min3Bytes(const uint8_t a_pixel[3])
+inline uint8_t min3Bytes(const uint8_t (&a_pixel)[3])
 {
     uint8_t minValue = 0xff;
 

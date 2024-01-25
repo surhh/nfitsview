@@ -31,7 +31,7 @@ libboost-iostreams1.74.0 (>= 1.74.0), libc6 (>= 2.34), libgcc-s1 (>= 3.0), libpn
 
 libqt5core5a (>= 5.15.1), libqt5gui5 (>= 5.0.2), libqt5gui5-gles (>= 5.0.2), libqt5widgets5 (>= 5.15.1), libstdc++6 (>= 11)
 
-[nfitsview2_7-x64.deb](https://github.com/surhh/nfitsview/releases/download/v2.7/nfitsview2_7-x64.deb)
+[nfitsview2_8-x64.deb](https://github.com/surhh/nfitsview/releases/download/v2.8/nfitsview2_8-x64.deb)
 
 
 # How to build under Windows
@@ -42,7 +42,7 @@ corresponding pathes for the libraries in the CMakeLists.txt file and then build
 
 The latest version (2.7) of nFITSview for Windows 64-bit to download:
 
-[nfitsview2_7-setup-x64.exe](https://github.com/surhh/nfitsview/releases/download/v2.7/nfitsview2_7-setup-x64.exe)
+[nfitsview2_8-setup-x64.exe](https://github.com/surhh/nfitsview/releases/download/v2.8/nfitsview2_8-setup-x64.exe)
 
 
 

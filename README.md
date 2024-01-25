@@ -1,5 +1,4 @@
-# About nFITSview  (next FITS viewer)
-nFITSview - A user-friendly FITS image viewer
+# nFITSview - A user-friendly FITS image viewer
 
 Currently nFITSview supports the following formats and features:
 

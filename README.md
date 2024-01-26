@@ -25,7 +25,7 @@ The original development of nFITSview is done under Linux, so the easiest and th
 - just build in Qt Creator. 
 - it should be also possible to build using CMake from the command line.
 
-The latest version (2.7) of nFITSview install package for Linux 64-bit (Debian-based) is available for download too. The dependencies for installing are: 
+The latest version (2.8) of nFITSview install package for Linux 64-bit (Debian-based) is available for download too. The dependencies for installing are: 
 
 libboost-iostreams1.74.0 (>= 1.74.0), libc6 (>= 2.34), libgcc-s1 (>= 3.0), libpng16-16 (>= 1.6.2-1)
 
@@ -40,7 +40,7 @@ Normally there is no need to build under Windows as the install package is provi
 Anyway, for building under Windows one would need to download/install/build all the dependencies (boost, zlib, libpng), then fix the
 corresponding pathes for the libraries in the CMakeLists.txt file and then build the project using Qt Creator.
 
-The latest version (2.7) of nFITSview for Windows 64-bit to download:
+The latest version (2.8) of nFITSview for Windows 64-bit to download:
 
 [nfitsview2_8-setup-x64.exe](https://github.com/surhh/nfitsview/releases/download/v2.8/nfitsview2_8-setup-x64.exe)
 

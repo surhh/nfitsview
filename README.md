@@ -1,4 +1,4 @@
-# nFITSview - A user-friendly FITS image viewer
+# nFITSview - A user-friendly FITS image viewer for astronomers
 
 Currently nFITSview supports the following formats and features:
 

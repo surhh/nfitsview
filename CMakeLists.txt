@@ -12,6 +12,11 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_VERBOSE_MAKEFILE ON)      # added for libnfits
 
+# setting -march=native flag for more explicit optimiation if needed
+#SET(GCC_ARCH_NATIVE_COMPILE_FLAGS "-march=native")
+#SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${GCC_ARCH_NATIVE_COMPILE_FLAGS}")
+# end of setting -march=native flag
+
 find_package(Qt5Network REQUIRED)
 
 set(Boost_USE_MULTITHREADED ON)     # added for libnfits

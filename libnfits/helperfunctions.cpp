@@ -455,7 +455,7 @@ void convertBufferFloat2RGBA(uint8_t* a_buffer, size_t a_size, float a_min, floa
 #endif
         float f = *((float *)&s);
 
-        if (a_type =! FITS_FLOAT_DOUBLE_NO_TRANSFORM)
+        if (a_type != FITS_FLOAT_DOUBLE_NO_TRANSFORM)
             f = normalizeValue<float>(f, a_min, a_max, min, max);
 
         tmpBuf[i] = convertFloat2RGBA(f);

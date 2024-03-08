@@ -191,18 +191,18 @@ void WorkspaceTabWidget::insertImage(const uint8_t* a_image, ImageParams& a_imag
     image->setData(a_image);
 
     if (a_imageParams.bitpix == -64)
-            image->getBufferMinMax<double>();
+            image->calcBufferMinMax<double>();
     else if (a_imageParams.bitpix == 64)
-            image->getBufferMinMax<uint64_t>();
+            image->calcBufferMinMax<uint64_t>();
     else if (a_imageParams.bitpix == -32)
-            image->getBufferMinMax<float>();
+            image->calcBufferMinMax<float>();
     else if (a_imageParams.bitpix == 32)
-            image->getBufferMinMax<uint32_t>();
+            image->calcBufferMinMax<uint32_t>();
     else if (a_imageParams.bitpix == 16)
-            image->getBufferMinMax<uint16_t>();
+            image->calcBufferMinMax<uint16_t>();
 
 
-    image->createRGB32FlatData(a_transformType);
+    image->createRGB32FlatData(a_transformType, FITS_VALUE_DISTRIBUTION_RANGE_MIN_THREASHOLD);
 
     imageHDU.index = a_imageParams.hduIndex;
     imageHDU.image = image;
@@ -390,7 +390,7 @@ void WorkspaceTabWidget::setImage(uint32_t a_hduIndex, uint32_t a_transformType,
             if (a_bRecreate)
             {
                 m_fitsImage->deleteAllData();
-                m_fitsImage->createRGB32FlatData(a_transformType);
+                m_fitsImage->createRGB32FlatData(a_transformType, FITS_VALUE_DISTRIBUTION_RANGE_MIN_THREASHOLD);
                 //libnfits::LOG("in setImage(uint32_t a_hduIndex, uint32_t a_transformType), a_transformType = % ", a_transformType);
             }
             ////

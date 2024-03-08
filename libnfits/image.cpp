@@ -1,8 +1,9 @@
+#include <cstring>
+#include <cmath>
+
 #include "image.h"
 #include "pngfile.h"
-
-#include <cstring>
-#include "helperfunctions.h"
+//#include "helperfunctions.h"
 
 namespace libnfits
 {
@@ -11,17 +12,20 @@ Image::Image():
     m_dataBuffer(nullptr),
     m_rgbDataBuffer(nullptr), m_rgb32DataBuffer(nullptr), m_rgb32FlatDataBuffer(nullptr),
     m_rgbDataBackupBuffer(nullptr), m_rgb32DataBackupBuffer(nullptr), m_rgb32FlatDataBackupBuffer(nullptr), m_maxDataBufferSize(0), m_baseOffset(0),
-    m_width(0), m_height(0), m_colorDepth(0), m_bitpix(0), m_isCompressed(false), m_bzero(FITS_BZERO_DEFAULT_VALUE),
+    m_width(0), m_height(0), m_colorDepth(0), m_bitpix(0), m_isCompressed(false), m_isDistribCounted(false), m_bzero(FITS_BZERO_DEFAULT_VALUE),
     m_bscale(FITS_BSCALE_DEFAULT_VALUE), m_title(""), m_callbackFunc(nullptr), m_callbackFuncParam(nullptr),
     m_transformType(FITS_FLOAT_DOUBLE_NO_TRANSFORM)
 {
     m_colorStats = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-    m_minValue = std::numeric_limits<double>::min();
-    m_maxValue = std::numeric_limits<double>::max();
+    for (int32_t i = 0; i < FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER; ++i)
+        m_distribStats[i] = { 0, 0.0 };
 
-    m_minValueL = std::numeric_limits<uint64_t>::min();
-    m_maxValueL = std::numeric_limits<uint64_t>::max();
+    m_minDistribValue = m_minValue = std::numeric_limits<double>::min();
+    m_maxDistribValue = m_maxValue = std::numeric_limits<double>::max();
+
+    m_minDistribValueL = m_minValueL = std::numeric_limits<uint64_t>::min();
+    m_maxDistribValueL = m_maxValueL = std::numeric_limits<uint64_t>::max();
 }
 
 Image::Image(const uint8_t* a_dataBuffer, uint32_t a_witdth, uint32_t a_height, uint8_t a_colorDepth, int8_t a_bitpix,
@@ -33,6 +37,7 @@ Image::Image(const uint8_t* a_dataBuffer, uint32_t a_witdth, uint32_t a_height, 
     m_colorDepth = a_colorDepth;
     m_bitpix = a_bitpix;
     m_isCompressed = a_isCompressed;
+    m_isDistribCounted = false;
     m_title = a_title;
     m_maxDataBufferSize = 0;
     m_baseOffset = 0;
@@ -48,11 +53,16 @@ Image::Image(const uint8_t* a_dataBuffer, uint32_t a_witdth, uint32_t a_height, 
     m_rgb32FlatDataBackupBuffer = nullptr;
     m_transformType = FITS_FLOAT_DOUBLE_NO_TRANSFORM;
 
-    m_minValue = std::numeric_limits<double>::min();
-    m_maxValue = std::numeric_limits<double>::max();
+    m_colorStats = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-    m_minValueL = std::numeric_limits<uint64_t>::min();
-    m_maxValueL = std::numeric_limits<uint64_t>::max();
+    for (int32_t i = 0; i < FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER; ++i)
+        m_distribStats[i] = { 0, 0.0 };
+
+    m_minDistribValue = m_minValue = std::numeric_limits<double>::min();
+    m_maxDistribValue = m_maxValue = std::numeric_limits<double>::max();
+
+    m_minDistribValueL = m_minValueL = std::numeric_limits<uint64_t>::min();
+    m_maxDistribValueL = m_maxValueL = std::numeric_limits<uint64_t>::max();
 }
 
 Image::~Image()
@@ -206,19 +216,22 @@ void Image::reset()
     m_bscale = FITS_BSCALE_DEFAULT_VALUE;
     m_bzero = FITS_BZERO_DEFAULT_VALUE;
     m_isCompressed = false;
+    m_isDistribCounted = false;
     m_callbackFunc = nullptr;
     m_title.clear();
 
     m_colorStats = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-    m_minValue = std::numeric_limits<double>::min();
-    m_maxValue = std::numeric_limits<double>::max();
+    for (int32_t i = 0; i < FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER; ++i)
+        m_distribStats[i] = { 0, 0.0 };
 
-    m_minValueL = std::numeric_limits<uint64_t>::min();
-    m_maxValueL = std::numeric_limits<uint64_t>::max();
+    m_minDistribValue = m_minValue = std::numeric_limits<double>::min();
+    m_maxDistribValue = m_maxValue = std::numeric_limits<double>::max();
+
+    m_minDistribValueL = m_minValueL = std::numeric_limits<uint64_t>::min();
+    m_maxDistribValueL = m_maxValueL = std::numeric_limits<uint64_t>::max();
 
     m_transformType = FITS_FLOAT_DOUBLE_NO_TRANSFORM;
-
 }
 
 void Image::backupRGBData()
@@ -356,7 +369,7 @@ void Image::deleteAllData()
     deleteAllBackupRGBData();
 }
 
-int32_t Image::createRGBData(uint32_t a_transformType)
+int32_t Image::createRGBData(uint32_t a_transformType, float a_percent)
 {
     int32_t retVal = FITS_GENERAL_SUCCESS;
 
@@ -379,11 +392,11 @@ int32_t Image::createRGBData(uint32_t a_transformType)
     if (m_rgbDataBuffer == nullptr)
         return FITS_GENERAL_ERROR;
 
-    uint8_t *tmpRow = new uint8_t[tmpBufRowSize];
+    uint8_t* tmpRow = new uint8_t[tmpBufRowSize];
 
-    uint8_t *tmpDestRow = nullptr;
+    uint8_t* tmpDestRow = nullptr;
 
-    uint8_t *tmpFinalRow = tmpRow;
+    uint8_t* tmpFinalRow = tmpRow;
 
     if (m_bitpix == 16 || m_bitpix == 8)
     {
@@ -479,13 +492,13 @@ int32_t Image::createRGBData(uint32_t a_transformType)
     if (tmpRow != nullptr)
         delete [] tmpRow;
 
-    if (m_bitpix == 16 && tmpDestRow != nullptr)
+    if (tmpDestRow != nullptr)
         delete [] tmpDestRow;
 
     return retVal;
 }
 
-int32_t Image::createRGB32Data(uint32_t a_transformType)
+int32_t Image::createRGB32Data(uint32_t a_transformType, float a_percent)
 {
     int32_t retVal = FITS_GENERAL_SUCCESS;
 
@@ -511,11 +524,11 @@ int32_t Image::createRGB32Data(uint32_t a_transformType)
     if (m_rgb32DataBuffer == nullptr)
         return FITS_GENERAL_ERROR;
 
-    uint8_t *tmpRow = new uint8_t[tmpBufRowSize];
+    uint8_t* tmpRow = new uint8_t[tmpBufRowSize];
 
-    uint8_t *tmpDestRow = nullptr;
+    uint8_t* tmpDestRow = nullptr;
 
-    uint8_t *tmpFinalRow = tmpRow;
+    uint8_t* tmpFinalRow = tmpRow;
 
     if (m_bitpix == 16 || m_bitpix == 8)
     {
@@ -584,13 +597,13 @@ int32_t Image::createRGB32Data(uint32_t a_transformType)
     if (tmpRow != nullptr)
         delete [] tmpRow;
 
-    if (m_bitpix == 16 && tmpDestRow != nullptr)
+    if (tmpDestRow != nullptr)
         delete [] tmpDestRow;
 
     return retVal;
 }
 
-int32_t Image::createRGB32FlatData(uint32_t a_transformType)
+int32_t Image::createRGB32FlatData(uint32_t a_transformType, float a_percent)
 {
     int32_t retVal = FITS_GENERAL_SUCCESS;
 
@@ -603,7 +616,7 @@ int32_t Image::createRGB32FlatData(uint32_t a_transformType)
     if (m_rgb32FlatDataBuffer != nullptr)
         return FITS_GENERAL_ERROR;
 
-    //// calculating the PNG pixel buffer size. This way is more understandable in terms of logic
+    //// Calculating the pixel buffer size. This way is more understandable in terms of logic
     //// thow we need to have only RGB data, we actually need to have it 32-bit aligned for some future use cases,
     //// that's why it's multipled by 4 instead of 3 (kind of tricky stuff, but works fine)
 
@@ -620,11 +633,11 @@ int32_t Image::createRGB32FlatData(uint32_t a_transformType)
     if (m_rgb32FlatDataBuffer == nullptr)
         return FITS_GENERAL_ERROR;
 
-    uint8_t *tmpRow = new uint8_t[tmpBufRowSize];
+    uint8_t* tmpRow = new uint8_t[tmpBufRowSize];
 
-    uint8_t *tmpDestRow = nullptr;
+    uint8_t* tmpDestRow = nullptr;
 
-    uint8_t *tmpFinalRow = tmpRow;
+    uint8_t* tmpFinalRow = tmpRow;
 
     if (m_bitpix == 16 || m_bitpix == 8)
     {
@@ -632,6 +645,42 @@ int32_t Image::createRGB32FlatData(uint32_t a_transformType)
         tmpDestRow = new uint8_t[tmpBufRowSize * (32/std::abs(m_bitpix))];
         tmpFinalRow = tmpDestRow;
     }
+
+    //// newly added for calculating the distrubution of float valus of the pixels
+    if (!m_isDistribCounted && std::isgreater(a_percent, 0.0))
+    {
+
+        int8_t bpx = std::abs(m_bitpix)/8;
+
+        if (m_bitpix == -32)
+        {
+            float tmpMin,tmpMax;
+
+            getFloatDoubleBufferDistributionMinMax<float>(m_dataBuffer, m_width*m_height*bpx, a_percent,
+                                                          m_minValue, m_maxValue, tmpMin, tmpMax, m_distribStats);
+
+            m_isDistribCounted = true;
+            m_minDistribValue = tmpMin;
+            m_maxDistribValue = tmpMax;
+
+            std::cout << "[INFO]: (F) m_minValue = " << m_minValue << " , m_maxValue = " << m_maxValue <<std::endl;
+            std::cout << "[INFO]: (F) m_minDistribValue = " << m_minDistribValue << " , m_maxDistribValue = " << m_maxDistribValue <<std::endl;
+        }
+        else if (m_bitpix == -64)
+        {
+            double tmpMin,tmpMax;
+
+            getFloatDoubleBufferDistributionMinMax<double>(m_dataBuffer, m_width*m_height*bpx, a_percent,
+                                                           m_minValue, m_maxValue, tmpMin, tmpMax, m_distribStats);
+            m_isDistribCounted = true;
+            m_minDistribValue = tmpMin;
+            m_maxDistribValue = tmpMax;
+
+            std::cout << "[INFO]: (D) m_minValue = " << m_minValue << " , m_maxValue = " << m_maxValue <<std::endl;
+            std::cout << "[INFO]: (D) m_minDistribValue = " << m_minDistribValue << " , m_maxDistribValue = " << m_maxDistribValue <<std::endl;
+        }
+    }
+    //////////////////////////////////////////////////////////////////////////////
 
     // Writing the buffer containing pixel data
     try
@@ -660,11 +709,13 @@ int32_t Image::createRGB32FlatData(uint32_t a_transformType)
                             convertBufferShortSZ2RGB(tmpRow, tmpBufRowSize, m_bzero, m_bscale, tmpDestRow, true,
                                                      m_minValueL, m_maxValueL, a_transformType);
             else if (m_bitpix == -32)
-                convertBufferFloat2RGB(tmpRow, tmpBufRowSize, m_minValue, m_maxValue, a_transformType);
+                ////convertBufferFloat2RGB(tmpRow, tmpBufRowSize, m_minValue, m_maxValue, a_transformType); // original WORKING version
+                convertBufferFloat2RGB(tmpRow, tmpBufRowSize, m_minDistribValue, m_maxDistribValue, a_transformType);
             else if (m_bitpix == 32)
                 convertBufferInt2RGB(tmpRow, tmpBufRowSize, m_minValueL, m_maxValueL, a_transformType);
             else if (m_bitpix == -64)
-                convertBufferDouble2RGB(tmpRow, tmpBufRowSize, m_minValue, m_maxValue, a_transformType);
+                ////convertBufferDouble2RGB(tmpRow, tmpBufRowSize, m_minValue, m_maxValue, a_transformType); // original WORKING version
+                convertBufferDouble2RGB(tmpRow, tmpBufRowSize, m_minDistribValue, m_maxDistribValue, a_transformType);
             else if (m_bitpix == 64)
                 convertBufferLong2RGB(tmpRow, tmpBufRowSize, m_minValueL, m_maxValueL, a_transformType);
 
@@ -690,7 +741,7 @@ int32_t Image::createRGB32FlatData(uint32_t a_transformType)
     if (tmpRow != nullptr)
         delete [] tmpRow;
 
-    if (m_bitpix == 16 && tmpDestRow != nullptr)
+    if (tmpDestRow != nullptr)
         delete [] tmpDestRow;
 
     return retVal;
@@ -1188,6 +1239,7 @@ void Image::processRGBBrightnessFilter(uint8_t a_threshold)
         return;
 
     for (int32_t y = 0; y < m_height; ++y)
+    {
         for (int32_t x = 0; x < m_width; ++x)
         {
             uint8_t brightness = calcPixelBrightness(m_rgbDataBuffer[y][x], m_rgbDataBuffer[y][x +1], m_rgbDataBuffer[y][x + 2]);
@@ -1199,6 +1251,7 @@ void Image::processRGBBrightnessFilter(uint8_t a_threshold)
                 m_rgbDataBuffer[y][x + 2] = 0;
             }
         }
+    }
 }
 
 void Image::processRGB32BrightnessFilter(uint8_t a_threshold)
@@ -1207,6 +1260,7 @@ void Image::processRGB32BrightnessFilter(uint8_t a_threshold)
         return;
 
     for (int32_t y = 0; y < m_height; ++y)
+    {
         for (int32_t x = 0; x < m_width; ++x)
         {
             uint8_t brightness = calcPixelBrightness(m_rgb32DataBuffer[y][x], m_rgb32DataBuffer[y][x +1], m_rgb32DataBuffer[y][x + 2]);
@@ -1218,6 +1272,7 @@ void Image::processRGB32BrightnessFilter(uint8_t a_threshold)
                 m_rgb32DataBuffer[y][x + 2] = 0;
             }
         }
+    }
 }
 
 void Image::processRGBB32FlatBrightnessFilter(uint8_t a_threshold)
@@ -1226,6 +1281,7 @@ void Image::processRGBB32FlatBrightnessFilter(uint8_t a_threshold)
         return;
 
     for (int32_t y = 0; y < m_height; ++y)
+    {
         for (int32_t x = 0; x < m_width; ++x)
         {
             uint64_t indexDest = 4*(y*m_width + x);
@@ -1240,6 +1296,7 @@ void Image::processRGBB32FlatBrightnessFilter(uint8_t a_threshold)
                 m_rgb32FlatDataBuffer[indexDest + 2] = 0;
             }
         }
+    }
 }
 
 void Image::setMinValue(double a_value)
@@ -1294,10 +1351,8 @@ void Image::setMinMaxValuesL(uint64_t a_minValue, uint64_t a_maxValue)
     m_maxValueL = a_maxValue;
 }
 
-template<typename T> void Image::getBufferMinMax()
+template<typename T> void Image::calcBufferMinMax()
 {
-    T param;
-
     float minValueF = 0.0, maxValueF = 0.0;
     double minValueD = 0.0, maxValueD = 0.0;
 
@@ -1315,6 +1370,7 @@ template<typename T> void Image::getBufferMinMax()
 
             m_minValue = minValueF;
             m_maxValue = maxValueF;
+
             return;
         }
 
@@ -1324,6 +1380,7 @@ template<typename T> void Image::getBufferMinMax()
 
             m_minValue = minValueD;
             m_maxValue = maxValueD;
+
             return;
         }
 
@@ -1333,6 +1390,7 @@ template<typename T> void Image::getBufferMinMax()
 
             m_minValueL = minValue16;
             m_maxValueL = maxValue16;
+
             return;
         }
 
@@ -1342,6 +1400,7 @@ template<typename T> void Image::getBufferMinMax()
 
             m_minValueL = minValue32;
             m_maxValueL = maxValue32;
+
             return;
         }
 
@@ -1351,16 +1410,62 @@ template<typename T> void Image::getBufferMinMax()
 
             m_minValueL = minValue64;
             m_maxValueL = maxValue64;
+
             return;
         }
     }
 }
 
-template void Image::getBufferMinMax<float>();
-template void Image::getBufferMinMax<double>();
-template void Image::getBufferMinMax<uint16_t>();
-template void Image::getBufferMinMax<uint32_t>();
-template void Image::getBufferMinMax<uint64_t>();
+template<typename T> T Image::getMinValue() const
+{
+    if (std::is_same<T, float>::value || std::is_same<T, double>::value)
+        return m_minValue;
+    else if (std::is_same<T, uint16_t>::value || std::is_same<T, uint32_t>::value || std::is_same<T, uint64_t>::value)
+        return m_minValueL;
+    else
+        return std::numeric_limits<T>::min();
+}
+
+template<typename T> T Image::getMaxValue() const
+{
+    if (std::is_same<T, float>::value || std::is_same<T, double>::value)
+        return m_maxValue;
+    else if (std::is_same<T, uint16_t>::value || std::is_same<T, uint32_t>::value || std::is_same<T, uint64_t>::value)
+        return m_maxValueL;
+    else
+        return std::numeric_limits<T>::max();
+}
+
+template<typename T> T Image::getBufferMinMaxRange() const
+{
+    return getMaxValue<T>() - getMinValue<T>();
+}
+
+template<typename T> T Image::getDistribMinValue() const
+{
+    if (std::is_same<T, float>::value || std::is_same<T, double>::value)
+        return m_minDistribValue;
+    else if (std::is_same<T, uint16_t>::value || std::is_same<T, uint32_t>::value || std::is_same<T, uint64_t>::value)
+        return m_minDistribValueL;
+    else
+        return std::numeric_limits<T>::min();
+}
+
+template<typename T> T Image::getDistribMaxValue() const
+{
+    if (std::is_same<T, float>::value || std::is_same<T, double>::value)
+        return m_maxDistribValue;
+    else if (std::is_same<T, uint16_t>::value || std::is_same<T, uint32_t>::value || std::is_same<T, uint64_t>::value)
+        return m_maxDistribValueL;
+    else
+        return std::numeric_limits<T>::max();
+}
+
+template void Image::calcBufferMinMax<float>();
+template void Image::calcBufferMinMax<double>();
+template void Image::calcBufferMinMax<uint16_t>();
+template void Image::calcBufferMinMax<uint32_t>();
+template void Image::calcBufferMinMax<uint64_t>();
 
 uint32_t Image::getTransformType() const
 {

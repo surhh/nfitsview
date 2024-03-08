@@ -396,11 +396,11 @@ void swapBuffer32(uint8_t* a_buffer, size_t a_size)
 {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
     // checking for buffer granularity
-    if (a_size % sizeof(int32_t) != 0)
+    if (a_size % sizeof(uint32_t) != 0)
         return;
 
-    int32_t *tmpBuf = (int32_t*)(a_buffer);
-    for (size_t i = 0; i < a_size / sizeof(int32_t); ++i)
+    uint32_t *tmpBuf = (uint32_t*)(a_buffer);
+    for (size_t i = 0; i < a_size / sizeof(uint32_t); ++i)
         tmpBuf[i] = swap32(tmpBuf[i]);
 #else
     return;
@@ -411,11 +411,11 @@ void swapBuffer64(uint8_t* a_buffer, size_t a_size)
 {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
     // checking for buffer granularity
-    if (a_size % sizeof(int64_t) != 0)
+    if (a_size % sizeof(uint64_t) != 0)
         return;
 
-    int64_t *tmpBuf = (int64_t*)(a_buffer);
-    for (size_t i = 0; i < a_size / sizeof(int64_t); ++i)
+    uint64_t *tmpBuf = (uint64_t*)(a_buffer);
+    for (size_t i = 0; i < a_size / sizeof(uint64_t); ++i)
         tmpBuf[i] = swap64(tmpBuf[i]);
 #else
     return;
@@ -443,20 +443,25 @@ void convertBufferFloat2RGBA(uint8_t* a_buffer, size_t a_size, float a_min, floa
         max = FITS_FLOAT_DOUBLE_RANGE_MAX_POSITIVE;
     }
 
+    float oldRange = std::fabs(a_max - a_min);
+    float newRange = std::fabs(max - min);
+
 #if defined(ENABLE_OPENMP)
 #pragma omp parallel for
 #endif
+
     for (size_t i = 0; i < a_size / sizeof(float); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-        int32_t s = swap32(tmpBuf[i]);
+        uint32_t s = swap32(tmpBuf[i]);
 #else
-        int32_t s = tmpBuf[i];
+        uint32_t s = tmpBuf[i];
 #endif
         float f = *((float *)&s);
 
         if (a_type != FITS_FLOAT_DOUBLE_NO_TRANSFORM)
-            f = normalizeValue<float>(f, a_min, a_max, min, max);
+            //f = normalizeValue<float>(f, a_min, a_max, min, max);
+            f = normalizeValueByRange<float>(f, a_min, min, oldRange, newRange);
 
         tmpBuf[i] = convertFloat2RGBA(f);
     }
@@ -483,24 +488,47 @@ void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size, float a_min, float
         max = FITS_FLOAT_DOUBLE_RANGE_MAX_POSITIVE;
     }
 
+    float oldRange = std::fabs(a_max - a_min);
+    float newRange = std::fabs(max - min);
+
 #if defined(ENABLE_OPENMP)
 #pragma omp parallel for
 #endif
+
     for (size_t i = 0; i < a_size / sizeof(float); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-        int32_t s = swap32(tmpBuf[i]);
+        uint32_t s = swap32(tmpBuf[i]);
 #else
-        int32_t s = tmpBuf[i];
+        uint32_t s = tmpBuf[i];
 #endif
         float f = *((float *)&s);
 
         uint8_t red, green, blue;
 
         if (a_type != FITS_FLOAT_DOUBLE_NO_TRANSFORM)
-            f = normalizeValue<float>(f, a_min, a_max, min, max);
+        {
+            /*
+            ////f = normalizeValue<float>(f, a_min, a_max, min, max); // the function below does the same but is faster
+            ////f = normalizeValueByRange<float>(f, a_min, min, oldRange, newRange); // original newer version
+            float k1 = 0.01;
+            float k2 = 0.9999;
+            f = normalizeValue<float>(f, -1.43824458, 1.84318614, min, max); // those are min/max values for testing 1.fits file
+            //f = normalizeValue<float>(f, a_min, a_max, min, max); // those are min/max values for testing 1.fits file
 
-        convertFloat2RGB(f, red, green, blue);
+            //f = normalizeValue<float>(f, a_min+(std::fabs(a_min)*k1), a_max-(std::fabs(a_max)*k2), min, max);
+            //f = normalizeValueByRange<float>(f, a_min*k1, min, oldRange/k2, newRange);
+            ////f = normalizeValueByRange<float>(f, a_min, min, oldRange, newRange); //// new version pf previously used used normalizeValue()
+            ////convertFloat2RGB(f, red, green, blue);  // original version
+            convertFloat2GrayscaleByRange(f, min, max, newRange, red, green, blue);
+            ///*/
+
+            //// Original version
+            f = normalizeValueByRange<float>(f, a_min, min, oldRange, newRange);
+            convertFloat2RGB(f, red, green, blue);
+        }
+        else
+            convertFloat2RGB(f, red, green, blue);
 
         size_t indexBase = i*4;
 
@@ -522,12 +550,13 @@ void convertBufferRGB2Grayscale(uint8_t* a_buffer, size_t a_size)
 #if defined(ENABLE_OPENMP)
 #pragma omp parallel for
 #endif
+
     for (size_t i = 0; i < a_size / sizeof(float); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-        int32_t s = swap32(tmpBuf[i]);
+        uint32_t s = swap32(tmpBuf[i]);
 #else
-        int32_t s = tmpBuf[i];
+        uint32_t s = tmpBuf[i];
 #endif
         float f = *((float *)&s);
 
@@ -550,6 +579,7 @@ void convertBufferRGB2Grayscale(uint8_t** a_buffer, uint32_t a_width, uint32_t a
 #if defined(ENABLE_OPENMP)
 #pragma omp parallel for
 #endif
+
     for (uint32_t y = 0; y < a_height; ++y)
         for (uint32_t x = 0; x < a_width; ++x)
         {
@@ -571,6 +601,7 @@ void convertBufferRGB322Grayscale(uint8_t** a_buffer, uint32_t a_width, uint32_t
 #if defined(ENABLE_OPENMP)
 #pragma omp parallel for
 #endif
+
     for (uint32_t y = 0; y < a_height; ++y)
         for (uint32_t x = 0; x < a_width; ++x)
         {
@@ -592,6 +623,7 @@ void convertBufferRGB32Flat2Grayscale(uint8_t* a_buffer, uint32_t a_width, uint3
 #if defined(ENABLE_OPENMP)
 #pragma omp parallel for
 #endif
+
     for (uint32_t y = 0; y < a_height; ++y)
         for (uint32_t x = 0; x < a_width; ++x)
         {
@@ -626,20 +658,25 @@ void convertBufferDouble2RGBA(uint8_t* a_buffer, size_t a_size, double a_min, do
         max = FITS_FLOAT_DOUBLE_RANGE_MAX_POSITIVE;
     }
 
+    double oldRange = std::fabs(a_max - a_min);
+    double newRange = std::fabs(max - min);
+
 #if defined(ENABLE_OPENMP)
 #pragma omp parallel for
 #endif
+
     for (size_t i = 0; i < a_size / sizeof(double); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-        int64_t s = swap64(tmpBuf[i]);
+        uint64_t s = swap64(tmpBuf[i]);
 #else
-        int64_t s = tmpBuf[i];
+        uint64_t s = tmpBuf[i];
 #endif
         double f = *((double *)&s);
 
         if (a_type != FITS_FLOAT_DOUBLE_NO_TRANSFORM)
-            f = normalizeValue<double>(f, a_min, a_max, min, max);
+            //f = normalizeValue<double>(f, a_min, a_max, min, max);
+            f = normalizeValueByRange<double>(f, a_min, min, oldRange, newRange);
 
         uint64_t val = convertDouble2RGBA(f);
 
@@ -668,22 +705,27 @@ void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size, double a_min, dou
         max = FITS_FLOAT_DOUBLE_RANGE_MAX_POSITIVE;
     }
 
+    double oldRange = std::fabs(a_max - a_min);
+    double newRange = std::fabs(max - min);
+
 #if defined(ENABLE_OPENMP)
 #pragma omp parallel for
 #endif
+
     for (size_t i = 0; i < a_size / sizeof(double); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-        int64_t s = swap64(tmpBuf[i]);
+        uint64_t s = swap64(tmpBuf[i]);
 #else
-        int64_t s = tmpBuf[i];
+        uint64_t s = tmpBuf[i];
 #endif
         double f = *((double *)&s);
 
         uint8_t red, green, blue;
 
         if (a_type != FITS_FLOAT_DOUBLE_NO_TRANSFORM)
-            f = normalizeValue<double>(f, a_min, a_max, min, max);
+            //f = normalizeValue<double>(f, a_min, a_max, min, max);
+            f = normalizeValueByRange<double>(f, a_min, min, oldRange, newRange);
 
         convertDouble2RGB(f, red, green, blue);
 
@@ -719,9 +761,13 @@ void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuf
     if (!a_gray)
         ptrConvertFunction = convertShort2RGB;
 
+    uint16_t oldRange = std::llabs(a_max - a_min);
+    uint16_t newRange = std::llabs(max - min);
+
 #if defined(ENABLE_OPENMP)
 #pragma omp parallel for
 #endif
+
     for (size_t i = 0; i < a_size / sizeof(uint16_t); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -731,7 +777,8 @@ void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuf
 #endif
 
         if (a_type != FITS_FLOAT_DOUBLE_NO_TRANSFORM)
-            s = normalizeValueIntLong<uint16_t>(s, a_min, a_max, min, max);
+            //s = normalizeValueIntLong<uint16_t>(s, a_min, a_max, min, max);
+            s = normalizeValueIntLongByRange<uint16_t>(s, a_min, min, oldRange, newRange);
 
         ptrConvertFunction(s, pixel);
 
@@ -763,9 +810,13 @@ void convertBufferShortSZ2RGB(uint8_t* a_buffer, size_t a_size, double a_bzero, 
     if (!a_gray)
         ptrConvertFunctionSZ = convertShortSZ2RGB;
 
+    uint16_t oldRange = std::llabs(a_max - a_min);
+    uint16_t newRange = std::llabs(max - min);
+
 #if defined(ENABLE_OPENMP)
 #pragma omp parallel for
 #endif
+
     for (size_t i = 0; i < a_size / sizeof(uint16_t); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -775,7 +826,8 @@ void convertBufferShortSZ2RGB(uint8_t* a_buffer, size_t a_size, double a_bzero, 
 #endif
 
         if (a_type != FITS_FLOAT_DOUBLE_NO_TRANSFORM)
-            s = normalizeValueIntLong<uint16_t>(s, a_min, a_max, min, max);
+            //s = normalizeValueIntLong<uint16_t>(s, a_min, a_max, min, max);
+            s = normalizeValueIntLongByRange<uint16_t>(s, a_min, min, oldRange, newRange);
 
         ptrConvertFunctionSZ(s, a_bscale, a_bzero, pixel);
 
@@ -795,6 +847,7 @@ void convertBufferByte2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuff
 #if defined(ENABLE_OPENMP)
 #pragma omp parallel for
 #endif
+
     for (size_t i = 0; i < a_size; ++i)
     {
         convertByte2Grayscale(a_buffer[i], pixel);
@@ -815,6 +868,7 @@ void convertBufferByteSZ2RGB(uint8_t* a_buffer, size_t a_size, int8_t a_bzero, i
 #if defined(ENABLE_OPENMP)
 #pragma omp parallel for
 #endif
+
     for (size_t i = 0; i < a_size; ++i)
     {
         convertByteSZ2Grayscale(a_buffer[i], a_bzero, a_bscale, pixel);
@@ -839,9 +893,13 @@ void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size, uint32_t a_min, uint
     uint32_t min = std::numeric_limits<uint32_t>::min();
     uint32_t max = std::numeric_limits<uint32_t>::max();
 
+    uint32_t oldRange = std::llabs(a_max - a_min);
+    uint32_t newRange = std::llabs(max - min);
+
 #if defined(ENABLE_OPENMP)
 #pragma omp parallel for
 #endif
+
     for (size_t i = 0; i < a_size / sizeof(uint32_t); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -854,6 +912,7 @@ void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size, uint32_t a_min, uint
 
         if (a_type != FITS_FLOAT_DOUBLE_NO_TRANSFORM)
             s = normalizeValueIntLong<uint32_t>(s, a_min, a_max, min, max);
+            //s = normalizeValueIntLongByRange<uint32_t>(s, a_min, min, oldRange, newRange);
 
         convertInt2RGB(s, red, green, blue);
 
@@ -877,9 +936,13 @@ void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size, uint64_t a_min, uin
     uint64_t min = std::numeric_limits<uint64_t>::min();
     uint64_t max = std::numeric_limits<uint64_t>::max();
 
+    uint64_t oldRange = std::llabs(a_max - a_min);
+    uint64_t newRange = std::llabs(max - min);
+
 #if defined(ENABLE_OPENMP)
 #pragma omp parallel for
 #endif
+
     for (size_t i = 0; i < a_size / sizeof(uint64_t); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -891,7 +954,8 @@ void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size, uint64_t a_min, uin
         uint8_t red, green, blue;
 
         if (a_type != FITS_FLOAT_DOUBLE_NO_TRANSFORM)
-            s = normalizeValueIntLong<uint64_t>(s, a_min, a_max, min, max);
+            //s = normalizeValueIntLong<uint64_t>(s, a_min, a_max, min, max);
+            s = normalizeValueIntLongByRange<uint64_t>(s, a_min, min, oldRange, newRange);
 
         convertLong2RGB(s, red, green, blue);
 
@@ -908,7 +972,7 @@ void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size, uint64_t a_min, uin
     }
 }
 
-std::string char2hex(const uint8_t a_char)
+std::string char2hex(uint8_t a_char)
 {
     const uint8_t hexPattern[0x10] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
@@ -920,7 +984,7 @@ std::string char2hex(const uint8_t a_char)
     return retStr;
 }
 
-void char2hex(const uint8_t a_char, uint8_t& a_hexCharHigh, uint8_t& a_hexCharLow)
+void char2hex(uint8_t a_char, uint8_t& a_hexCharHigh, uint8_t& a_hexCharLow)
 {
     const uint8_t hexPattern[0x10] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
@@ -928,7 +992,7 @@ void char2hex(const uint8_t a_char, uint8_t& a_hexCharHigh, uint8_t& a_hexCharLo
     a_hexCharLow = hexPattern[(a_char & 0x0F)];
 }
 
-int32_t convertBuffer2HexString(uint8_t* a_buffer, uint8_t* a_output, size_t size, uint32_t a_align)
+int32_t convertBuffer2HexString(const uint8_t* a_buffer, uint8_t* a_output, size_t size, uint32_t a_align)
 {
     const uint8_t minBlockSize = 8;
     const uint8_t spaceSize = 8;
@@ -1021,7 +1085,7 @@ int32_t convertBuffer2HexString(uint8_t* a_buffer, uint8_t* a_output, size_t siz
     return index;
 }
 
-std::string convertBuffer2HexString(uint8_t* a_buffer, size_t size, uint32_t a_align)
+std::string convertBuffer2HexString(const uint8_t* a_buffer, size_t size, uint32_t a_align)
 {
     std::string retStr = "";
 
@@ -1126,17 +1190,21 @@ void normalizeFloatBuffer(uint8_t* a_buffer, size_t a_size, float a_min, float a
     float *tmpFloatBuf = (float*)(a_buffer);
     uint32_t *tmpIntBuf = (uint32_t*)(a_buffer);
 
+    float oldRange = std::fabs(a_max - a_min);
+    float newRange = std::fabs(a_maxNew - a_minNew);
+
     for (size_t i = 0; i < a_size / sizeof(float); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-        int32_t s = swap32(tmpIntBuf[i]);
+        uint32_t s = swap32(tmpIntBuf[i]);
 #else
-        int32_t s = tmpIntBuf[i];
+        uint32_t s = tmpIntBuf[i];
 #endif
         float f = *((float *)&s);
 
         if (!std::isnan(f))
-            tmpFloatBuf[i] = normalizeValue<float>(f, a_min, a_max, a_minNew, a_maxNew);
+            //tmpFloatBuf[i] = normalizeValue<float>(f, a_min, a_max, a_minNew, a_maxNew);
+            tmpFloatBuf[i] = normalizeValueByRange<float>(f, a_min, a_minNew, oldRange, newRange);
     }
 }
 
@@ -1146,24 +1214,28 @@ void normalizeDoubleBuffer(uint8_t* a_buffer, size_t a_size, double a_min, doubl
     if (a_size % sizeof(double) != 0)
         return;
 
-    double *tmpFloatBuf = (double*)(a_buffer);
+    double *tmpDoubleBuf = (double*)(a_buffer);
     uint64_t *tmpIntBuf = (uint64_t*)(a_buffer);
+
+    double oldRange = std::fabs(a_max - a_min);
+    double newRange = std::fabs(a_maxNew - a_minNew);
 
     for (size_t i = 0; i < a_size / sizeof(float); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-        int64_t s = swap64(tmpIntBuf[i]);
+        uint64_t s = swap64(tmpIntBuf[i]);
 #else
-        int364_t s = tmpIntBuf[i];
+        uint364_t s = tmpIntBuf[i];
 #endif
         double f = *((double *)&s);
 
         if (!std::isnan(f))
-            tmpFloatBuf[i] = normalizeValue<double>(f, a_min, a_max, a_minNew, a_maxNew);
+            //tmpFloatBuf[i] = normalizeValue<double>(f, a_min, a_max, a_minNew, a_maxNew);
+            tmpDoubleBuf[i] = normalizeValueByRange<double>(f, a_min, a_minNew, oldRange, newRange);
     }
 }
 
-void getFloatBufferMinMax(uint8_t* a_buffer, size_t a_size, float& a_min, float& a_max)
+void getFloatBufferMinMax(const uint8_t* a_buffer, size_t a_size, float& a_min, float& a_max)
 {
     // checking for buffer granularity
     if (a_size % sizeof(float) != 0)
@@ -1177,9 +1249,9 @@ void getFloatBufferMinMax(uint8_t* a_buffer, size_t a_size, float& a_min, float&
     for (size_t i = 0; i < a_size / sizeof(float); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-        int32_t s = swap32(tmpBuf[i]);
+        uint32_t s = swap32(tmpBuf[i]);
 #else
-        int32_t s = tmpBuf[i];
+        uint32_t s = tmpBuf[i];
 #endif
         float f = *((float *)&s);
 
@@ -1194,7 +1266,7 @@ void getFloatBufferMinMax(uint8_t* a_buffer, size_t a_size, float& a_min, float&
     a_max = maxVal;
 }
 
-void getDoubleBufferMinMax(uint8_t* a_buffer, size_t a_size, double& a_min, double& a_max)
+void getDoubleBufferMinMax(const uint8_t* a_buffer, size_t a_size, double& a_min, double& a_max)
 {
     // checking for buffer granularity
     if (a_size % sizeof(double) != 0)
@@ -1208,9 +1280,9 @@ void getDoubleBufferMinMax(uint8_t* a_buffer, size_t a_size, double& a_min, doub
     for (size_t i = 0; i < a_size / sizeof(double); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-        int64_t s = swap64(tmpBuf[i]);
+        uint64_t s = swap64(tmpBuf[i]);
 #else
-        int64_t s = tmpBuf[i];
+        uint64_t s = tmpBuf[i];
 #endif
         double f = *((double *)&s);
 
@@ -1225,7 +1297,7 @@ void getDoubleBufferMinMax(uint8_t* a_buffer, size_t a_size, double& a_min, doub
     a_max = maxVal;
 }
 
-void getShortBufferMinMax(uint8_t* a_buffer, size_t a_size, uint16_t& a_min, uint16_t& a_max)
+void getShortBufferMinMax(const uint8_t* a_buffer, size_t a_size, uint16_t& a_min, uint16_t& a_max)
 {
     // checking for buffer granularity
     if (a_size % sizeof(uint16_t) != 0)
@@ -1255,7 +1327,7 @@ void getShortBufferMinMax(uint8_t* a_buffer, size_t a_size, uint16_t& a_min, uin
     a_max = maxVal;
 }
 
-void getIntBufferMinMax(uint8_t* a_buffer, size_t a_size, uint32_t& a_min, uint32_t& a_max)
+void getIntBufferMinMax(const uint8_t* a_buffer, size_t a_size, uint32_t& a_min, uint32_t& a_max)
 {
     // checking for buffer granularity
     if (a_size % sizeof(uint32_t) != 0)
@@ -1285,7 +1357,7 @@ void getIntBufferMinMax(uint8_t* a_buffer, size_t a_size, uint32_t& a_min, uint3
     a_max = maxVal;
 }
 
-void getLongBufferMinMax(uint8_t* a_buffer, size_t a_size, uint64_t& a_min, uint64_t& a_max)
+void getLongBufferMinMax(const uint8_t* a_buffer, size_t a_size, uint64_t& a_min, uint64_t& a_max)
 {
     // checking for buffer granularity
     if (a_size % sizeof(uint64_t) != 0)
@@ -1315,6 +1387,236 @@ void getLongBufferMinMax(uint8_t* a_buffer, size_t a_size, uint64_t& a_min, uint
     a_max = maxVal;
 }
 
+void getFloatBufferDistribution(const uint8_t* a_buffer, size_t a_size, float a_min, float a_max, size_t& a_count, float& a_percent)
+{
+    size_t count = 0;
+    float percent = 0.0;
+
+    // checking for buffer granularity
+    if (a_size % sizeof(float) != 0)
+        return;
+
+    uint32_t* tmpBuf = (uint32_t*)(a_buffer);
+
+    size_t pixelCount = a_size / sizeof(float);
+
+    for (size_t i = 0; i < pixelCount; ++i)
+    {
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+        uint32_t s = swap32(tmpBuf[i]);
+#else
+        uint32_t s = tmpBuf[i];
+#endif
+        float f = *((float *)&s);
+
+        if (f >= a_min && f < a_max)
+            ++count;
+    }
+
+    percent = (double)count/(double)pixelCount;
+
+    a_percent = percent;
+    a_count = count;
+}
+
+void getDoubleBufferDistribution(const uint8_t* a_buffer, size_t a_size, double a_min, double a_max, size_t& a_count, float& a_percent)
+{
+    size_t count = 0;
+    float percent = 0.0;
+
+    // checking for buffer granularity
+    if (a_size % sizeof(double) != 0)
+        return;
+
+    uint64_t* tmpBuf = (uint64_t*)(a_buffer);
+
+    size_t pixelCount = a_size / sizeof(double);
+
+    for (size_t i = 0; i < a_size / sizeof(float); ++i)
+    {
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+        uint64_t s = swap32(tmpBuf[i]);
+#else
+        uint64_t s = tmpBuf[i];
+#endif
+        double f = *((double *)&s);
+
+        if (f >= a_min && f < a_max)
+            ++count;
+    }
+
+    percent = (double)count/(double)pixelCount;
+
+    a_percent = percent;
+    a_count = count;
+}
+
+void getFloatBufferDistribution(const uint8_t* a_buffer, size_t a_size, float a_min, float a_max,
+                                DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER])
+{
+    // checking for buffer granularity
+    if (a_size % sizeof(float) != 0)
+        return;
+
+    uint32_t* tmpBuf = (uint32_t*)(a_buffer);
+
+    size_t pixelCount = a_size / sizeof(float);
+
+    float rangeF = std::fabs(a_max - a_min);
+    float segmentSizeF = rangeF/(float)FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER;
+
+    if (areEqual(segmentSizeF, 0.0))
+        return;
+
+    for (size_t i = 0; i < pixelCount; ++i)
+    {
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+        uint32_t s = swap32(tmpBuf[i]);
+#else
+        uint32_t s = tmpBuf[i];
+#endif
+        float f = *((float *)&s);
+
+        uint32_t index = std::floor(std::fabs(f - a_min) / segmentSizeF);
+
+        if (index >= FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER)
+            continue;
+
+        a_stats[index].count++;
+    }
+}
+
+void getDoubleBufferDistribution(const uint8_t* a_buffer, size_t a_size, double a_min, double a_max,
+                                 DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER])
+{
+    // checking for buffer granularity
+    if (a_size % sizeof(double) != 0)
+        return;
+
+    uint64_t* tmpBuf = (uint64_t*)(a_buffer);
+
+    size_t pixelCount = a_size / sizeof(double);
+
+    double rangeF = std::fabs(a_max - a_min);
+    double segmentSizeF = rangeF/(double)FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER;
+
+    if (areEqual(segmentSizeF, 0.0))
+        return;
+
+    for (size_t i = 0; i < pixelCount; ++i)
+    {
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+        uint64_t s = swap64(tmpBuf[i]);
+#else
+        uint64_t s = tmpBuf[i];
+#endif
+        double f = *((double *)&s);
+
+        uint64_t index = std::floor(std::fabs(f - a_min) / segmentSizeF);
+
+        if (index >= FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER)
+            continue;
+
+        a_stats[index].count++;
+    }
+}
+
+float getMaxDistribPercent(const DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER], int32_t& a_segment)
+{
+    float maxPercent = 0.0;
+
+    for (int32_t i = 0; i < FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER; ++i)
+    {
+        if (a_stats[i].percent > maxPercent)
+        {
+            maxPercent = a_stats[i].percent;
+            a_segment = i;
+        }
+    }
+
+    return maxPercent;
+}
+
+float getMaxDistribPercentRange(const DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER],
+                                int32_t& a_startSegment, int32_t& a_endSegment, float& a_startPercent, float& a_endPercent,
+                                float a_percent)
+{
+    int32_t maxSegment = 0, startSegment = 0, endSegment = 0;
+
+    float maxPercent = 0.0, startPercent = 0.0, endPercent = 0.0;
+
+    maxPercent = getMaxDistribPercent(a_stats, maxSegment);
+
+    startSegment = endSegment = maxSegment;
+    startPercent = endPercent = maxPercent;
+
+    for (int32_t i = maxSegment + 1; i < FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER; ++i)
+    {
+        if (a_stats[i].percent >= a_percent)
+        {
+            endPercent = a_stats[i].percent;
+            endSegment = i;
+        }
+    }
+
+    for (int32_t i = maxSegment - 1; i >= 0; --i)
+    {
+        if (a_stats[i].percent >= a_percent)
+        {
+            startPercent = a_stats[i].percent;
+            startSegment = i;
+        }
+    }
+
+    a_startSegment = startSegment;
+    a_endSegment = endSegment;
+
+    a_startPercent = startPercent;
+    a_endPercent = endPercent;
+
+    return maxPercent;
+}
+
+template<typename T> void getFloatDoubleBufferDistributionMinMax(const uint8_t* a_buffer, size_t a_size, float a_percent, T a_min, T a_max,
+                                                                 T& a_minNew, T& a_maxNew,
+                                                                 DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER])
+{
+    T rangeF = std::fabs(a_max - a_min);
+    T segmentSizeF = rangeF/(T)FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER;
+    //T percent;
+
+    if (std::is_same<T, float>::value)
+        getFloatBufferDistribution(a_buffer, a_size, a_min, a_max, a_stats);
+    else if (std::is_same<T, double>::value)
+        getDoubleBufferDistribution(a_buffer, a_size, a_min, a_max, a_stats);
+    else
+        return;
+
+    double totalCount = a_size / sizeof(T);
+    for (int32_t i = 0; i < FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER; ++i)
+    {
+        a_stats[i].percent = (double)a_stats[i].count / totalCount;
+        std::cout << "[INFO]: index = " << i << " , a_stats[i].count = " << a_stats[i].count <<
+                     " , percent = " << a_stats[i].percent << std::endl;
+    }
+
+    int32_t startSegment = 0, endSegment = 0;
+    float startPercent = 0.0, endPercent = 0.0;
+
+    getMaxDistribPercentRange(a_stats, startSegment, endSegment, startPercent, endPercent, a_percent);
+
+    std::cout << "[INFO]: startSegment = " << startSegment << " , endSegment = " << endSegment <<
+                        " , startPercent = " << startPercent << " , endPercent = " << endPercent << std::endl;
+
+    a_minNew = a_min + startSegment*segmentSizeF;
+    a_maxNew = a_minNew + (endSegment - startSegment + 1)*segmentSizeF;
+}
+
+template void getFloatDoubleBufferDistributionMinMax<float>(const uint8_t*, size_t, float, float, float, float&,
+                                                            float&, DistribStats (&)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER]);
+
+template void getFloatDoubleBufferDistributionMinMax<double>(const uint8_t*, size_t, float, double, double, double&,
+                                                             double&, DistribStats (&)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER]);
 
 //// use for debug purposes only, slow functions
 int32_t dumpFloatDataBuffer(const uint8_t* a_buffer, size_t a_size, const std::string& a_filename, uint32_t a_rowSize)
@@ -1331,7 +1633,7 @@ int32_t dumpFloatDataBuffer(const uint8_t* a_buffer, size_t a_size, const std::s
     if (a_size % sizeof(float) != 0)
         return FITS_GENERAL_ERROR;
 
-    int32_t *tmpBuf = (int32_t*)(a_buffer);
+    uint32_t *tmpBuf = (uint32_t*)(a_buffer);
 
     dumpFile.open(a_filename);
 
@@ -1343,9 +1645,9 @@ int32_t dumpFloatDataBuffer(const uint8_t* a_buffer, size_t a_size, const std::s
     for (size_t i = 0; i < size; ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-        int32_t s = swap32(tmpBuf[i]);
+        uint32_t s = swap32(tmpBuf[i]);
 #else
-        int32_t s = tmpBuf[i];
+        uint32_t s = tmpBuf[i];
 #endif
         float f = *((float *)&s);
 
@@ -1387,7 +1689,7 @@ int32_t dumpDoubleDataBuffer(const uint8_t* a_buffer, size_t a_size, const std::
     if (a_size % sizeof(double) != 0)
         return FITS_GENERAL_ERROR;
 
-    int64_t *tmpBuf = (int64_t*)(a_buffer);
+    uint64_t *tmpBuf = (uint64_t*)(a_buffer);
 
     dumpFile.open(a_filename);
 
@@ -1399,9 +1701,9 @@ int32_t dumpDoubleDataBuffer(const uint8_t* a_buffer, size_t a_size, const std::
     for (size_t i = 0; i < size; ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-        int64_t s = swap64(tmpBuf[i]);
+        uint64_t s = swap64(tmpBuf[i]);
 #else
-        int64_t s = tmpBuf[i];
+        uint64_t s = tmpBuf[i];
 #endif
         double f = *((double *)&s);
 

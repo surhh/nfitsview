@@ -23,6 +23,12 @@ struct RGBPixel
     uint8_t blue;
 };
 
+struct DistribStats
+{
+    size_t count;
+    float percent;
+};
+
 template<typename ... many> void LOG(const std::string& a_str, many ... a_args)
 {
 #if defined(DEBUG_MODE)
@@ -155,9 +161,16 @@ template<typename ... many> void LOG(const std::string& a_str, many ... a_args)
 
 inline float swap32f(float f)
 {
-    int32_t val = *((int32_t*) &f);
+    uint32_t val = *((uint32_t*) &f);
 
     return swap32(val);
+}
+
+inline double swap64d(double f)
+{
+    uint64_t val = *((uint64_t*) &f);
+
+    return swap64(val);
 }
 
 inline uint8_t max256(uint32_t a_value)
@@ -210,7 +223,7 @@ inline bool areEqual(double a_x, double a_y)
     return std::fabs(a_x - a_y) < std::numeric_limits<double>::epsilon();
 }
 
-inline uint8_t char2alphanum(const uint8_t a_char)
+inline uint8_t char2alphanum(uint8_t a_char)
 {
     return (a_char >= 0x20 && a_char < 0x7F) ? a_char : '.';
 }
@@ -299,9 +312,19 @@ template<typename T> T normalizeValue(T a_value, T a_min, T a_max, T a_minNew, T
     return a_minNew + (a_value - a_min)*(std::fabs(a_maxNew - a_minNew)/std::fabs(a_max - a_min));
 }
 
+template<typename T> T normalizeValueByRange(T a_value, T a_min, T a_minNew, T a_oldRange, T a_newRange)
+{
+    return a_minNew + (a_value - a_min)*(a_newRange/a_oldRange);
+}
+
 template<typename T> T normalizeValueIntLong(T a_value, T a_min, T a_max, T a_minNew, T a_maxNew)
 {
     return a_minNew + (double)(a_value - a_min)*((double)std::llabs(a_maxNew - a_minNew)/(double)std::llabs(a_max - a_min));
+}
+
+template<typename T> T normalizeValueIntLongByRange(T a_value, T a_min, T a_minNew, T a_oldRange, T a_newRange)
+{
+    return a_minNew + (a_value - a_min)*(a_newRange/a_oldRange);
 }
 
 void normalizeFloatBuffer(uint8_t* a_buffer, size_t a_size, float a_min, float a_max, float a_minNew, float a_maxNew);
@@ -449,11 +472,62 @@ inline uint32_t convertFloat2RGBA(float a_value, float a_min, float a_max)
     if (areEqual(a_min, a_max))
         return retVal;
 
-    float range = std::abs(a_max - a_min);
+    float range = std::fabs(a_max - a_min);
 
     float value = -1.0 + (a_value - a_min) * (2.0 / range);
 
     return convertFloat2RGBA(value);
+}
+
+inline uint32_t convertFloat2RGBA(float a_value, float a_min, float a_max, float a_range)
+{
+    uint32_t retVal = 0;
+
+    if (areEqual(a_min, a_max))
+        return retVal;
+
+    float value = -1.0 + (a_value - a_min) * (2.0 / a_range);
+
+    return convertFloat2RGBA(value);
+}
+
+inline void convertFloat2GrayscaleByRange(float a_value, float a_min, float a_max, float a_range, uint8_t& a_r, uint8_t& a_g, uint8_t& a_b)
+{
+    if (areEqual(a_range, 0.0))
+    {
+        a_r = a_g = a_b = 0;
+        return;
+    }
+
+    float value = a_min + (a_value - a_min) * a_range;
+
+    /// filtering by threshold
+    //if (a_value>0)
+    /*
+        if (a_value < 0.9*a_max)
+        {
+            a_r = a_g = a_b = 0;
+            return;
+        }
+    */
+    ///
+
+    a_r = a_g = a_b = std::fabs(value)/a_range * 255;
+}
+
+inline void convertFloat2Grayscale(float a_value, float a_min, float a_max, uint8_t& a_r, uint8_t& a_g, uint8_t& a_b)
+{
+    if (areEqual(a_min, a_max))
+    {
+        a_r = a_g = a_b = 0;
+        return;
+    }
+
+    float range = std::fabs(a_max - a_min);
+
+    float value = a_min + (a_value - a_min) * range;
+
+    a_r = a_g = a_b = std::fabs(value) * 255;
 }
 
 inline uint32_t convertDouble2RGBA(double a_value)
@@ -657,27 +731,47 @@ void convertBufferRGB32Flat2Grayscale(uint8_t* a_buffer, uint32_t a_width, uint3
 
 
 //// hex manipulation functions
-std::string char2hex(const uint8_t a_char);
+std::string char2hex(uint8_t a_char);
 
-void char2hex(const uint8_t a_char, uint8_t& a_hexCharHigh, uint8_t& a_hexCharLow);
+void char2hex(uint8_t a_char, uint8_t& a_hexCharHigh, uint8_t& a_hexCharLow);
 
-uint8_t char2alphanum(const uint8_t a_char);
+uint8_t char2alphanum(uint8_t a_char);
 
-int32_t convertBuffer2HexString(uint8_t* a_buffer, uint8_t* a_output, size_t size, uint32_t a_align);
+int32_t convertBuffer2HexString(const uint8_t* a_buffer, uint8_t* a_output, size_t size, uint32_t a_align);
 
-std::string convertBuffer2HexString(uint8_t* a_buffer, size_t size, uint32_t a_align);
+std::string convertBuffer2HexString(const uint8_t* a_buffer, size_t size, uint32_t a_align);
 
+//// min-max counting functions
+void getFloatBufferMinMax(const uint8_t* a_buffer, size_t a_size, float& a_min, float& a_max);
 
-void getFloatBufferMinMax(uint8_t* a_buffer, size_t a_size, float& a_min, float& a_max);
+void getDoubleBufferMinMax(const uint8_t* a_buffer, size_t a_size, double& a_min, double& a_max);
 
-void getDoubleBufferMinMax(uint8_t* a_buffer, size_t a_size, double& a_min, double& a_max);
+void getShortBufferMinMax(const uint8_t* a_buffer, size_t a_size, uint16_t& a_min, uint16_t& a_max);
 
-void getShortBufferMinMax(uint8_t* a_buffer, size_t a_size, uint16_t& a_min, uint16_t& a_max);
+void getIntBufferMinMax(const uint8_t* a_buffer, size_t a_size, uint32_t& a_min, uint32_t& a_max);
 
-void getIntBufferMinMax(uint8_t* a_buffer, size_t a_size, uint32_t& a_min, uint32_t& a_max);
+void getLongBufferMinMax(const uint8_t* a_buffer, size_t a_size, uint64_t& a_min, uint64_t& a_max);
 
-void getLongBufferMinMax(uint8_t* a_buffer, size_t a_size, uint64_t& a_min, uint64_t& a_max);
+//// pixel value distribution counting functions
+void getFloatBufferDistribution(const uint8_t* a_buffer, size_t a_size, float a_min, float a_max, size_t& a_count, float& a_percent);
 
+void getFloatBufferDistribution(const uint8_t* a_buffer, size_t a_size, float a_min, float a_max,
+                                DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER]);
+
+void getDoubleBufferDistribution(const uint8_t* a_buffer, size_t a_size, double a_min, double a_max, size_t& a_count, float& a_percent);
+
+void getDoubleBufferDistribution(const uint8_t* a_buffer, size_t a_size, double a_min, double a_max,
+                                 DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER]);
+
+float getMaxDistribPercent(const DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER], int32_t& a_segment);
+
+float getMaxDistribPercentRange(const DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER],
+                                int32_t& a_startSegment, int32_t& a_endSegment, float& a_startPercent, float& a_endPercent,
+                                float a_percent = FITS_VALUE_DISTRIBUTION_RANGE_MIN_THREASHOLD);
+
+template<typename T> void getFloatDoubleBufferDistributionMinMax(const uint8_t* a_buffer, size_t a_size, float a_percent, T a_min, T a_max,
+                                                                 T& a_minNew, T& a_maxNew,
+                                                                 DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER]);
 
 //// these functions are for debugging purposes only, they are slow
 int32_t dumpFloatDataBuffer(const uint8_t* a_buffer, size_t a_size, const std::string& a_filename, uint32_t a_rowSize);

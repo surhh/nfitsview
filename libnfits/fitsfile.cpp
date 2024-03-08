@@ -291,15 +291,15 @@ int32_t FitsFile::exportImageHDU(uint32_t a_hduIndex, int32_t a_transform, bool 
     image.setCallbackFunction(m_callbackFunc, m_callbackFuncParam);
 
     if (bitpix == -64)
-            image.getBufferMinMax<double>();
+            image.calcBufferMinMax<double>();
     else if (bitpix == 64)
-            image.getBufferMinMax<uint64_t>();
+            image.calcBufferMinMax<uint64_t>();
     else if (bitpix == -32)
-            image.getBufferMinMax<float>();
+            image.calcBufferMinMax<float>();
     else if (bitpix == 32)
-            image.getBufferMinMax<uint32_t>();
+            image.calcBufferMinMax<uint32_t>();
     else if (bitpix == 16)
-            image.getBufferMinMax<uint16_t>();
+            image.calcBufferMinMax<uint16_t>();
 
     if (bZSuccess)
         image.setBZero(bzero);

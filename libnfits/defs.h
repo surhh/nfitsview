@@ -21,7 +21,7 @@ static int32_t percentCallbackFunctionSample(int32_t a_percent, void* a_buffer)
 //#define OPENMP_THREADS_DISABLE_NUMBER           (2) // Number of excluded OpenMP threads
 
 #define LIBNFITS_MAJOR_VERSION                  2
-#define LIBNFITS_MINOR_VERSION                  8
+#define LIBNFITS_MINOR_VERSION                  9
 
 #define	FITS_BSCALE_DEFAULT_VALUE               (1.0)
 #define	FITS_BZERO_DEFAULT_VALUE                (0.0)
@@ -118,8 +118,9 @@ static int32_t percentCallbackFunctionSample(int32_t a_percent, void* a_buffer)
 
 #define FITS_FLOAT_DOUBLE_NO_TRANSFORM                          (0)
 #define FITS_FLOAT_DOUBLE_LINEAR_TRANSFORM_POSITIVE             (1)
-#define FITS_FLOAT_DOUBLE_LINEAR_TRANSFORM_NEGATIVE             (2)
-#define FITS_FLOAT_DOUBLE_LINEAR_TRANSFORM_NEGATIVE_POSITIVE    (3)
+#define FITS_FLOAT_DOUBLE_LINEAR_TRANSFORM_NEGATIVE_POSITIVE    (2)
+#define FITS_FLOAT_DOUBLE_LINEAR_TRANSFORM_NEGATIVE             (3)
+#define FITS_NUMBER_OF_TRANSFORMS                               (4)
 
 #define FITS_FLOAT_DOUBLE_RANGE_MIN_ZERO             (0.0)
 #define FITS_FLOAT_DOUBLE_RANGE_MAX_ZERO             (0.0)

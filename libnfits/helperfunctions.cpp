@@ -507,28 +507,9 @@ void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size, float a_min, float
         uint8_t red, green, blue;
 
         if (a_type != FITS_FLOAT_DOUBLE_NO_TRANSFORM)
-        {
-            /*
-            ////f = normalizeValue<float>(f, a_min, a_max, min, max); // the function below does the same but is faster
-            ////f = normalizeValueByRange<float>(f, a_min, min, oldRange, newRange); // original newer version
-            float k1 = 0.01;
-            float k2 = 0.9999;
-            f = normalizeValue<float>(f, -1.43824458, 1.84318614, min, max); // those are min/max values for testing 1.fits file
-            //f = normalizeValue<float>(f, a_min, a_max, min, max); // those are min/max values for testing 1.fits file
-
-            //f = normalizeValue<float>(f, a_min+(std::fabs(a_min)*k1), a_max-(std::fabs(a_max)*k2), min, max);
-            //f = normalizeValueByRange<float>(f, a_min*k1, min, oldRange/k2, newRange);
-            ////f = normalizeValueByRange<float>(f, a_min, min, oldRange, newRange); //// new version pf previously used used normalizeValue()
-            ////convertFloat2RGB(f, red, green, blue);  // original version
-            convertFloat2GrayscaleByRange(f, min, max, newRange, red, green, blue);
-            ///*/
-
-            //// Original version
             f = normalizeValueByRange<float>(f, a_min, min, oldRange, newRange);
-            convertFloat2RGB(f, red, green, blue);
-        }
-        else
-            convertFloat2RGB(f, red, green, blue);
+
+        convertFloat2RGB(f, red, green, blue);
 
         size_t indexBase = i*4;
 
@@ -1579,18 +1560,22 @@ float getMaxDistribPercentRange(const DistribStats (&a_stats)[FITS_VALUE_DISTRIB
 
 template<typename T> void getFloatDoubleBufferDistributionMinMax(const uint8_t* a_buffer, size_t a_size, float a_percent, T a_min, T a_max,
                                                                  T& a_minNew, T& a_maxNew,
-                                                                 DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER])
+                                                                 DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER],
+                                                                 bool a_isDistribCounted)
 {
     T rangeF = std::fabs(a_max - a_min);
     T segmentSizeF = rangeF/(T)FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER;
     //T percent;
 
-    if (std::is_same<T, float>::value)
-        getFloatBufferDistribution(a_buffer, a_size, a_min, a_max, a_stats);
-    else if (std::is_same<T, double>::value)
-        getDoubleBufferDistribution(a_buffer, a_size, a_min, a_max, a_stats);
-    else
-        return;
+    if (!a_isDistribCounted)
+    {
+        if (std::is_same<T, float>::value)
+            getFloatBufferDistribution(a_buffer, a_size, a_min, a_max, a_stats);
+        else if (std::is_same<T, double>::value)
+            getDoubleBufferDistribution(a_buffer, a_size, a_min, a_max, a_stats);
+        else
+            return;
+    }
 
     double totalCount = a_size / sizeof(T);
     for (int32_t i = 0; i < FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER; ++i)
@@ -1613,10 +1598,12 @@ template<typename T> void getFloatDoubleBufferDistributionMinMax(const uint8_t* 
 }
 
 template void getFloatDoubleBufferDistributionMinMax<float>(const uint8_t*, size_t, float, float, float, float&,
-                                                            float&, DistribStats (&)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER]);
+                                                            float&, DistribStats (&)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER],
+                                                            bool a_isDistribCounted);
 
 template void getFloatDoubleBufferDistributionMinMax<double>(const uint8_t*, size_t, float, double, double, double&,
-                                                             double&, DistribStats (&)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER]);
+                                                             double&, DistribStats (&)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER],
+                                                             bool a_isDistribCounted);
 
 //// use for debug purposes only, slow functions
 int32_t dumpFloatDataBuffer(const uint8_t* a_buffer, size_t a_size, const std::string& a_filename, uint32_t a_rowSize)

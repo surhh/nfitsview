@@ -771,7 +771,8 @@ float getMaxDistribPercentRange(const DistribStats (&a_stats)[FITS_VALUE_DISTRIB
 
 template<typename T> void getFloatDoubleBufferDistributionMinMax(const uint8_t* a_buffer, size_t a_size, float a_percent, T a_min, T a_max,
                                                                  T& a_minNew, T& a_maxNew,
-                                                                 DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER]);
+                                                                 DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER],
+                                                                 bool a_isDistribCounted = false);
 
 //// these functions are for debugging purposes only, they are slow
 int32_t dumpFloatDataBuffer(const uint8_t* a_buffer, size_t a_size, const std::string& a_filename, uint32_t a_rowSize);

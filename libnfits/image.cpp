@@ -14,7 +14,7 @@ Image::Image():
     m_rgbDataBackupBuffer(nullptr), m_rgb32DataBackupBuffer(nullptr), m_rgb32FlatDataBackupBuffer(nullptr), m_maxDataBufferSize(0), m_baseOffset(0),
     m_width(0), m_height(0), m_colorDepth(0), m_bitpix(0), m_isCompressed(false), m_isDistribCounted(false), m_bzero(FITS_BZERO_DEFAULT_VALUE),
     m_bscale(FITS_BSCALE_DEFAULT_VALUE), m_title(""), m_callbackFunc(nullptr), m_callbackFuncParam(nullptr),
-    m_transformType(FITS_FLOAT_DOUBLE_NO_TRANSFORM)
+    m_transformType(FITS_FLOAT_DOUBLE_NO_TRANSFORM), m_percentThreshold(-1)
 {
     m_colorStats = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
@@ -52,6 +52,7 @@ Image::Image(const uint8_t* a_dataBuffer, uint32_t a_witdth, uint32_t a_height, 
     m_rgb32DataBackupBuffer = nullptr;
     m_rgb32FlatDataBackupBuffer = nullptr;
     m_transformType = FITS_FLOAT_DOUBLE_NO_TRANSFORM;
+    m_percentThreshold = -1;
 
     m_colorStats = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
@@ -647,7 +648,9 @@ int32_t Image::createRGB32FlatData(uint32_t a_transformType, float a_percent)
     }
 
     //// newly added for calculating the distrubution of float valus of the pixels
-    if (!m_isDistribCounted && std::isgreater(a_percent, 0.0))
+    float percent = (float)(100 - a_percent) / 100;
+    //if (!m_isDistribCounted && std::isgreater(a_percent, 0.0))
+    if (a_percent != m_percentThreshold)
     {
 
         int8_t bpx = std::abs(m_bitpix)/8;
@@ -656,12 +659,13 @@ int32_t Image::createRGB32FlatData(uint32_t a_transformType, float a_percent)
         {
             float tmpMin,tmpMax;
 
-            getFloatDoubleBufferDistributionMinMax<float>(m_dataBuffer, m_width*m_height*bpx, a_percent,
-                                                          m_minValue, m_maxValue, tmpMin, tmpMax, m_distribStats);
+            getFloatDoubleBufferDistributionMinMax<float>(m_dataBuffer, m_width*m_height*bpx, percent,
+                                                          m_minValue, m_maxValue, tmpMin, tmpMax, m_distribStats, m_isDistribCounted);
 
             m_isDistribCounted = true;
             m_minDistribValue = tmpMin;
             m_maxDistribValue = tmpMax;
+            m_percentThreshold = a_percent;
 
             std::cout << "[INFO]: (F) m_minValue = " << m_minValue << " , m_maxValue = " << m_maxValue <<std::endl;
             std::cout << "[INFO]: (F) m_minDistribValue = " << m_minDistribValue << " , m_maxDistribValue = " << m_maxDistribValue <<std::endl;
@@ -670,17 +674,36 @@ int32_t Image::createRGB32FlatData(uint32_t a_transformType, float a_percent)
         {
             double tmpMin,tmpMax;
 
-            getFloatDoubleBufferDistributionMinMax<double>(m_dataBuffer, m_width*m_height*bpx, a_percent,
-                                                           m_minValue, m_maxValue, tmpMin, tmpMax, m_distribStats);
+            getFloatDoubleBufferDistributionMinMax<double>(m_dataBuffer, m_width*m_height*bpx, percent,
+                                                           m_minValue, m_maxValue, tmpMin, tmpMax, m_distribStats, m_isDistribCounted);
             m_isDistribCounted = true;
             m_minDistribValue = tmpMin;
             m_maxDistribValue = tmpMax;
+            m_percentThreshold = a_percent;
 
             std::cout << "[INFO]: (D) m_minValue = " << m_minValue << " , m_maxValue = " << m_maxValue <<std::endl;
             std::cout << "[INFO]: (D) m_minDistribValue = " << m_minDistribValue << " , m_maxDistribValue = " << m_maxDistribValue <<std::endl;
         }
     }
     //////////////////////////////////////////////////////////////////////////////
+
+    double finalMinValue, finalMaxValue;
+    u_int64_t finalMinValueL, finalMaxValueL;
+
+    if (m_percentThreshold == 0)
+    {
+        finalMinValue = m_minValue;
+        finalMaxValue = m_maxValue;
+        finalMinValueL = m_minValueL;
+        finalMaxValueL = m_maxValueL;
+    }
+    else
+    {
+        finalMinValue = m_minDistribValue;
+        finalMaxValue = m_maxDistribValue;
+        finalMinValueL = m_minDistribValueL;
+        finalMaxValueL = m_maxDistribValueL;
+    }
 
     // Writing the buffer containing pixel data
     try
@@ -710,12 +733,14 @@ int32_t Image::createRGB32FlatData(uint32_t a_transformType, float a_percent)
                                                      m_minValueL, m_maxValueL, a_transformType);
             else if (m_bitpix == -32)
                 ////convertBufferFloat2RGB(tmpRow, tmpBufRowSize, m_minValue, m_maxValue, a_transformType); // original WORKING version
-                convertBufferFloat2RGB(tmpRow, tmpBufRowSize, m_minDistribValue, m_maxDistribValue, a_transformType);
+                ////convertBufferFloat2RGB(tmpRow, tmpBufRowSize, m_minDistribValue, m_maxDistribValue, a_transformType); // new working version
+                convertBufferFloat2RGB(tmpRow, tmpBufRowSize, finalMinValue, finalMaxValue, a_transformType);
             else if (m_bitpix == 32)
                 convertBufferInt2RGB(tmpRow, tmpBufRowSize, m_minValueL, m_maxValueL, a_transformType);
             else if (m_bitpix == -64)
                 ////convertBufferDouble2RGB(tmpRow, tmpBufRowSize, m_minValue, m_maxValue, a_transformType); // original WORKING version
-                convertBufferDouble2RGB(tmpRow, tmpBufRowSize, m_minDistribValue, m_maxDistribValue, a_transformType);
+                ////convertBufferDouble2RGB(tmpRow, tmpBufRowSize, m_minDistribValue, m_maxDistribValue, a_transformType); // new working version
+                convertBufferDouble2RGB(tmpRow, tmpBufRowSize, finalMinValue, finalMaxValue, a_transformType);
             else if (m_bitpix == 64)
                 convertBufferLong2RGB(tmpRow, tmpBufRowSize, m_minValueL, m_maxValueL, a_transformType);
 
@@ -1471,6 +1496,12 @@ uint32_t Image::getTransformType() const
 {
     return  m_transformType;
 }
+
+void Image::setDistribCountFlag(bool a_flag)
+{
+    m_isDistribCounted = a_flag;
+}
+
 //// these functions are for debugging purposes only, they are slow
 int32_t Image::dumpFloatDataBuffer(const std::string& a_filename, uint32_t a_rowSize)
 {

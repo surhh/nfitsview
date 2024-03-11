@@ -131,6 +131,8 @@ private slots:
 
     void on_actionCheckForUpdate_triggered();
 
+    void on_horizontalSliderPercent_valueChanged(int value);
+
     int32_t updateChecked();
 
 private:
@@ -146,6 +148,7 @@ private:
     QLabel             *m_labelZoomLevel;    
 
     int32_t             m_scaleFactor;
+    int32_t             m_percentThreshold[4];
 
     libnfits::FitsFile  m_fitsFile;
 

@@ -12,7 +12,7 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>700</width>
+    <width>1200</width>
     <height>600</height>
    </size>
   </property>
@@ -381,19 +381,72 @@
                  </item>
                  <item>
                   <property name="text">
-                   <string>Linear: Float-[0.0,1.0]; Int-[minInt, maxInt]</string>
+                   <string>Float:[0.0,1.0]; Int:[min, max]</string>
                   </property>
                  </item>
                  <item>
                   <property name="text">
-                   <string>Linear: Float-[-1.0,1.0]</string>
+                   <string>Float:[-1.0,1.0]</string>
                   </property>
                  </item>
                  <item>
                   <property name="text">
-                   <string>Linear: Float-[-1.0,0.0]</string>
+                   <string>Float:[-1.0,0.0]</string>
                   </property>
                  </item>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="labelPercent">
+                 <property name="text">
+                  <string>Scale: </string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QSlider" name="horizontalSliderPercent">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>500</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>500</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="minimum">
+                  <number>0</number>
+                 </property>
+                 <property name="maximum">
+                  <number>99</number>
+                 </property>
+                 <property name="singleStep">
+                  <number>5</number>
+                 </property>
+                 <property name="pageStep">
+                  <number>1</number>
+                 </property>
+                 <property name="sliderPosition">
+                  <number>1</number>
+                 </property>
+                 <property name="tracking">
+                  <bool>true</bool>
+                 </property>
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="tickPosition">
+                  <enum>QSlider::NoTicks</enum>
+                 </property>
                 </widget>
                </item>
                <item>

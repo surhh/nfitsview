@@ -38,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , m_scaleFactor(100)
+    //, m_percentThreshold(0)
     , m_bImageChanged(false)
     , m_bEnableGammaWidgets(false)
     , m_bEnableZoomWidget(false)
@@ -87,6 +88,13 @@ MainWindow::MainWindow(QWidget *parent)
     ui->tableWidgetHDUs->setColumnWidth(2, 50);
 
     ui->actionZoomIn->setShortcut(QKeySequence::ZoomIn);
+
+    std::fill(m_percentThreshold, m_percentThreshold + 4, 0);
+
+    ui->horizontalSliderPercent->setValue(m_percentThreshold[0]);
+    QString valueStr = PERCENT_LABEL_TEXT + QString::number(ui->horizontalSliderPercent->value()) + " %";
+    valueStr = valueStr.rightJustified(16, ' ');
+    ui->labelPercent->setText(valueStr);
 
     setWindowTitle(NFITSVIEW_APP_NAME);
 
@@ -524,8 +532,11 @@ void MainWindow::clearWidgets()
     ui->workspaceWidget->clearWidgets();
 
     m_scaleFactor = 100;
-
     m_sliderZoom->setValue(m_scaleFactor);
+
+    //m_percentThreshold = 0;
+    std::fill(m_percentThreshold, m_percentThreshold + 4, 0);
+    ui->horizontalSliderPercent->setValue(m_percentThreshold[0]);
 
     ui->comboBoxMapping->setCurrentIndex(0);
 
@@ -853,6 +864,11 @@ void MainWindow::enableMappingWidgets(bool a_flag)
 {
     ui->labelMappping->setEnabled(a_flag);
     ui->comboBoxMapping->setEnabled(a_flag);
+
+    int index = ui->comboBoxMapping->currentIndex();
+
+    ui->labelPercent->setEnabled(static_cast<bool>(index) & a_flag);
+    ui->horizontalSliderPercent->setEnabled(static_cast<bool>(index) & a_flag);
 }
 
 void MainWindow::on_comboBoxFormat_currentIndexChanged(const QString &arg1)
@@ -982,11 +998,15 @@ void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current
             {
                 WidgetsStates widgetsStates;
                 int32_t hduIndex = ui->workspaceWidget->findImageHDUIndexByTableIndex(row);
+                ui->workspaceWidget->getImageHDUWidgetsStates(hduIndex, widgetsStates);
+
+                for (int32_t i = 0; i < FITS_NUMBER_OF_TRANSFORMS; ++i)
+                    m_percentThreshold[i] = widgetsStates.gammaStates.mappingThreshold[i];
 
                 ui->workspaceWidget->imageSetVisible(true);
                 //ui->workspaceWidget->setImage(hdu.getPayload(), axises[0], axises[1], hdu.getPayloadOffset(), m_fitsFile.getSize(), bitpix);
                 //ui->workspaceWidget->setImage(row);
-                ui->workspaceWidget->setImage(row, widgetsStates.gammaStates.mappingValue);
+                ui->workspaceWidget->setImage(row, widgetsStates.gammaStates.mappingValue, m_percentThreshold[ui->comboBoxMapping->currentIndex()]);
 
                 fitToWindow();
 
@@ -1009,9 +1029,6 @@ void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current
 
                 enableImageExportWidgets();
                 enableImageExportSettigsWidgets();
-
-                //WidgetsStates widgetsStates;
-                //int32_t hduIndex = ui->workspaceWidget->findImageHDUIndexByTableIndex(row);
 
                 if (hduIndex != -1)
                 {
@@ -1165,7 +1182,8 @@ int32_t MainWindow::setAllWorkspaceImages()
                     if (bSSuccess)
                         imageParams.bscale = bscale;
 
-                    ui->workspaceWidget->insertImage(hdu.getPayload(), imageParams, widgetStates);
+                    ui->workspaceWidget->insertImage(hdu.getPayload(), imageParams, widgetStates,
+                                                     FITS_FLOAT_DOUBLE_NO_TRANSFORM, FITS_VALUE_DISTRIBUTION_RANGE_MIN_THREASHOLD);
 
                     ++retVal;
                 }
@@ -1230,6 +1248,12 @@ WidgetsStates MainWindow::getWidgetsStates() const
     widgetStates.scrollState = scrollStates;
 
     widgetStates.imageChanged = m_bImageChanged;
+
+
+    for (int32_t i = 0; i < FITS_NUMBER_OF_TRANSFORMS; ++i)
+        widgetStates.gammaStates.mappingThreshold[i] = m_percentThreshold[i];
+
+    widgetStates.gammaStates.mappingThresholdEnabled = ui->horizontalSliderPercent->isEnabled();
 
     return widgetStates;
 }
@@ -1296,6 +1320,10 @@ void MainWindow::setWidgetsStates(const WidgetsStates& a_widgetsStates)
 
     ui->workspaceWidget->setScrollPosX(a_widgetsStates.scrollState.x);
     ui->workspaceWidget->setScrollPosY(a_widgetsStates.scrollState.y);
+
+    int32_t currentIndex = ui->comboBoxMapping->currentIndex();
+    ui->horizontalSliderPercent->setValue(a_widgetsStates.gammaStates.mappingThreshold[currentIndex]);
+    ui->horizontalSliderPercent->setEnabled(a_widgetsStates.gammaStates.mappingThresholdEnabled);
 }
 
 void MainWindow::on_checkBoxEyeComfort_stateChanged(int arg1)
@@ -1391,6 +1419,7 @@ void MainWindow::changeRGBColorChannelLevels(int8_t a_rValue, int8_t a_gValue, i
 }
 
 void MainWindow::restoreRGBColorChannelLevelsImage(int32_t a_hduIndex, uint32_t a_transformType)
+//void MainWindow::restoreRGBColorChannelLevelsImage(int32_t a_hduIndex, uint32_t a_transformType,)
 {
     int8_t rValue = ui->horizontalSliderR->value();
     int8_t gValue = ui->horizontalSliderG->value();
@@ -1399,7 +1428,7 @@ void MainWindow::restoreRGBColorChannelLevelsImage(int32_t a_hduIndex, uint32_t 
     if (rValue != 0 || gValue != 0 || bValue != 0)
     {
         //libnfits::LOG("in restoreRGBColorChannelLevelsImage(), if case, a_hduIndex = %", a_hduIndex);
-        ui->workspaceWidget->setImage(a_hduIndex, a_transformType);
+        ui->workspaceWidget->setImage(a_hduIndex, a_transformType, m_percentThreshold[ui->comboBoxMapping->currentIndex()]);
         changeRGBColorChannelLevels(rValue, gValue, bValue);
     }
     else
@@ -1465,7 +1494,7 @@ void MainWindow::on_comboBoxMapping_currentIndexChanged(int index)
     if (!m_fitsFile.isOpen())
         return;
 
-    int32_t transformType = convertComboIndexToTransformType(index);
+    int32_t transformType = index; //convertComboIndexToTransformType(index);  // reordered values in defs.h
 
     if (transformType == FITS_UNDEFINED_VALUE)
         return;
@@ -1474,7 +1503,7 @@ void MainWindow::on_comboBoxMapping_currentIndexChanged(int index)
 
     //libnfits::LOG("Transform type changed to: % ", transformType);
 
-    ui->workspaceWidget->reloadImageWithTransformation(transformType);
+    ui->workspaceWidget->reloadImageWithTransformation(transformType, m_percentThreshold[transformType]);
     m_bImageChanged = false;
     backupOriginalImage();
     restoreRGBColorChannelLevelsImage(ui->workspaceWidget->getCurrentImageHDUIndex(), transformType);
@@ -1482,6 +1511,10 @@ void MainWindow::on_comboBoxMapping_currentIndexChanged(int index)
     ui->workspaceWidget->scaleImage(m_scaleFactor);
     ui->workspaceWidget->setScrollPosX(scrollX);
     ui->workspaceWidget->setScrollPosY(scrollY);
+
+    ui->labelPercent->setEnabled(index);
+    ui->horizontalSliderPercent->setEnabled(index);
+    ui->horizontalSliderPercent->setValue(m_percentThreshold[index]);
 }
 
 int32_t MainWindow::convertComboIndexToTransformType(int32_t a_index) const
@@ -1581,5 +1614,39 @@ void MainWindow::on_actionCheckForUpdateToolBar_triggered()
 void MainWindow::on_actionCheckForUpdate_triggered()
 {
     checkForUpdate();
+}
+
+
+void MainWindow::on_horizontalSliderPercent_valueChanged(int value)
+{
+    QString valueStr = PERCENT_LABEL_TEXT + QString::number(value) + " %";
+    valueStr = valueStr.rightJustified(16, ' ');
+
+    ui->labelPercent->setText(valueStr);
+
+    int32_t scrollX = ui->workspaceWidget->getScrollPosX();
+    int32_t scrollY = ui->workspaceWidget->getScrollPosY();
+
+    if (!m_fitsFile.isOpen())
+        return;
+
+    int32_t transformType = ui->comboBoxMapping->currentIndex(); //convertComboIndexToTransformType(index); // reordered values in defs.h
+    m_percentThreshold[transformType] = value;
+
+    if (transformType == FITS_UNDEFINED_VALUE || transformType == FITS_FLOAT_DOUBLE_NO_TRANSFORM)
+        return;
+
+    enableRestoreWidgets(false);  //// legacy code calling, those menu and button items are not used anymore
+
+    //libnfits::LOG("Transform type changed to: % ", transformType);
+
+    ui->workspaceWidget->reloadImageWithTransformation(transformType, m_percentThreshold[transformType]);
+    m_bImageChanged = false;
+    backupOriginalImage();
+    restoreRGBColorChannelLevelsImage(ui->workspaceWidget->getCurrentImageHDUIndex(), transformType);
+
+    ui->workspaceWidget->scaleImage(m_scaleFactor);
+    ui->workspaceWidget->setScrollPosX(scrollX);
+    ui->workspaceWidget->setScrollPosY(scrollY);
 }
 

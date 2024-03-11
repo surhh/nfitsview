@@ -2,9 +2,11 @@
 #define DEFSUI_H
 
 #include <cstdint>
+#include "libnfits/defs.h"
 
 #define UPDATE_CHECK_URL        "https://raw.githubusercontent.com/surhh/nfitsview/main/_lastversion.txt"
 #define UPDATE_DOWNLOAD_URL     "https://surhh.github.io"
+#define PERCENT_LABEL_TEXT      "Threshold: "
 
 struct GammaWidgetsStates
 {
@@ -22,8 +24,11 @@ struct GammaWidgetsStates
 
     bool        rgbResetEnabled;
 
-    int32_t     mappingValue;
+    int8_t      mappingValue;
     bool        mappingEnabled;
+
+    int8_t      mappingThreshold[FITS_NUMBER_OF_TRANSFORMS];
+    bool        mappingThresholdEnabled;
 };
 
 struct ExportWidgetsStates

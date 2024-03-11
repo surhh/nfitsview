@@ -176,8 +176,10 @@ void WorkspaceTabWidget::insertImage(const uint8_t* a_image, uint32_t a_width, u
     m_vecFitsImages.push_back(imageHDU);
 }
 
+//void WorkspaceTabWidget::insertImage(const uint8_t* a_image, ImageParams& a_imageParams, const WidgetsStates& a_widgetStates,
+//                                     uint32_t a_transformType)
 void WorkspaceTabWidget::insertImage(const uint8_t* a_image, ImageParams& a_imageParams, const WidgetsStates& a_widgetStates,
-                                     uint32_t a_transformType)
+                                     uint32_t a_transformType, int32_t a_percent)
 {
     FITSImageHDU imageHDU;
 
@@ -202,7 +204,7 @@ void WorkspaceTabWidget::insertImage(const uint8_t* a_image, ImageParams& a_imag
             image->calcBufferMinMax<uint16_t>();
 
 
-    image->createRGB32FlatData(a_transformType, FITS_VALUE_DISTRIBUTION_RANGE_MIN_THREASHOLD);
+    image->createRGB32FlatData(a_transformType, a_percent);
 
     imageHDU.index = a_imageParams.hduIndex;
     imageHDU.image = image;
@@ -377,7 +379,8 @@ void WorkspaceTabWidget::clearImages()
     m_fitsImageHDUIndex = -1;
 }
 
-void WorkspaceTabWidget::setImage(uint32_t a_hduIndex, uint32_t a_transformType, bool a_bRecreate)
+//void WorkspaceTabWidget::setImage(uint32_t a_hduIndex, uint32_t a_transformType, bool a_bRecreate)
+void WorkspaceTabWidget::setImage(uint32_t a_hduIndex, uint32_t a_transformType, int32_t a_percent, bool a_bRecreate)
 {
     for (auto it = m_vecFitsImages.begin(); it < m_vecFitsImages.end(); ++it)
     {
@@ -390,7 +393,7 @@ void WorkspaceTabWidget::setImage(uint32_t a_hduIndex, uint32_t a_transformType,
             if (a_bRecreate)
             {
                 m_fitsImage->deleteAllData();
-                m_fitsImage->createRGB32FlatData(a_transformType, FITS_VALUE_DISTRIBUTION_RANGE_MIN_THREASHOLD);
+                m_fitsImage->createRGB32FlatData(a_transformType, a_percent);
                 //libnfits::LOG("in setImage(uint32_t a_hduIndex, uint32_t a_transformType), a_transformType = % ", a_transformType);
             }
             ////
@@ -487,9 +490,11 @@ void WorkspaceTabWidget::setNoImageDataImage()
     m_imageLabel->adjustSize();
 }
 
-void WorkspaceTabWidget::reloadImageWithTransformation(uint32_t a_transformType)
+//void WorkspaceTabWidget::reloadImageWithTransformation(uint32_t a_transformType)
+void WorkspaceTabWidget::reloadImageWithTransformation(uint32_t a_transformType, float a_percent)
 {
-    setImage(getCurrentImageHDUIndex(), a_transformType, true);
+    //setImage(getCurrentImageHDUIndex(), a_transformType, true);
+    setImage(getCurrentImageHDUIndex(), a_transformType, a_percent, true);
 
     reloadImage();
 }

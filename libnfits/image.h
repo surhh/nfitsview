@@ -64,6 +64,7 @@ private:
     int64_t             m_minValueL, m_minDistribValueL;
     int64_t             m_maxValueL, m_maxDistribValueL;
     uint32_t            m_transformType;
+    int32_t             m_percentThreshold;
     size_t              m_maxDataBufferSize;
     size_t              m_baseOffset;
     std::string         m_title;
@@ -195,6 +196,8 @@ public:
     void setMaxValueL(uint64_t a_value);
     uint64_t getMaxValueL() const;
     void setMinMaxValuesL(uint64_t a_minValue, uint64_t a_maxValue);
+
+    void setDistribCountFlag(bool a_flag = true);
 
     template<typename T> T getMinValue() const;
     template<typename T> T getMaxValue() const;

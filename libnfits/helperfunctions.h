@@ -742,15 +742,17 @@ int32_t convertBuffer2HexString(const uint8_t* a_buffer, uint8_t* a_output, size
 std::string convertBuffer2HexString(const uint8_t* a_buffer, size_t size, uint32_t a_align);
 
 //// min-max counting functions
+void getByteBufferMinMax(const uint8_t* a_buffer, size_t a_size, uint8_t& a_min, uint8_t& a_max);
+
 void getFloatBufferMinMax(const uint8_t* a_buffer, size_t a_size, float& a_min, float& a_max);
 
 void getDoubleBufferMinMax(const uint8_t* a_buffer, size_t a_size, double& a_min, double& a_max);
 
-void getShortBufferMinMax(const uint8_t* a_buffer, size_t a_size, uint16_t& a_min, uint16_t& a_max);
+void getShortBufferMinMax(const uint8_t* a_buffer, size_t a_size, int16_t& a_min, int16_t& a_max);
 
-void getIntBufferMinMax(const uint8_t* a_buffer, size_t a_size, uint32_t& a_min, uint32_t& a_max);
+void getIntBufferMinMax(const uint8_t* a_buffer, size_t a_size, int32_t& a_min, int32_t& a_max);
 
-void getLongBufferMinMax(const uint8_t* a_buffer, size_t a_size, uint64_t& a_min, uint64_t& a_max);
+void getLongBufferMinMax(const uint8_t* a_buffer, size_t a_size, int64_t& a_min, int64_t& a_max);
 
 //// pixel value distribution counting functions
 void getFloatBufferDistribution(const uint8_t* a_buffer, size_t a_size, float a_min, float a_max, size_t& a_count, float& a_percent);

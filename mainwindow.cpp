@@ -92,7 +92,7 @@ MainWindow::MainWindow(QWidget *parent)
     std::fill(m_percentThreshold, m_percentThreshold + 4, 0);
 
     ui->horizontalSliderPercent->setValue(m_percentThreshold[0]);
-    QString valueStr = PERCENT_LABEL_TEXT + QString::number(ui->horizontalSliderPercent->value()) + " %";
+    QString valueStr = THRESHOLD_LABEL_TEXT + QString::number(100 - ui->horizontalSliderPercent->value()) + " %";
     valueStr = valueStr.rightJustified(16, ' ');
     ui->labelPercent->setText(valueStr);
 
@@ -923,6 +923,27 @@ void MainWindow::populateHDUInfoWidget(int32_t a_hduIndex)
             ui->labelNAXIS2->setText("NAXIS2: " + QString::number(hdu.getKeywordValue<int32_t>("NAXIS2", bSuccess)));
 
         axises.clear();
+
+        double min, max;
+        uint64_t minL, maxL;
+        int8_t bitpix = ui->workspaceWidget->getBitPix();
+
+        if (bitpix == -64 || bitpix == -32)
+        {
+            min = ui->workspaceWidget->getMinValue();
+            max = ui->workspaceWidget->getMaxValue();
+
+            ui->labelMINValue->setText("Min: " + QString::number(min));
+            ui->labelMAXValue->setText("Max: " + QString::number(max));
+        }
+        else
+        {
+            minL = ui->workspaceWidget->getMinValueL();
+            maxL = ui->workspaceWidget->getMaxValueL();
+
+            ui->labelMINValue->setText("Min: " + QString::number(minL));
+            ui->labelMAXValue->setText("Max: " + QString::number(maxL));
+        }
     }
 }
 
@@ -931,6 +952,8 @@ void MainWindow::initHDUInfoWidgetValues()
     ui->labelNAXIS->setText("NAXIS:");
     ui->labelNAXIS1->setText("NAXIS1:");
     ui->labelNAXIS2->setText("NAXIS2:");
+    ui->labelMINValue->setText("Min:");
+    ui->labelMAXValue->setText("Max:");
 }
 
 void MainWindow::on_actionAbout_triggered()
@@ -1616,10 +1639,9 @@ void MainWindow::on_actionCheckForUpdate_triggered()
     checkForUpdate();
 }
 
-
 void MainWindow::on_horizontalSliderPercent_valueChanged(int value)
 {
-    QString valueStr = PERCENT_LABEL_TEXT + QString::number(value) + " %";
+    QString valueStr = THRESHOLD_LABEL_TEXT + QString::number(100 - value) + " %";
     valueStr = valueStr.rightJustified(16, ' ');
 
     ui->labelPercent->setText(valueStr);

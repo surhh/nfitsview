@@ -293,13 +293,13 @@ int32_t FitsFile::exportImageHDU(uint32_t a_hduIndex, int32_t a_transform, bool 
     if (bitpix == -64)
             image.calcBufferMinMax<double>();
     else if (bitpix == 64)
-            image.calcBufferMinMax<uint64_t>();
+            image.calcBufferMinMax<int64_t>();
     else if (bitpix == -32)
             image.calcBufferMinMax<float>();
     else if (bitpix == 32)
-            image.calcBufferMinMax<uint32_t>();
+            image.calcBufferMinMax<int32_t>();
     else if (bitpix == 16)
-            image.calcBufferMinMax<uint16_t>();
+            image.calcBufferMinMax<int16_t>();
 
     if (bZSuccess)
         image.setBZero(bzero);

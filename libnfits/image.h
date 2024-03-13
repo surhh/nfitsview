@@ -40,6 +40,7 @@ class Image
 {
 private:
     bool                m_isCompressed;
+    bool                m_isMinMaxCounted;
     bool                m_isDistribCounted;
 
     uint8_t*            m_dataBuffer;

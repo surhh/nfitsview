@@ -6,7 +6,7 @@
 
 #define UPDATE_CHECK_URL        "https://raw.githubusercontent.com/surhh/nfitsview/main/_lastversion.txt"
 #define UPDATE_DOWNLOAD_URL     "https://surhh.github.io"
-#define PERCENT_LABEL_TEXT      "Threshold: "
+#define THRESHOLD_LABEL_TEXT    "Threshold: "
 
 struct GammaWidgetsStates
 {

@@ -195,13 +195,13 @@ void WorkspaceTabWidget::insertImage(const uint8_t* a_image, ImageParams& a_imag
     if (a_imageParams.bitpix == -64)
             image->calcBufferMinMax<double>();
     else if (a_imageParams.bitpix == 64)
-            image->calcBufferMinMax<uint64_t>();
+            image->calcBufferMinMax<int64_t>();
     else if (a_imageParams.bitpix == -32)
             image->calcBufferMinMax<float>();
     else if (a_imageParams.bitpix == 32)
-            image->calcBufferMinMax<uint32_t>();
+            image->calcBufferMinMax<int32_t>();
     else if (a_imageParams.bitpix == 16)
-            image->calcBufferMinMax<uint16_t>();
+            image->calcBufferMinMax<int16_t>();
 
 
     image->createRGB32FlatData(a_transformType, a_percent);
@@ -522,3 +522,49 @@ FITSImageLabel* WorkspaceTabWidget::getFITSImageLabel() const
 {
     return m_imageLabel;
 }
+
+int8_t WorkspaceTabWidget::getBitPix() const
+{
+    return m_fitsImage->getBitPix();
+}
+
+double WorkspaceTabWidget::getMinValue() const
+{
+    return m_fitsImage->getMinValue();
+}
+
+double WorkspaceTabWidget::getMaxValue() const
+{
+    return m_fitsImage->getMaxValue();
+}
+
+uint64_t WorkspaceTabWidget::getMinValueL() const
+{
+    return m_fitsImage->getMinValueL();
+}
+
+uint64_t WorkspaceTabWidget::getMaxValueL() const
+{
+    return m_fitsImage->getMaxValueL();
+}
+
+template<typename T> T WorkspaceTabWidget::getMinValue() const
+{
+    return m_fitsImage->getMinValue<T>();
+}
+
+template<typename T> T WorkspaceTabWidget::getMaxValue() const
+{
+    return m_fitsImage->getMaxValue<T>();
+}
+
+template<typename T> T WorkspaceTabWidget::getDistribMinValue() const
+{
+    return m_fitsImage->getDistribMinValue<T>();
+}
+
+template<typename T> T WorkspaceTabWidget::getDistribMaxValue() const
+{
+    return m_fitsImage->getDistribMaxValue<T>();
+}
+

@@ -89,6 +89,16 @@ public:
     uint32_t getTransformType() const;
     uint32_t getTransformType(uint32_t a_hduIndex) const;
 
+    int8_t getBitPix() const;
+    double getMinValue() const;
+    double getMaxValue() const;
+    uint64_t getMinValueL() const;
+    uint64_t getMaxValueL() const;
+    template<typename T> T getMinValue() const;
+    template<typename T> T getMaxValue() const;
+    template<typename T> T getDistribMinValue() const;
+    template<typename T> T getDistribMaxValue() const;
+
     FITSImageLabel* getFITSImageLabel() const;
 
 private slots:

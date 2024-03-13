@@ -656,8 +656,8 @@ void convertBufferDouble2RGBA(uint8_t* a_buffer, size_t a_size, double a_min, do
         double f = *((double *)&s);
 
         if (a_type != FITS_FLOAT_DOUBLE_NO_TRANSFORM)
-            //f = normalizeValue<double>(f, a_min, a_max, min, max);
             f = normalizeValueByRange<double>(f, a_min, min, oldRange, newRange);
+            //f = normalizeValue<double>(f, a_min, a_max, min, max);
 
         uint64_t val = convertDouble2RGBA(f);
 
@@ -705,8 +705,8 @@ void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size, double a_min, dou
         uint8_t red, green, blue;
 
         if (a_type != FITS_FLOAT_DOUBLE_NO_TRANSFORM)
-            //f = normalizeValue<double>(f, a_min, a_max, min, max);
             f = normalizeValueByRange<double>(f, a_min, min, oldRange, newRange);
+            //f = normalizeValue<double>(f, a_min, a_max, min, max);
 
         convertDouble2RGB(f, red, green, blue);
 
@@ -758,8 +758,8 @@ void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuf
 #endif
 
         if (a_type != FITS_FLOAT_DOUBLE_NO_TRANSFORM)
-            //s = normalizeValueIntLong<uint16_t>(s, a_min, a_max, min, max);
             s = normalizeValueIntLongByRange<uint16_t>(s, a_min, min, oldRange, newRange);
+            //s = normalizeValueIntLong<uint16_t>(s, a_min, a_max, min, max);
 
         ptrConvertFunction(s, pixel);
 
@@ -807,8 +807,8 @@ void convertBufferShortSZ2RGB(uint8_t* a_buffer, size_t a_size, double a_bzero, 
 #endif
 
         if (a_type != FITS_FLOAT_DOUBLE_NO_TRANSFORM)
-            //s = normalizeValueIntLong<uint16_t>(s, a_min, a_max, min, max);
             s = normalizeValueIntLongByRange<uint16_t>(s, a_min, min, oldRange, newRange);
+            //s = normalizeValueIntLong<uint16_t>(s, a_min, a_max, min, max);
 
         ptrConvertFunctionSZ(s, a_bscale, a_bzero, pixel);
 
@@ -892,8 +892,8 @@ void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size, uint32_t a_min, uint
         uint8_t red, green, blue;
 
         if (a_type != FITS_FLOAT_DOUBLE_NO_TRANSFORM)
-            s = normalizeValueIntLong<uint32_t>(s, a_min, a_max, min, max);
-            //s = normalizeValueIntLongByRange<uint32_t>(s, a_min, min, oldRange, newRange);
+            s = normalizeValueIntLongByRange<uint32_t>(s, a_min, min, oldRange, newRange);
+            //s = normalizeValueIntLong<uint32_t>(s, a_min, a_max, min, max);
 
         convertInt2RGB(s, red, green, blue);
 
@@ -935,8 +935,8 @@ void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size, uint64_t a_min, uin
         uint8_t red, green, blue;
 
         if (a_type != FITS_FLOAT_DOUBLE_NO_TRANSFORM)
-            //s = normalizeValueIntLong<uint64_t>(s, a_min, a_max, min, max);
             s = normalizeValueIntLongByRange<uint64_t>(s, a_min, min, oldRange, newRange);
+            //s = normalizeValueIntLong<uint64_t>(s, a_min, a_max, min, max);
 
         convertLong2RGB(s, red, green, blue);
 
@@ -1278,21 +1278,41 @@ void getDoubleBufferMinMax(const uint8_t* a_buffer, size_t a_size, double& a_min
     a_max = maxVal;
 }
 
-void getShortBufferMinMax(const uint8_t* a_buffer, size_t a_size, uint16_t& a_min, uint16_t& a_max)
+void getByteBufferMinMax(const uint8_t* a_buffer, size_t a_size, uint8_t& a_min, uint8_t& a_max)
+{
+    //uint8_t *tmpBuf = a_buffer;
+
+    uint8_t minVal = std::numeric_limits<uint8_t>::max();
+    uint8_t maxVal = std::numeric_limits<uint8_t>::min();
+
+    for (size_t i = 0; i < a_size / sizeof(uint8_t); ++i)
+    {
+        if (a_buffer[i] > maxVal)
+            maxVal = a_buffer[i];
+
+        if (a_buffer[i] < minVal)
+            minVal = a_buffer[i];
+    }
+
+    a_min = minVal;
+    a_max = maxVal;
+}
+
+void getShortBufferMinMax(const uint8_t* a_buffer, size_t a_size, int16_t& a_min, int16_t& a_max)
 {
     // checking for buffer granularity
-    if (a_size % sizeof(uint16_t) != 0)
+    if (a_size % sizeof(int16_t) != 0)
         return;
 
-    uint16_t *tmpBuf = (uint16_t*)(a_buffer);
+    int16_t *tmpBuf = (int16_t*)(a_buffer);
 
-    uint16_t minVal = std::numeric_limits<uint16_t>::max();
-    uint16_t maxVal = std::numeric_limits<uint16_t>::min();
+    int16_t minVal = std::numeric_limits<int16_t>::max();
+    int16_t maxVal = std::numeric_limits<int16_t>::min();
 
-    for (size_t i = 0; i < a_size / sizeof(uint16_t); ++i)
+    for (size_t i = 0; i < a_size / sizeof(int16_t); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-        uint16_t s = swap16(tmpBuf[i]);
+        int16_t s = swap16(tmpBuf[i]);
 #else
         uint16_t s = tmpBuf[i];
 #endif
@@ -1308,21 +1328,21 @@ void getShortBufferMinMax(const uint8_t* a_buffer, size_t a_size, uint16_t& a_mi
     a_max = maxVal;
 }
 
-void getIntBufferMinMax(const uint8_t* a_buffer, size_t a_size, uint32_t& a_min, uint32_t& a_max)
+void getIntBufferMinMax(const uint8_t* a_buffer, size_t a_size, int32_t& a_min, int32_t& a_max)
 {
     // checking for buffer granularity
-    if (a_size % sizeof(uint32_t) != 0)
+    if (a_size % sizeof(int32_t) != 0)
         return;
 
-    uint32_t *tmpBuf = (uint32_t*)(a_buffer);
+    int32_t *tmpBuf = (int32_t*)(a_buffer);
 
-    uint32_t minVal = std::numeric_limits<uint32_t>::max();
-    uint32_t maxVal = std::numeric_limits<uint32_t>::min();
+    int32_t minVal = std::numeric_limits<int32_t>::max();
+    int32_t maxVal = std::numeric_limits<int32_t>::min();
 
-    for (size_t i = 0; i < a_size / sizeof(uint32_t); ++i)
+    for (size_t i = 0; i < a_size / sizeof(int32_t); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-        uint32_t s = swap32(tmpBuf[i]);
+        int32_t s = swap32(tmpBuf[i]);
 #else
         uint32_t s = tmpBuf[i];
 #endif
@@ -1338,21 +1358,21 @@ void getIntBufferMinMax(const uint8_t* a_buffer, size_t a_size, uint32_t& a_min,
     a_max = maxVal;
 }
 
-void getLongBufferMinMax(const uint8_t* a_buffer, size_t a_size, uint64_t& a_min, uint64_t& a_max)
+void getLongBufferMinMax(const uint8_t* a_buffer, size_t a_size, int64_t& a_min, int64_t& a_max)
 {
     // checking for buffer granularity
-    if (a_size % sizeof(uint64_t) != 0)
+    if (a_size % sizeof(int64_t) != 0)
         return;
 
-    uint64_t *tmpBuf = (uint64_t*)(a_buffer);
+    int64_t *tmpBuf = (int64_t*)(a_buffer);
 
-    uint64_t minVal = std::numeric_limits<uint64_t>::max();
-    uint64_t maxVal = std::numeric_limits<uint64_t>::min();
+    int64_t minVal = std::numeric_limits<int64_t>::max();
+    int64_t maxVal = std::numeric_limits<int64_t>::min();
 
-    for (size_t i = 0; i < a_size / sizeof(uint64_t); ++i)
+    for (size_t i = 0; i < a_size / sizeof(int64_t); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-        uint64_t s = swap64(tmpBuf[i]);
+        int64_t s = swap64(tmpBuf[i]);
 #else
         uint64_t s = tmpBuf[i];
 #endif

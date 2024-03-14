@@ -866,7 +866,7 @@ void convertBufferByteSZ2RGB(uint8_t* a_buffer, size_t a_size, int8_t a_bzero, i
 void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size, uint32_t a_min, uint32_t a_max, uint32_t a_type)
 {
     // checking for buffer granularity
-    if (a_size % sizeof(int32_t) != 0)
+    if (a_size % sizeof(uint32_t) != 0)
         return;
 
     uint32_t *tmpBuf = (uint32_t*)(a_buffer);
@@ -1278,20 +1278,20 @@ void getDoubleBufferMinMax(const uint8_t* a_buffer, size_t a_size, double& a_min
     a_max = maxVal;
 }
 
-void getByteBufferMinMax(const uint8_t* a_buffer, size_t a_size, uint8_t& a_min, uint8_t& a_max)
+void getByteBufferMinMax(const uint8_t* a_buffer, size_t a_size, int8_t& a_min, int8_t& a_max)
 {
-    //uint8_t *tmpBuf = a_buffer;
+    int8_t *tmpBuf = (int8_t*)(a_buffer);
 
-    uint8_t minVal = std::numeric_limits<uint8_t>::max();
-    uint8_t maxVal = std::numeric_limits<uint8_t>::min();
+    int8_t minVal = std::numeric_limits<int8_t>::max();
+    int8_t maxVal = std::numeric_limits<int8_t>::min();
 
-    for (size_t i = 0; i < a_size / sizeof(uint8_t); ++i)
+    for (size_t i = 0; i < a_size / sizeof(int8_t); ++i)
     {
-        if (a_buffer[i] > maxVal)
-            maxVal = a_buffer[i];
+        if (tmpBuf[i] > maxVal)
+            maxVal = tmpBuf[i];
 
-        if (a_buffer[i] < minVal)
-            minVal = a_buffer[i];
+        if (tmpBuf[i] < minVal)
+            minVal = tmpBuf[i];
     }
 
     a_min = minVal;
@@ -1314,7 +1314,7 @@ void getShortBufferMinMax(const uint8_t* a_buffer, size_t a_size, int16_t& a_min
 #if __BYTE_ORDER == __LITTLE_ENDIAN
         int16_t s = swap16(tmpBuf[i]);
 #else
-        uint16_t s = tmpBuf[i];
+        int16_t s = tmpBuf[i];
 #endif
 
         if (s > maxVal)
@@ -1344,7 +1344,7 @@ void getIntBufferMinMax(const uint8_t* a_buffer, size_t a_size, int32_t& a_min, 
 #if __BYTE_ORDER == __LITTLE_ENDIAN
         int32_t s = swap32(tmpBuf[i]);
 #else
-        uint32_t s = tmpBuf[i];
+        int32_t s = tmpBuf[i];
 #endif
 
         if (s > maxVal)
@@ -1408,7 +1408,7 @@ void getFloatBufferDistribution(const uint8_t* a_buffer, size_t a_size, float a_
 #else
         uint32_t s = tmpBuf[i];
 #endif
-        float f = *((float *)&s);
+        float f = *((float*)&s);
 
         if (f >= a_min && f < a_max)
             ++count;
@@ -1433,14 +1433,14 @@ void getDoubleBufferDistribution(const uint8_t* a_buffer, size_t a_size, double 
 
     size_t pixelCount = a_size / sizeof(double);
 
-    for (size_t i = 0; i < a_size / sizeof(float); ++i)
+    for (size_t i = 0; i < pixelCount; ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-        uint64_t s = swap32(tmpBuf[i]);
+        uint64_t s = swap64(tmpBuf[i]);
 #else
         uint64_t s = tmpBuf[i];
 #endif
-        double f = *((double *)&s);
+        double f = *((double*)&s);
 
         if (f >= a_min && f < a_max)
             ++count;
@@ -1476,7 +1476,7 @@ void getFloatBufferDistribution(const uint8_t* a_buffer, size_t a_size, float a_
 #else
         uint32_t s = tmpBuf[i];
 #endif
-        float f = *((float *)&s);
+        float f = *((float*)&s);
 
         uint32_t index = std::floor(std::fabs(f - a_min) / segmentSizeF);
 
@@ -1513,7 +1513,7 @@ void getDoubleBufferDistribution(const uint8_t* a_buffer, size_t a_size, double 
 #endif
         double f = *((double *)&s);
 
-        uint64_t index = std::floor(std::fabs(f - a_min) / segmentSizeF);
+        uint32_t index = std::floor(std::fabs(f - a_min) / segmentSizeF);
 
         if (index >= FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER)
             continue;
@@ -1521,6 +1521,257 @@ void getDoubleBufferDistribution(const uint8_t* a_buffer, size_t a_size, double 
         a_stats[index].count++;
     }
 }
+
+void getByteBufferDistribution(const uint8_t* a_buffer, size_t a_size, int8_t a_min, int8_t a_max, size_t& a_count, float& a_percent)
+{
+    size_t count = 0;
+    float percent = 0.0;
+
+    int8_t* tmpBuf = (int8_t*)(a_buffer);
+
+    size_t pixelCount = a_size / sizeof(int8_t);
+
+    for (size_t i = 0; i < pixelCount; ++i)
+    {
+        if (tmpBuf[i] >= a_min && tmpBuf[i] < a_max)
+            ++count;
+    }
+
+    percent = (double)count/(double)pixelCount;
+
+    a_percent = percent;
+    a_count = count;
+}
+
+void getByteBufferDistribution(const uint8_t* a_buffer, size_t a_size, int8_t a_min, int8_t a_max,
+                               DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER])
+{
+    int8_t* tmpBuf = (int8_t*)(a_buffer);
+
+    size_t pixelCount = a_size / sizeof(int8_t);
+
+    double rangeF = std::fabs(a_max - a_min);
+    double segmentSizeF = rangeF/(double)FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER;
+
+    if (areEqual(segmentSizeF, 0.0))
+        return;
+
+    for (size_t i = 0; i < pixelCount; ++i)
+    {
+        uint32_t index = std::floor(std::fabs(tmpBuf[i] - a_min) / segmentSizeF);
+
+        if (index >= FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER)
+            continue;
+
+        a_stats[index].count++;
+    }
+}
+
+
+void getShortBufferDistribution(const uint8_t* a_buffer, size_t a_size, int16_t a_min, int16_t a_max, size_t& a_count, float& a_percent)
+{
+    size_t count = 0;
+    float percent = 0.0;
+
+    // checking for buffer granularity
+    if (a_size % sizeof(int16_t) != 0)
+        return;
+
+    int16_t* tmpBuf = (int16_t*)(a_buffer);
+
+    size_t pixelCount = a_size / sizeof(int16_t);
+
+    for (size_t i = 0; i < pixelCount; ++i)
+    {
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+        int16_t s = swap16(tmpBuf[i]);
+#else
+        int16_t s = tmpBuf[i];
+#endif
+        //int16_t f = *((int16_t*)&s);
+
+        if (s >= a_min && s < a_max)
+            ++count;
+    }
+
+    percent = (double)count/(double)pixelCount;
+
+    a_percent = percent;
+    a_count = count;
+}
+
+void getShortBufferDistribution(const uint8_t* a_buffer, size_t a_size, int16_t a_min, int16_t a_max,
+                                DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER])
+{
+    // checking for buffer granularity
+    if (a_size % sizeof(int16_t) != 0)
+        return;
+
+    int16_t* tmpBuf = (int16_t*)(a_buffer);
+
+    size_t pixelCount = a_size / sizeof(int16_t);
+
+    double rangeF = std::fabs(a_max - a_min);
+    double segmentSizeF = rangeF/(double)FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER;
+
+    if (areEqual(segmentSizeF, 0.0))
+        return;
+
+    for (size_t i = 0; i < pixelCount; ++i)
+    {
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+        int16_t s = swap16(tmpBuf[i]);
+#else
+        int16_t s = tmpBuf[i];
+#endif
+        //int16_t f = *((int16_t*)&s);
+
+        uint32_t index = std::floor(std::fabs(s - a_min) / segmentSizeF);
+
+        if (index >= FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER)
+            continue;
+
+        a_stats[index].count++;
+    }
+}
+
+
+void getIntBufferDistribution(const uint8_t* a_buffer, size_t a_size, int32_t a_min, int32_t a_max, size_t& a_count, float& a_percent)
+{
+    size_t count = 0;
+    float percent = 0.0;
+
+    // checking for buffer granularity
+    if (a_size % sizeof(int32_t) != 0)
+        return;
+
+    int32_t* tmpBuf = (int32_t*)(a_buffer);
+
+    size_t pixelCount = a_size / sizeof(int32_t);
+
+    for (size_t i = 0; i < pixelCount; ++i)
+    {
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+        int32_t s = swap32(tmpBuf[i]);
+#else
+        int32_t s = tmpBuf[i];
+#endif
+        //int32_t f = *((int32_t*)&s);
+
+        if (s >= a_min && s < a_max)
+            ++count;
+    }
+
+    percent = (double)count/(double)pixelCount;
+
+    a_percent = percent;
+    a_count = count;
+}
+
+void getIntBufferDistribution(const uint8_t* a_buffer, size_t a_size, int32_t a_min, int32_t a_max,
+                              DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER])
+{
+    // checking for buffer granularity
+    if (a_size % sizeof(int32_t) != 0)
+        return;
+
+    int32_t* tmpBuf = (int32_t*)(a_buffer);
+
+    size_t pixelCount = a_size / sizeof(int32_t);
+
+    double rangeF = std::fabs(a_max - a_min);
+    double segmentSizeF = rangeF/(double)FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER;
+
+    if (areEqual(segmentSizeF, 0.0))
+        return;
+
+    for (size_t i = 0; i < pixelCount; ++i)
+    {
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+        int32_t s = swap32(tmpBuf[i]);
+#else
+        int32_t s = tmpBuf[i];
+#endif
+        //int32_t f = *((int32_t*)&s);
+
+        uint32_t index = std::floor(std::fabs(s - a_min) / segmentSizeF);
+
+        if (index >= FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER)
+            continue;
+
+        a_stats[index].count++;
+    }
+}
+
+
+void getLongBufferDistribution(const uint8_t* a_buffer, size_t a_size, int64_t a_min, int64_t a_max, size_t& a_count, float& a_percent)
+{
+    size_t count = 0;
+    float percent = 0.0;
+
+    // checking for buffer granularity
+    if (a_size % sizeof(double) != 0)
+        return;
+
+    int64_t* tmpBuf = (int64_t*)(a_buffer);
+
+    size_t pixelCount = a_size / sizeof(int64_t);
+
+    for (size_t i = 0; i < pixelCount; ++i)
+    {
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+        uint64_t s = swap64(tmpBuf[i]);
+#else
+        uint64_t s = tmpBuf[i];
+#endif
+        int64_t f = *((int64_t*)&s);
+
+        if (f >= a_min && f < a_max)
+            ++count;
+    }
+
+    percent = (double)count/(double)pixelCount;
+
+    a_percent = percent;
+    a_count = count;
+}
+
+void getLongBufferDistribution(const uint8_t* a_buffer, size_t a_size, int64_t a_min, int64_t a_max,
+                               DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER])
+{
+    // checking for buffer granularity
+    if (a_size % sizeof(int64_t) != 0)
+        return;
+
+    int64_t* tmpBuf = (int64_t*)(a_buffer);
+
+    size_t pixelCount = a_size / sizeof(int64_t);
+
+    double rangeF = std::fabs(a_max - a_min);
+    double segmentSizeF = rangeF/(double)FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER;
+
+    if (areEqual(segmentSizeF, 0.0))
+        return;
+
+    for (size_t i = 0; i < pixelCount; ++i)
+    {
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+        uint64_t s = swap64(tmpBuf[i]);
+#else
+        uint64_t s = tmpBuf[i];
+#endif
+        int64_t f = *((int64_t*)&s);
+
+        uint32_t index = std::floor(std::fabs(f - a_min) / segmentSizeF);
+
+        if (index >= FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER)
+            continue;
+
+        a_stats[index].count++;
+    }
+}
+
+
 
 float getMaxDistribPercent(const DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER], int32_t& a_segment)
 {
@@ -1578,14 +1829,17 @@ float getMaxDistribPercentRange(const DistribStats (&a_stats)[FITS_VALUE_DISTRIB
     return maxPercent;
 }
 
-template<typename T> void getFloatDoubleBufferDistributionMinMax(const uint8_t* a_buffer, size_t a_size, float a_percent, T a_min, T a_max,
-                                                                 T& a_minNew, T& a_maxNew,
-                                                                 DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER],
-                                                                 bool a_isDistribCounted)
+template<typename T> void getBufferDistributionMinMax(const uint8_t* a_buffer, size_t a_size, float a_percent, T a_min, T a_max,
+                                                      T& a_minNew, T& a_maxNew,
+                                                      DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER],
+                                                      bool a_isDistribCounted)
 {
-    T rangeF = std::fabs(a_max - a_min);
-    T segmentSizeF = rangeF/(T)FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER;
-    //T percent;
+    //// commented this out as double type is suits better in corner cases of integer divisions
+    //// T rangeF = std::fabs(a_max - a_min);
+    //// T segmentSizeF = rangeF/(T)FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER;
+
+    double rangeF = std::fabs(a_max - a_min);
+    double segmentSizeF = rangeF/(T)FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER;
 
     if (!a_isDistribCounted)
     {
@@ -1593,6 +1847,14 @@ template<typename T> void getFloatDoubleBufferDistributionMinMax(const uint8_t* 
             getFloatBufferDistribution(a_buffer, a_size, a_min, a_max, a_stats);
         else if (std::is_same<T, double>::value)
             getDoubleBufferDistribution(a_buffer, a_size, a_min, a_max, a_stats);
+        else if (std::is_same<T, int8_t>::value)
+            getByteBufferDistribution(a_buffer, a_size, a_min, a_max, a_stats);
+        else if (std::is_same<T, int16_t>::value)
+            getShortBufferDistribution(a_buffer, a_size, a_min, a_max, a_stats);
+        else if (std::is_same<T, int32_t>::value)
+            getIntBufferDistribution(a_buffer, a_size, a_min, a_max, a_stats);
+        else if (std::is_same<T, int64_t>::value)
+            getLongBufferDistribution(a_buffer, a_size, a_min, a_max, a_stats);
         else
             return;
     }
@@ -1601,7 +1863,7 @@ template<typename T> void getFloatDoubleBufferDistributionMinMax(const uint8_t* 
     for (int32_t i = 0; i < FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER; ++i)
     {
         a_stats[i].percent = (double)a_stats[i].count / totalCount;
-        std::cout << "[INFO]: index = " << i << " , a_stats[i].count = " << a_stats[i].count <<
+        std::cout << "[INFO]: (F/D) index = " << i << " , a_stats[i].count = " << a_stats[i].count <<
                      " , percent = " << a_stats[i].percent << std::endl;
     }
 
@@ -1610,20 +1872,51 @@ template<typename T> void getFloatDoubleBufferDistributionMinMax(const uint8_t* 
 
     getMaxDistribPercentRange(a_stats, startSegment, endSegment, startPercent, endPercent, a_percent);
 
-    std::cout << "[INFO]: startSegment = " << startSegment << " , endSegment = " << endSegment <<
-                        " , startPercent = " << startPercent << " , endPercent = " << endPercent << std::endl;
+    std::cout << "[INFO]: (F/D) startSegment = " << startSegment << " , endSegment = " << endSegment <<
+                 " , startPercent = " << startPercent << " , endPercent = " << endPercent << std::endl;
 
     a_minNew = a_min + startSegment*segmentSizeF;
     a_maxNew = a_minNew + (endSegment - startSegment + 1)*segmentSizeF;
+
+    double tmpMinNew = a_min + startSegment*segmentSizeF;
+    double tmpMaxNew = a_minNew + (endSegment - startSegment + 1)*segmentSizeF;
+
+    //// this check is especially against integer truncating case where the range values lost their
+    //// original values due to division/multiplication of integers, so we explicitly check this case and
+    //// apply double value. Not the best solution, is pretty straghtforward workaround but is quite easy
+    if (!std::is_same<T, float>::value && !std::is_same<T, double>::value)
+    {
+        a_minNew = std::floor(tmpMinNew);
+        a_maxNew = std::ceil(tmpMaxNew);
+    }
+    /////////////////////////////////////////////////////////////////////////////////////////////////////
 }
 
-template void getFloatDoubleBufferDistributionMinMax<float>(const uint8_t*, size_t, float, float, float, float&,
-                                                            float&, DistribStats (&)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER],
-                                                            bool a_isDistribCounted);
+template void getBufferDistributionMinMax<float>(const uint8_t*, size_t, float, float, float, float&,
+                                                 float&, DistribStats (&)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER],
+                                                 bool a_isDistribCounted);
 
-template void getFloatDoubleBufferDistributionMinMax<double>(const uint8_t*, size_t, float, double, double, double&,
-                                                             double&, DistribStats (&)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER],
-                                                             bool a_isDistribCounted);
+template void getBufferDistributionMinMax<double>(const uint8_t*, size_t, float, double, double, double&,
+                                                  double&, DistribStats (&)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER],
+                                                  bool a_isDistribCounted);
+
+template void getBufferDistributionMinMax<int8_t>(const uint8_t*, size_t, float, int8_t, int8_t, int8_t&,
+                                                  int8_t&, DistribStats (&)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER],
+                                                  bool a_isDistribCounted);
+
+template void getBufferDistributionMinMax<int16_t>(const uint8_t*, size_t, float, int16_t, int16_t, int16_t&,
+                                                   int16_t&, DistribStats (&)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER],
+                                                   bool a_isDistribCounted);
+
+template void getBufferDistributionMinMax<int32_t>(const uint8_t*, size_t, float, int32_t, int32_t, int32_t&,
+                                                   int32_t&, DistribStats (&)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER],
+                                                   bool a_isDistribCounted);
+
+template void getBufferDistributionMinMax<int64_t>(const uint8_t*, size_t, float, int64_t, int64_t, int64_t&,
+                                                   int64_t&, DistribStats (&)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER],
+                                                   bool a_isDistribCounted);
+
+
 
 //// use for debug purposes only, slow functions
 int32_t dumpFloatDataBuffer(const uint8_t* a_buffer, size_t a_size, const std::string& a_filename, uint32_t a_rowSize)

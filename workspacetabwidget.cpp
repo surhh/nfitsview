@@ -538,14 +538,34 @@ double WorkspaceTabWidget::getMaxValue() const
     return m_fitsImage->getMaxValue();
 }
 
-uint64_t WorkspaceTabWidget::getMinValueL() const
+int64_t WorkspaceTabWidget::getMinValueL() const
 {
     return m_fitsImage->getMinValueL();
 }
 
-uint64_t WorkspaceTabWidget::getMaxValueL() const
+int64_t WorkspaceTabWidget::getMaxValueL() const
 {
     return m_fitsImage->getMaxValueL();
+}
+
+double WorkspaceTabWidget::getDistribMinValue() const
+{
+    return m_fitsImage->getDistribMinValue();
+}
+
+double WorkspaceTabWidget::getDistribMaxValue() const
+{
+    return m_fitsImage->getDistribMaxValue();
+}
+
+int64_t WorkspaceTabWidget::getDistribMinValueL() const
+{
+    return m_fitsImage->getDistribMinValueL();
+}
+
+int64_t WorkspaceTabWidget::getDistribMaxValueL() const
+{
+    return m_fitsImage->getDistribMaxValueL();
 }
 
 template<typename T> T WorkspaceTabWidget::getMinValue() const

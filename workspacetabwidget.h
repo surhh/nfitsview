@@ -90,10 +90,17 @@ public:
     uint32_t getTransformType(uint32_t a_hduIndex) const;
 
     int8_t getBitPix() const;
+
     double getMinValue() const;
     double getMaxValue() const;
-    uint64_t getMinValueL() const;
-    uint64_t getMaxValueL() const;
+    int64_t getMinValueL() const;
+    int64_t getMaxValueL() const;
+
+    double getDistribMinValue() const;
+    double getDistribMaxValue() const;
+    int64_t getDistribMinValueL() const;
+    int64_t getDistribMaxValueL() const;
+
     template<typename T> T getMinValue() const;
     template<typename T> T getMaxValue() const;
     template<typename T> T getDistribMinValue() const;

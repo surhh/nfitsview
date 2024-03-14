@@ -654,15 +654,14 @@ int32_t Image::createRGB32FlatData(uint32_t a_transformType, float a_percent)
     float percent = (float)(100 - a_percent) / 100;
     if (a_percent != m_percentThreshold)
     {
-
         int8_t bpx = std::abs(m_bitpix)/8;
 
         if (m_bitpix == -32)
         {
             float tmpMin,tmpMax;
 
-            getFloatDoubleBufferDistributionMinMax<float>(m_dataBuffer, m_width*m_height*bpx, percent,
-                                                          m_minValue, m_maxValue, tmpMin, tmpMax, m_distribStats, m_isDistribCounted);
+            getBufferDistributionMinMax<float>(m_dataBuffer, m_width*m_height*bpx, percent,
+                                               m_minValue, m_maxValue, tmpMin, tmpMax, m_distribStats, m_isDistribCounted);
 
             m_isDistribCounted = true;
             m_minDistribValue = tmpMin;
@@ -676,8 +675,8 @@ int32_t Image::createRGB32FlatData(uint32_t a_transformType, float a_percent)
         {
             double tmpMin,tmpMax;
 
-            getFloatDoubleBufferDistributionMinMax<double>(m_dataBuffer, m_width*m_height*bpx, percent,
-                                                           m_minValue, m_maxValue, tmpMin, tmpMax, m_distribStats, m_isDistribCounted);
+            getBufferDistributionMinMax<double>(m_dataBuffer, m_width*m_height*bpx, percent,
+                                                m_minValue, m_maxValue, tmpMin, tmpMax, m_distribStats, m_isDistribCounted);
             m_isDistribCounted = true;
             m_minDistribValue = tmpMin;
             m_maxDistribValue = tmpMax;
@@ -686,8 +685,67 @@ int32_t Image::createRGB32FlatData(uint32_t a_transformType, float a_percent)
             std::cout << "[INFO]: (D) m_minValue = " << m_minValue << " , m_maxValue = " << m_maxValue <<std::endl;
             std::cout << "[INFO]: (D) m_minDistribValue = " << m_minDistribValue << " , m_maxDistribValue = " << m_maxDistribValue <<std::endl;
         }
+        else if (m_bitpix == 8)
+        {
+            int8_t tmpMin, tmpMax;
+
+            getBufferDistributionMinMax<int8_t>(m_dataBuffer, m_width*m_height*bpx, percent,
+                                                m_minValueL, m_maxValueL, tmpMin, tmpMax, m_distribStats, m_isDistribCounted);
+
+            m_isDistribCounted = true;
+            m_minDistribValueL = tmpMin;
+            m_maxDistribValueL = tmpMax;
+            m_percentThreshold = a_percent;
+
+            std::cout << "[INFO]: (I8) m_minValue = " << m_minValueL << " , m_maxValueL = " << m_maxValueL <<std::endl;
+            std::cout << "[INFO]: (I8) m_minDistribValueL = " << m_minDistribValueL << " , m_maxDistribValueL = " << m_maxDistribValueL <<std::endl;
+        }
+        else if (m_bitpix == 16)
+        {
+            int16_t tmpMin, tmpMax;
+
+            getBufferDistributionMinMax<int16_t>(m_dataBuffer, m_width*m_height*bpx, percent,
+                                                 m_minValueL, m_maxValueL, tmpMin, tmpMax, m_distribStats, m_isDistribCounted);
+
+            m_isDistribCounted = true;
+            m_minDistribValueL = tmpMin;
+            m_maxDistribValueL = tmpMax;
+            m_percentThreshold = a_percent;
+
+            std::cout << "[INFO]: (I16) m_minValue = " << m_minValueL << " , m_maxValueL = " << m_maxValueL <<std::endl;
+            std::cout << "[INFO]: (I16) m_minDistribValueL = " << m_minDistribValueL << " , m_maxDistribValueL = " << m_maxDistribValueL <<std::endl;
+        }
+        else if (m_bitpix == 32)
+        {
+            int32_t tmpMin, tmpMax;
+
+            getBufferDistributionMinMax<int32_t>(m_dataBuffer, m_width*m_height*bpx, percent,
+                                                 m_minValueL, m_maxValueL, tmpMin, tmpMax, m_distribStats, m_isDistribCounted);
+
+            m_isDistribCounted = true;
+            m_minDistribValueL = tmpMin;
+            m_maxDistribValueL = tmpMax;
+            m_percentThreshold = a_percent;
+
+            std::cout << "[INFO]: (I32) m_minValue = " << m_minValueL << " , m_maxValueL = " << m_maxValueL <<std::endl;
+            std::cout << "[INFO]: (I32) m_minDistribValueL = " << m_minDistribValueL << " , m_maxDistribValueL = " << m_maxDistribValueL <<std::endl;
+        }
+        else if (m_bitpix == 64)
+        {
+            int64_t tmpMin, tmpMax;
+
+            getBufferDistributionMinMax<int64_t>(m_dataBuffer, m_width*m_height*bpx, percent,
+                                                 m_minValueL, m_maxValueL, tmpMin, tmpMax, m_distribStats, m_isDistribCounted);
+
+            m_isDistribCounted = true;
+            m_minDistribValueL = tmpMin;
+            m_maxDistribValueL = tmpMax;
+            m_percentThreshold = a_percent;
+
+            std::cout << "[INFO]: (I64) m_minValue = " << m_minValueL << " , m_maxValueL = " << m_maxValueL <<std::endl;
+            std::cout << "[INFO]: (I64) m_minDistribValueL = " << m_minDistribValueL << " , m_maxDistribValueL = " << m_maxDistribValueL <<std::endl;
+        }
     }
-    //////////////////////////////////////////////////////////////////////////////
 
     double finalMinValue, finalMaxValue;
     u_int64_t finalMinValueL, finalMaxValueL;
@@ -706,6 +764,7 @@ int32_t Image::createRGB32FlatData(uint32_t a_transformType, float a_percent)
         finalMinValueL = m_minDistribValueL;
         finalMaxValueL = m_maxDistribValueL;
     }
+    //////////////////////////////////////////////////////////////////////////////
 
     // Writing the buffer containing pixel data
     try
@@ -729,22 +788,26 @@ int32_t Image::createRGB32FlatData(uint32_t a_transformType, float a_percent)
                 convertBufferByte2RGB(tmpRow, tmpBufRowSize, tmpDestRow);
             else if (m_bitpix == 16)
                 areEqual(m_bzero, FITS_BZERO_DEFAULT_VALUE) && areEqual(m_bscale, FITS_BSCALE_DEFAULT_VALUE) ?
-                            convertBufferShort2RGB(tmpRow, tmpBufRowSize, tmpDestRow, true,
-                                                   m_minValueL, m_maxValueL, a_transformType) :
-                            convertBufferShortSZ2RGB(tmpRow, tmpBufRowSize, m_bzero, m_bscale, tmpDestRow, true,
-                                                     m_minValueL, m_maxValueL, a_transformType);
+                            ////convertBufferShort2RGB(tmpRow, tmpBufRowSize, tmpDestRow, true, m_minValueL, m_maxValueL, a_transformType) : // original WORKING version
+                            convertBufferShort2RGB(tmpRow, tmpBufRowSize, tmpDestRow, true, finalMinValueL, finalMaxValueL, a_transformType) : //// final working version
+                            ////convertBufferShortSZ2RGB(tmpRow, tmpBufRowSize, m_bzero, m_bscale, tmpDestRow, true, // original WORKING version
+                            ////                         m_minValueL, m_maxValueL, a_transformType);
+                            convertBufferShortSZ2RGB(tmpRow, tmpBufRowSize, m_bzero, m_bscale, tmpDestRow, true,     //// final working version
+                                                     finalMinValueL, finalMaxValueL, a_transformType);
             else if (m_bitpix == -32)
                 ////convertBufferFloat2RGB(tmpRow, tmpBufRowSize, m_minValue, m_maxValue, a_transformType); // original WORKING version
                 ////convertBufferFloat2RGB(tmpRow, tmpBufRowSize, m_minDistribValue, m_maxDistribValue, a_transformType); // new working version
-                convertBufferFloat2RGB(tmpRow, tmpBufRowSize, finalMinValue, finalMaxValue, a_transformType);
+                convertBufferFloat2RGB(tmpRow, tmpBufRowSize, finalMinValue, finalMaxValue, a_transformType); //// final working version
             else if (m_bitpix == 32)
-                convertBufferInt2RGB(tmpRow, tmpBufRowSize, m_minValueL, m_maxValueL, a_transformType);
+                ////convertBufferInt2RGB(tmpRow, tmpBufRowSize, m_minValueL, m_maxValueL, a_transformType); // original WORKING version
+                convertBufferInt2RGB(tmpRow, tmpBufRowSize, finalMinValueL, finalMaxValueL, a_transformType); //// final working version
             else if (m_bitpix == -64)
                 ////convertBufferDouble2RGB(tmpRow, tmpBufRowSize, m_minValue, m_maxValue, a_transformType); // original WORKING version
                 ////convertBufferDouble2RGB(tmpRow, tmpBufRowSize, m_minDistribValue, m_maxDistribValue, a_transformType); // new working version
-                convertBufferDouble2RGB(tmpRow, tmpBufRowSize, finalMinValue, finalMaxValue, a_transformType);
+                convertBufferDouble2RGB(tmpRow, tmpBufRowSize, finalMinValue, finalMaxValue, a_transformType); //// final working version
             else if (m_bitpix == 64)
-                convertBufferLong2RGB(tmpRow, tmpBufRowSize, m_minValueL, m_maxValueL, a_transformType);
+                ////convertBufferLong2RGB(tmpRow, tmpBufRowSize, m_minValueL, m_maxValueL, a_transformType); // original WORKING version
+                convertBufferLong2RGB(tmpRow, tmpBufRowSize, finalMinValueL, finalMaxValueL, a_transformType); //// final WORKING version
 
             for (uint32_t x = 0; x < m_width; ++x)
             {
@@ -1352,27 +1415,27 @@ void Image::setMinMaxValues(double a_minValue, double a_maxValue)
     m_maxValue = a_maxValue;
 }
 
-void Image::setMinValueL(uint64_t a_value)
+void Image::setMinValueL(int64_t a_value)
 {
     m_minValueL = a_value;
 }
 
-uint64_t Image::getMinValueL() const
+int64_t Image::getMinValueL() const
 {
     return m_minValueL;
 }
 
-void Image::setMaxValueL(uint64_t a_value)
+void Image::setMaxValueL(int64_t a_value)
 {
     m_maxValueL = a_value;
 }
 
-uint64_t Image::getMaxValueL() const
+int64_t Image::getMaxValueL() const
 {
     return m_maxValueL ;
 }
 
-void Image::setMinMaxValuesL(uint64_t a_minValue, uint64_t a_maxValue)
+void Image::setMinMaxValuesL(int64_t a_minValue, int64_t a_maxValue)
 {
     m_minValueL = a_minValue;
     m_maxValueL = a_maxValue;
@@ -1386,7 +1449,7 @@ template<typename T> void Image::calcBufferMinMax()
     float minValueF = 0.0, maxValueF = 0.0;
     double minValueD = 0.0, maxValueD = 0.0;
 
-    uint8_t minValue8 = 0, maxValue8 = 0;
+    int8_t minValue8 = 0, maxValue8 = 0;
     int16_t minValue16 = 0, maxValue16 = 0;
     int32_t minValue32 = 0, maxValue32 = 0;
     int64_t minValue64 = 0, maxValue64 = 0;
@@ -1415,7 +1478,7 @@ template<typename T> void Image::calcBufferMinMax()
             return;
         }
 
-        if (std::is_same<T, uint8_t>::value)
+        if (std::is_same<T, int8_t>::value)
         {
             libnfits::getByteBufferMinMax(m_dataBuffer, size, minValue8, maxValue8);
 
@@ -1504,6 +1567,26 @@ template<typename T> T Image::getDistribMaxValue() const
         return m_maxDistribValueL;
     else
         return std::numeric_limits<T>::max();
+}
+
+double Image::getDistribMinValue() const
+{
+    return m_minDistribValue;
+}
+
+double Image::getDistribMaxValue() const
+{
+    return m_maxDistribValue;
+}
+
+int64_t Image::getDistribMinValueL() const
+{
+    return m_minDistribValueL;
+}
+
+int64_t Image::getDistribMaxValueL() const
+{
+    return m_maxDistribValueL;
 }
 
 template void Image::calcBufferMinMax<float>();

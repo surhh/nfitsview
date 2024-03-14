@@ -906,7 +906,6 @@ void MainWindow::populateHDUInfoWidget(int32_t a_hduIndex)
     {
         std::vector<uint32_t> axises = hdu.getAxises();
 
-
         int32_t numAxises = axises.size();
 
         ui->labelNAXIS->setText("NAXIS: " + QString::number(numAxises));
@@ -924,26 +923,7 @@ void MainWindow::populateHDUInfoWidget(int32_t a_hduIndex)
 
         axises.clear();
 
-        double min, max;
-        uint64_t minL, maxL;
-        int8_t bitpix = ui->workspaceWidget->getBitPix();
-
-        if (bitpix == -64 || bitpix == -32)
-        {
-            min = ui->workspaceWidget->getMinValue();
-            max = ui->workspaceWidget->getMaxValue();
-
-            ui->labelMINValue->setText("Min: " + QString::number(min));
-            ui->labelMAXValue->setText("Max: " + QString::number(max));
-        }
-        else
-        {
-            minL = ui->workspaceWidget->getMinValueL();
-            maxL = ui->workspaceWidget->getMaxValueL();
-
-            ui->labelMINValue->setText("Min: " + QString::number(minL));
-            ui->labelMAXValue->setText("Max: " + QString::number(maxL));
-        }
+        //updateHDUInfoWidgetMinMax();
     }
 }
 
@@ -952,8 +932,6 @@ void MainWindow::initHDUInfoWidgetValues()
     ui->labelNAXIS->setText("NAXIS:");
     ui->labelNAXIS1->setText("NAXIS1:");
     ui->labelNAXIS2->setText("NAXIS2:");
-    ui->labelMINValue->setText("Min:");
-    ui->labelMAXValue->setText("Max:");
 }
 
 void MainWindow::on_actionAbout_triggered()
@@ -1053,6 +1031,8 @@ void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current
                 enableImageExportWidgets();
                 enableImageExportSettigsWidgets();
 
+                updateHDUInfoWidgetMinMax();
+
                 if (hduIndex != -1)
                 {
                     ui->workspaceWidget->getImageHDUWidgetsStates(hduIndex, widgetsStates);
@@ -1112,6 +1092,8 @@ void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current
             ui->workspaceWidget->resetCurrentImageHDUIndex();
 
             ui->workspaceWidget->setNoImageDataImage();
+
+            initHDUInfoWidgetMinMax();
         }
 
         axises.clear();
@@ -1639,11 +1621,50 @@ void MainWindow::on_actionCheckForUpdate_triggered()
     checkForUpdate();
 }
 
+void MainWindow::updateHDUInfoWidgetMinMax()
+{
+    double min, max;
+    uint64_t minL, maxL;
+    int32_t bitpix = ui->workspaceWidget->getBitPix();
+
+    if (bitpix == -64 || bitpix == -32)
+    {
+        if (ui->horizontalSliderPercent->value() == 0)
+        {
+            min = ui->workspaceWidget->getMinValue();
+            max = ui->workspaceWidget->getMaxValue();
+        }
+        else
+        {
+            min = ui->workspaceWidget->getDistribMinValue();
+            max = ui->workspaceWidget->getDistribMaxValue();
+        }
+
+        ui->labelMINValue->setText("Min: " + QString::number(min));
+        ui->labelMAXValue->setText("Max: " + QString::number(max));
+    }
+    else
+    {
+        if (ui->horizontalSliderPercent->value() == 0)
+        {
+            minL = ui->workspaceWidget->getMinValueL();
+            maxL = ui->workspaceWidget->getMaxValueL();
+        }
+        else
+        {
+            minL = ui->workspaceWidget->getDistribMinValueL();
+            maxL = ui->workspaceWidget->getDistribMaxValueL();
+        }
+
+        ui->labelMINValue->setText("Min: " + QString::number(minL));
+        ui->labelMAXValue->setText("Max: " + QString::number(maxL));
+    }
+}
+
 void MainWindow::on_horizontalSliderPercent_valueChanged(int value)
 {
     QString valueStr = THRESHOLD_LABEL_TEXT + QString::number(100 - value) + " %";
     valueStr = valueStr.rightJustified(16, ' ');
-
     ui->labelPercent->setText(valueStr);
 
     int32_t scrollX = ui->workspaceWidget->getScrollPosX();
@@ -1670,5 +1691,12 @@ void MainWindow::on_horizontalSliderPercent_valueChanged(int value)
     ui->workspaceWidget->scaleImage(m_scaleFactor);
     ui->workspaceWidget->setScrollPosX(scrollX);
     ui->workspaceWidget->setScrollPosY(scrollY);
+
+    updateHDUInfoWidgetMinMax();
 }
 
+void MainWindow::initHDUInfoWidgetMinMax()
+{
+    ui->labelMINValue->setText("Min:");
+    ui->labelMAXValue->setText("Max:");
+}

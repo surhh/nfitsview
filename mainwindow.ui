@@ -196,12 +196,12 @@
             <bool>false</bool>
            </property>
            <layout class="QGridLayout" name="gridLayout_5">
-            <item row="4" column="0">
-             <layout class="QVBoxLayout" name="verticalLayoutHDUInfo_4">
+            <item row="6" column="0">
+             <layout class="QVBoxLayout" name="verticalLayoutHDUInfo_5">
               <item>
-               <widget class="QLabel" name="labelMINValue">
+               <widget class="QLabel" name="labelMAXValue">
                 <property name="text">
-                 <string>Min:</string>
+                 <string>Max:</string>
                 </property>
                </widget>
               </item>
@@ -218,6 +218,13 @@
               </item>
              </layout>
             </item>
+            <item row="4" column="0">
+             <widget class="Line" name="horizontalLine">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
             <item row="3" column="0">
              <layout class="QVBoxLayout" name="verticalLayoutHDUInfo_3">
               <item>
@@ -229,23 +236,23 @@
               </item>
              </layout>
             </item>
+            <item row="5" column="0">
+             <layout class="QVBoxLayout" name="verticalLayoutHDUInfo_4">
+              <item>
+               <widget class="QLabel" name="labelMINValue">
+                <property name="text">
+                 <string>Min:</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
             <item row="1" column="0">
              <layout class="QVBoxLayout" name="verticalLayoutHDUInfo_2">
               <item>
                <widget class="QLabel" name="labelNAXIS1">
                 <property name="text">
                  <string>NAXIS1: </string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item row="5" column="0">
-             <layout class="QVBoxLayout" name="verticalLayoutHDUInfo_5">
-              <item>
-               <widget class="QLabel" name="labelMAXValue">
-                <property name="text">
-                 <string>Max:</string>
                 </property>
                </widget>
               </item>

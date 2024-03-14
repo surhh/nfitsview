@@ -324,7 +324,7 @@ template<typename T> T normalizeValueIntLong(T a_value, T a_min, T a_max, T a_mi
 
 template<typename T> T normalizeValueIntLongByRange(T a_value, T a_min, T a_minNew, T a_oldRange, T a_newRange)
 {
-    return a_minNew + (a_value - a_min)*(a_newRange/a_oldRange);
+    return a_minNew + (double)(a_value - a_min)*((double)a_newRange/(double)a_oldRange);
 }
 
 void normalizeFloatBuffer(uint8_t* a_buffer, size_t a_size, float a_min, float a_max, float a_minNew, float a_maxNew);
@@ -742,11 +742,7 @@ int32_t convertBuffer2HexString(const uint8_t* a_buffer, uint8_t* a_output, size
 std::string convertBuffer2HexString(const uint8_t* a_buffer, size_t size, uint32_t a_align);
 
 //// min-max counting functions
-void getByteBufferMinMax(const uint8_t* a_buffer, size_t a_size, uint8_t& a_min, uint8_t& a_max);
-
-void getFloatBufferMinMax(const uint8_t* a_buffer, size_t a_size, float& a_min, float& a_max);
-
-void getDoubleBufferMinMax(const uint8_t* a_buffer, size_t a_size, double& a_min, double& a_max);
+void getByteBufferMinMax(const uint8_t* a_buffer, size_t a_size, int8_t& a_min, int8_t& a_max);
 
 void getShortBufferMinMax(const uint8_t* a_buffer, size_t a_size, int16_t& a_min, int16_t& a_max);
 
@@ -754,16 +750,47 @@ void getIntBufferMinMax(const uint8_t* a_buffer, size_t a_size, int32_t& a_min, 
 
 void getLongBufferMinMax(const uint8_t* a_buffer, size_t a_size, int64_t& a_min, int64_t& a_max);
 
+void getFloatBufferMinMax(const uint8_t* a_buffer, size_t a_size, float& a_min, float& a_max);
+
+void getDoubleBufferMinMax(const uint8_t* a_buffer, size_t a_size, double& a_min, double& a_max);
+
+
 //// pixel value distribution counting functions
 void getFloatBufferDistribution(const uint8_t* a_buffer, size_t a_size, float a_min, float a_max, size_t& a_count, float& a_percent);
 
 void getFloatBufferDistribution(const uint8_t* a_buffer, size_t a_size, float a_min, float a_max,
                                 DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER]);
 
+
 void getDoubleBufferDistribution(const uint8_t* a_buffer, size_t a_size, double a_min, double a_max, size_t& a_count, float& a_percent);
 
 void getDoubleBufferDistribution(const uint8_t* a_buffer, size_t a_size, double a_min, double a_max,
                                  DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER]);
+
+
+void getByteBufferDistribution(const uint8_t* a_buffer, size_t a_size, int8_t a_min, int8_t a_max, size_t& a_count, float& a_percent);
+
+void getByteBufferDistribution(const uint8_t* a_buffer, size_t a_size, int8_t a_min, int8_t a_max,
+                               DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER]);
+
+
+void getShortBufferDistribution(const uint8_t* a_buffer, size_t a_size, int16_t a_min, int16_t a_max, size_t& a_count, float& a_percent);
+
+void getShortBufferDistribution(const uint8_t* a_buffer, size_t a_size, int16_t a_min, int16_t a_max,
+                                DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER]);
+
+
+void getIntBufferDistribution(const uint8_t* a_buffer, size_t a_size, int32_t a_min, int32_t a_max, size_t& a_count, float& a_percent);
+
+void getIntBufferDistribution(const uint8_t* a_buffer, size_t a_size, int32_t a_min, int32_t a_max,
+                              DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER]);
+
+
+void getLongBufferDistribution(const uint8_t* a_buffer, size_t a_size, int64_t a_min, int64_t a_max, size_t& a_count, float& a_percent);
+
+void getLongBufferDistribution(const uint8_t* a_buffer, size_t a_size, int64_t a_min, int64_t a_max,
+                               DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER]);
+
 
 float getMaxDistribPercent(const DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER], int32_t& a_segment);
 
@@ -771,10 +798,11 @@ float getMaxDistribPercentRange(const DistribStats (&a_stats)[FITS_VALUE_DISTRIB
                                 int32_t& a_startSegment, int32_t& a_endSegment, float& a_startPercent, float& a_endPercent,
                                 float a_percent = FITS_VALUE_DISTRIBUTION_RANGE_MIN_THREASHOLD);
 
-template<typename T> void getFloatDoubleBufferDistributionMinMax(const uint8_t* a_buffer, size_t a_size, float a_percent, T a_min, T a_max,
-                                                                 T& a_minNew, T& a_maxNew,
-                                                                 DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER],
-                                                                 bool a_isDistribCounted = false);
+template<typename T> void getBufferDistributionMinMax(const uint8_t* a_buffer, size_t a_size, float a_percent, T a_min, T a_max,
+                                                      T& a_minNew, T& a_maxNew,
+                                                      DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER],
+                                                      bool a_isDistribCounted = false);
+
 
 //// these functions are for debugging purposes only, they are slow
 int32_t dumpFloatDataBuffer(const uint8_t* a_buffer, size_t a_size, const std::string& a_filename, uint32_t a_rowSize);

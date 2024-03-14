@@ -192,11 +192,16 @@ public:
     double getMaxValue() const;
     void setMinMaxValues(double a_minValue, double a_maxValue);
 
-    void setMinValueL(uint64_t a_value);
-    uint64_t getMinValueL() const;
-    void setMaxValueL(uint64_t a_value);
-    uint64_t getMaxValueL() const;
-    void setMinMaxValuesL(uint64_t a_minValue, uint64_t a_maxValue);
+    void setMinValueL(int64_t a_value);
+    int64_t getMinValueL() const;
+    void setMaxValueL(int64_t a_value);
+    int64_t getMaxValueL() const;
+    void setMinMaxValuesL(int64_t a_minValue, int64_t a_maxValue);
+
+    double getDistribMinValue() const;
+    double getDistribMaxValue() const;
+    int64_t getDistribMinValueL() const;
+    int64_t getDistribMaxValueL() const;
 
     void setDistribCountFlag(bool a_flag = true);
 

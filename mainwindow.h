@@ -172,6 +172,7 @@ private:
     void initMappingWidgetsValues();
     void initImageExportSettingsWidgetValues();
     void initHDUInfoWidgetValues();
+    void initHDUInfoWidgetMinMax();
     void enableGammaWidgets(bool a_flag = true);
     void enableRGBWidgets(bool a_flag = true);
     void enableFileOpenRelatedWidgets(bool a_flag = true);
@@ -197,6 +198,7 @@ private:
     void populateHeaderWidget(int32_t a_hduIndex);
     void populateRawDataWidget(int32_t a_hduIndex);
     void populateHDUInfoWidget(int32_t a_hduIndex);
+    void updateHDUInfoWidgetMinMax();
 
     void zoomControlsCheck();
     void clearWidgets();

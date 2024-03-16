@@ -772,6 +772,8 @@ int32_t Image::createRGB32FlatData(uint32_t a_transformType, float a_percent)
         //uint32_t indexBase = bytesNum * (bytesNum == 2 ? 2 : 1);
         uint32_t indexBase = bytesNum * (bytesNum <= 2 ? 32/std::abs(m_bitpix) : 1);
 
+        bool a_zeroScaleFlag = !(areEqual(m_bzero, FITS_BZERO_DEFAULT_VALUE) && areEqual(m_bscale, FITS_BSCALE_DEFAULT_VALUE));
+
         for (int64_t y = m_height - 1; y >= 0; --y) //// this loop is for correcting Y-axis upside down showing
         {
             //// this memcpy is for correcting Y-axis upside down showing
@@ -787,27 +789,25 @@ int32_t Image::createRGB32FlatData(uint32_t a_transformType, float a_percent)
             if (m_bitpix == 8)
                 convertBufferByte2RGB(tmpRow, tmpBufRowSize, tmpDestRow);
             else if (m_bitpix == 16)
-                areEqual(m_bzero, FITS_BZERO_DEFAULT_VALUE) && areEqual(m_bscale, FITS_BSCALE_DEFAULT_VALUE) ?
-                            ////convertBufferShort2RGB(tmpRow, tmpBufRowSize, tmpDestRow, true, m_minValueL, m_maxValueL, a_transformType) : // original WORKING version
-                            convertBufferShort2RGB(tmpRow, tmpBufRowSize, tmpDestRow, true, finalMinValueL, finalMaxValueL, a_transformType) : //// final working version
-                            ////convertBufferShortSZ2RGB(tmpRow, tmpBufRowSize, m_bzero, m_bscale, tmpDestRow, true, // original WORKING version
-                            ////                         m_minValueL, m_maxValueL, a_transformType);
-                            convertBufferShortSZ2RGB(tmpRow, tmpBufRowSize, m_bzero, m_bscale, tmpDestRow, true,     //// final working version
-                                                     finalMinValueL, finalMaxValueL, a_transformType);
+                !a_zeroScaleFlag ?
+                ////convertBufferShort2RGB(tmpRow, tmpBufRowSize, tmpDestRow, true, m_minValueL, m_maxValueL, a_transformType) : // original WORKING version
+                convertBufferShort2RGB(tmpRow, tmpBufRowSize, tmpDestRow, true, finalMinValueL, finalMaxValueL, a_transformType) : //// final working version
+                ////convertBufferShortSZ2RGB(tmpRow, tmpBufRowSize, m_bzero, m_bscale, tmpDestRow, true, // original WORKING version
+                ////                         m_minValueL, m_maxValueL, a_transformType);
+                convertBufferShortSZ2RGB(tmpRow, tmpBufRowSize, m_bzero, m_bscale, tmpDestRow, true,     //// final working version
+                                         finalMinValueL, finalMaxValueL, a_transformType);
             else if (m_bitpix == -32)
                 ////convertBufferFloat2RGB(tmpRow, tmpBufRowSize, m_minValue, m_maxValue, a_transformType); // original WORKING version
-                ////convertBufferFloat2RGB(tmpRow, tmpBufRowSize, m_minDistribValue, m_maxDistribValue, a_transformType); // new working version
-                convertBufferFloat2RGB(tmpRow, tmpBufRowSize, finalMinValue, finalMaxValue, a_transformType); //// final working version
+                convertBufferFloat2RGB(tmpRow, tmpBufRowSize, finalMinValue, finalMaxValue, m_bzero, m_bscale, a_zeroScaleFlag, a_transformType); //// final working BZERO+BSCALE version
             else if (m_bitpix == 32)
                 ////convertBufferInt2RGB(tmpRow, tmpBufRowSize, m_minValueL, m_maxValueL, a_transformType); // original WORKING version
-                convertBufferInt2RGB(tmpRow, tmpBufRowSize, finalMinValueL, finalMaxValueL, a_transformType); //// final working version
+                convertBufferInt2RGB(tmpRow, tmpBufRowSize, finalMinValueL, finalMaxValueL, m_bzero, m_bscale, a_zeroScaleFlag, a_transformType); //// final working BZERO+BSCALE version
             else if (m_bitpix == -64)
                 ////convertBufferDouble2RGB(tmpRow, tmpBufRowSize, m_minValue, m_maxValue, a_transformType); // original WORKING version
-                ////convertBufferDouble2RGB(tmpRow, tmpBufRowSize, m_minDistribValue, m_maxDistribValue, a_transformType); // new working version
-                convertBufferDouble2RGB(tmpRow, tmpBufRowSize, finalMinValue, finalMaxValue, a_transformType); //// final working version
+                convertBufferDouble2RGB(tmpRow, tmpBufRowSize, finalMinValue, finalMaxValue, m_bzero, m_bscale, a_zeroScaleFlag, a_transformType); //// final working BZERO+BSCALE version
             else if (m_bitpix == 64)
                 ////convertBufferLong2RGB(tmpRow, tmpBufRowSize, m_minValueL, m_maxValueL, a_transformType); // original WORKING version
-                convertBufferLong2RGB(tmpRow, tmpBufRowSize, finalMinValueL, finalMaxValueL, a_transformType); //// final WORKING version
+                convertBufferLong2RGB(tmpRow, tmpBufRowSize, finalMinValueL, finalMaxValueL, m_bzero, m_bscale, a_zeroScaleFlag, a_transformType); //// final working BZERO+BSCALE version
 
             for (uint32_t x = 0; x < m_width; ++x)
             {
@@ -1432,7 +1432,7 @@ void Image::setMaxValueL(int64_t a_value)
 
 int64_t Image::getMaxValueL() const
 {
-    return m_maxValueL ;
+    return m_maxValueL;
 }
 
 void Image::setMinMaxValuesL(int64_t a_minValue, int64_t a_maxValue)
@@ -1591,6 +1591,7 @@ int64_t Image::getDistribMaxValueL() const
 
 template void Image::calcBufferMinMax<float>();
 template void Image::calcBufferMinMax<double>();
+template void Image::calcBufferMinMax<int8_t>();
 template void Image::calcBufferMinMax<int16_t>();
 template void Image::calcBufferMinMax<int32_t>();
 template void Image::calcBufferMinMax<int64_t>();

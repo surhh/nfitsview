@@ -307,24 +307,54 @@ template<typename T> std::string int2hex(T a_value)
 
 
 //// color normalization functions
-template<typename T> T normalizeValue(T a_value, T a_min, T a_max, T a_minNew, T a_maxNew)
+template<typename T> inline T normalizeValue(T a_value, T a_min, T a_max, T a_minNew, T a_maxNew)
 {
     return a_minNew + (a_value - a_min)*(std::fabs(a_maxNew - a_minNew)/std::fabs(a_max - a_min));
 }
 
-template<typename T> T normalizeValueByRange(T a_value, T a_min, T a_minNew, T a_oldRange, T a_newRange)
+template<typename T> inline T normalizeValueByRange(T a_value, T a_min, T a_minNew, T a_oldRange, T a_newRange)
 {
-    return a_minNew + (a_value - a_min)*(a_newRange/a_oldRange);
+    return a_minNew + (a_value - a_min)*((double)a_newRange/(double)a_oldRange);
 }
 
-template<typename T> T normalizeValueIntLong(T a_value, T a_min, T a_max, T a_minNew, T a_maxNew)
+template<typename T> inline T normalizeValueIntLong(T a_value, T a_min, T a_max, T a_minNew, T a_maxNew)
 {
     return a_minNew + (double)(a_value - a_min)*((double)std::llabs(a_maxNew - a_minNew)/(double)std::llabs(a_max - a_min));
 }
 
-template<typename T> T normalizeValueIntLongByRange(T a_value, T a_min, T a_minNew, T a_oldRange, T a_newRange)
+////decided not to use the old template-based function. Fixed calculation issues with separating the functions
+////template<typename T> T normalizeValueIntLongByRange(T a_value, T a_min, T a_minNew, T a_oldRange, T a_newRange)
+
+inline uint8_t normalizeValueByteByRange(uint8_t a_value, uint8_t a_min, uint8_t a_minNew, uint8_t a_oldRange, uint8_t a_newRange)
 {
-    return a_minNew + (double)(a_value - a_min)*((double)a_newRange/(double)a_oldRange);
+    uint8_t delta = a_value - a_min;
+    uint8_t r = a_minNew + (double)(delta)*((double)a_newRange/(double)a_oldRange);
+
+    return r;
+}
+
+inline int32_t normalizeValueShortByRange(int16_t a_value, int16_t a_min, int16_t a_minNew, uint16_t a_oldRange, uint16_t a_newRange)
+{
+    uint16_t delta = a_value - a_min;
+    int16_t r = a_minNew + (double)(delta)*((double)a_newRange/(double)a_oldRange);
+
+    return r;
+}
+
+inline int32_t normalizeValueIntByRange(int32_t a_value, int32_t a_min, int32_t a_minNew, uint32_t a_oldRange, uint32_t a_newRange)
+{
+    uint32_t delta = a_value - a_min;
+    int32_t r = a_minNew + (double)(delta)*((double)a_newRange/(double)a_oldRange);
+
+    return r;
+}
+
+inline int64_t normalizeValueLongByRange(int64_t a_value, int64_t a_min, int64_t a_minNew, uint64_t a_oldRange, uint64_t a_newRange)
+{
+    uint64_t delta = a_value - a_min;
+    int64_t r = a_minNew + (double)(delta)*((double)a_newRange/(double)a_oldRange);
+
+    return r;
 }
 
 void normalizeFloatBuffer(uint8_t* a_buffer, size_t a_size, float a_min, float a_max, float a_minNew, float a_maxNew);
@@ -532,7 +562,7 @@ inline void convertFloat2Grayscale(float a_value, float a_min, float a_max, uint
 
 inline uint32_t convertDouble2RGBA(double a_value)
 {
-    return convertFloat2RGBA((float)a_value);
+    return convertFloat2RGBA(a_value);
 }
 
 inline void convertFloat2RGB(float a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue)
@@ -555,12 +585,22 @@ inline void convertFloat2RGB(float a_value, RGBPixel& a_pixel)
 
 inline void convertDouble2RGB(double a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue)
 {
-    convertFloat2RGB((float)a_value, a_red, a_green, a_blue);
+    convertFloat2RGB(a_value, a_red, a_green, a_blue);
 }
 
 inline void convertDouble2RGB(double a_value, RGBPixel& a_pixel)
 {
-    convertFloat2RGB((float)a_value, a_pixel);
+    convertFloat2RGB(a_value, a_pixel);
+}
+
+inline void convertDoubleSZ2RGB(double a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue, double a_bzero, double a_bscale)
+{
+    convertFloat2RGB(a_bzero + a_bscale * a_value, a_red, a_green, a_blue);
+}
+
+inline void convertDoubleSZ2RGB(double a_value, RGBPixel& a_pixel, double a_bzero, double a_bscale)
+{
+    convertFloat2RGB(a_bzero + a_bscale * a_value, a_pixel);
 }
 
 inline void convertFloat2Grayscale(float a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue)
@@ -592,14 +632,14 @@ inline void convertDouble2Grayscale(double a_value, uint8_t& a_red, uint8_t& a_g
     convertFloat2Grayscale((float)a_value, a_red, a_green, a_blue);
 }
 
-inline void convertInt2RGB(uint32_t a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue)
+inline void convertInt2RGB(int32_t a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue)
 {
     a_red = (a_value & 0xff000000) >> 24;
     a_green = (a_value & 0x00ff0000) >> 16;
     a_blue = (a_value & 0x0000ff00) >> 8;
 }
 
-inline void convertLong2RGB(uint32_t a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue)
+inline void convertLong2RGB(int64_t a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue)
 {
     a_red = (a_value & 0xff00000000000000) >> 56;
     a_green = (a_value & 0x00ff000000000000) >> 48;
@@ -694,14 +734,14 @@ inline void convertByteSZ2Grayscale(uint8_t a_value, int8_t a_bscale, int8_t a_b
 void convertBufferFloat2RGBA(uint8_t* a_buffer, size_t a_size, float a_min = 0.0, float a_max = 0.0,
                              uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
-void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size, float a_min = 0.0, float a_max = 0.0,
-                            uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
+void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size, float a_min = 0.0, float a_max = 0.0, double a_bzero = 0.0, double a_bscale = 1.0,
+                            bool a_zeroScaleFlag = false, uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
 void convertBufferDouble2RGBA(uint8_t* a_buffer, size_t a_size, double a_min = 0.0, double a_max = 0.0,
                               uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
-void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size, double a_min = 0.0, double a_max = 0.0,
-                             uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
+void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size, double a_min = 0.0, double a_max = 0.0, double a_bzero = 0.0, double a_bscale = 1.0,
+                             bool a_zeroScaleFlag = false, uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
 void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer, bool a_gray = true,
                             uint16_t a_min = 0, uint16_t a_max = 0, uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
@@ -713,11 +753,11 @@ void convertBufferByte2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuff
 
 void convertBufferByteSZ2RGB(uint8_t* a_buffer, size_t a_size, int8_t a_bzero, int8_t a_bscale, uint8_t* a_destBuffer);
 
-void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size, uint32_t a_min = 0, uint32_t a_max = 0,
-                          uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
+void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size, int32_t a_min = 0, int32_t a_max = 0, double a_bzero = 0.0, double a_bscale = 1.0,
+                          bool a_zeroScaleFlag = false, uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
-void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size, uint64_t a_min = 0, uint64_t a_max = 0,
-                           uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
+void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size, int64_t a_min = 0, int64_t a_max = 0, double a_bzero = 0.0, double a_bscale = 1.0,
+                           bool a_zeroScaleFlag = false, uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
 
 //// functions to convert buffers to grayscale
@@ -803,6 +843,54 @@ template<typename T> void getBufferDistributionMinMax(const uint8_t* a_buffer, s
                                                       DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER],
                                                       bool a_isDistribCounted = false);
 
+inline void zeroScaleFloatMul(float& a_value, double a_bzero, double a_bscale)
+{
+    a_value = a_bzero + a_bscale*(double)a_value;
+}
+
+inline void zeroScaleDoubleMul(double& a_value, double a_bzero, double a_bscale)
+{
+    a_value = a_bzero + a_bscale*(double)a_value;
+}
+
+inline void zeroScaleShortMul(int16_t& a_value, double a_bzero, double a_bscale)
+{
+    a_value = a_bzero + a_bscale*(double)a_value;
+}
+
+inline void zeroScaleIntMul(int32_t& a_value, double a_bzero, double a_bscale)
+{
+    a_value = a_bzero + a_bscale*(double)a_value;
+}
+
+inline void zeroScaleLongMul(int64_t& a_value, double a_bzero, double a_bscale)
+{
+    a_value =  a_bzero + a_bscale*(double)a_value;
+}
+
+
+
+inline void zeroScaleFloatDummy(float& a_value, double a_bzero, double a_bscale)
+{
+}
+
+inline void zeroScaleDoubleDummy(double& a_value, double a_bzero, double a_bscale)
+{
+}
+
+inline void zeroScaleShortDummy(int16_t& a_value, double a_bzero, double a_bscale)
+{
+}
+
+inline void zeroScaleIntDummy(int32_t& a_value, double a_bzero, double a_bscale)
+{
+}
+
+inline void zeroScaleLongDummy(int64_t& a_value, double a_bzero, double a_bscale)
+{
+}
+
+
 
 //// these functions are for debugging purposes only, they are slow
 int32_t dumpFloatDataBuffer(const uint8_t* a_buffer, size_t a_size, const std::string& a_filename, uint32_t a_rowSize);
@@ -813,7 +901,14 @@ int32_t dumpByteDataBuffer(const uint8_t* a_buffer, size_t a_size, const std::st
 
 }
 
-typedef     void (*convertBufferShort)       (uint16_t, libnfits::RGBPixel&);
-typedef     void (*convertBufferShortSZ)     (uint16_t, double, double, libnfits::RGBPixel&);
+typedef     void (*convertShort)       (uint16_t, libnfits::RGBPixel&);
+typedef     void (*convertShortSZ)     (uint16_t, double, double, libnfits::RGBPixel&);
+
+typedef     void (*zeroScaleFloatPtr)       (float&, double, double);
+typedef     void (*zeroScaleDoublePtr)      (double&, double, double);
+typedef     void (*zeroScaleShortPtr)       (int16_t&, double, double);
+typedef     void (*zeroScaleIntPtr)         (int32_t&, double, double);
+typedef     void (*zeroScaleLongPtr)        (int64_t&, double, double);
+
 
 #endif // LIBNFITS_HELPERFUNCTIONS_H

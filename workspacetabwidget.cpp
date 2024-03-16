@@ -202,6 +202,8 @@ void WorkspaceTabWidget::insertImage(const uint8_t* a_image, ImageParams& a_imag
             image->calcBufferMinMax<int32_t>();
     else if (a_imageParams.bitpix == 16)
             image->calcBufferMinMax<int16_t>();
+    else if (a_imageParams.bitpix == 8)
+            image->calcBufferMinMax<int8_t>();
 
 
     image->createRGB32FlatData(a_transformType, a_percent);

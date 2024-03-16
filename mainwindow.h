@@ -12,7 +12,7 @@
 #include "updatemanager/filedownloader.h"
 
 #define MIN_IMAGE_SCALE_FACTOR              (1)
-#define MAX_IMAGE_SCALE_FACTOR              (200)
+#define MAX_IMAGE_SCALE_FACTOR              (400)
 
 #define IMAGE_EXPORT_DEFAULT_QUALITY        (75)
 

@@ -1624,7 +1624,7 @@ void MainWindow::on_actionCheckForUpdate_triggered()
 void MainWindow::updateHDUInfoWidgetMinMax()
 {
     double min, max;
-    uint64_t minL, maxL;
+    int64_t minL, maxL;
     int32_t bitpix = ui->workspaceWidget->getBitPix();
 
     if (bitpix == -64 || bitpix == -32)

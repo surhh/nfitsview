@@ -62,8 +62,11 @@ private:
     double              m_bscale;
     double              m_minValue, m_minDistribValue;
     double              m_maxValue, m_maxDistribValue;
+    double              m_finalMinValue, m_finalMaxValue;
     int64_t             m_minValueL, m_minDistribValueL;
     int64_t             m_maxValueL, m_maxDistribValueL;
+    int64_t             m_finalMinValueL, m_finalMaxValueL;
+
     uint32_t            m_transformType;
     int32_t             m_percentThreshold;
     size_t              m_maxDataBufferSize;
@@ -89,6 +92,10 @@ private:
     void _convertRGB2AltColors(uint8_t a_red, uint8_t a_green, uint8_t a_blue,
                                uint8_t& a_newRed, uint8_t& a_newGreen, uint8_t& a_newBlue);
     void _convertBufferRGB32Flat2EyeComfortColors();
+
+    void resetDistribValues();
+
+    void convertBufferAllTypes2RGB(uint8_t* tmpRow, size_t tmpBufRowSize, uint8_t* tmpDestRow);
 
 public:
     Image();
@@ -119,17 +126,17 @@ public:
     void setCallbackFunction(CallbackFunctionPtr a_callbackFunc, void* a_callbackFuncParam);
     int32_t exportPNG(const std::string& a_fileName, int32_t a_transform = FITS_FLOAT_DOUBLE_NO_TRANSFORM, bool a_gray = false);
 
-    int32_t createRGBData(uint32_t a_transformType = FITS_FLOAT_DOUBLE_NO_TRANSFORM, float a_percent = -1.0);
+    int32_t createRGBData(uint32_t a_transformType = FITS_FLOAT_DOUBLE_NO_TRANSFORM, int32_t a_percent = 0);
     uint8_t** getRGBData() const;
     void setRGBData(uint8_t** a_rgbDataBuffer);
     void copyRGBData(uint8_t** a_rgbDataBufferDest, uint8_t** a_rgbDataBufferSrc);
 
-    int32_t createRGB32Data(uint32_t a_transformType = FITS_FLOAT_DOUBLE_NO_TRANSFORM, float a_percent = -1.0);
+    int32_t createRGB32Data(uint32_t a_transformType = FITS_FLOAT_DOUBLE_NO_TRANSFORM, int32_t a_percent = 0);
     uint8_t** getRGB32Data() const;
     void setRGB32Data(uint8_t** a_rgbDataBuffer);
     void copyRGB32Data(uint8_t** a_rgbDataBufferDest, uint8_t** a_rgbDataBufferSrc);
 
-    int32_t createRGB32FlatData(uint32_t a_transformType = FITS_FLOAT_DOUBLE_NO_TRANSFORM, float a_percent = -1.0);
+    int32_t createRGB32FlatData(uint32_t a_transformType = FITS_FLOAT_DOUBLE_NO_TRANSFORM, int32_t a_percent = 0);
     uint8_t* getRGB32FlatData() const;
     void setRGB32FlatData(uint8_t* a_rgbFlatDataBuffer);
     void copyRGB32FlatData(uint8_t* a_rgbFlatDataBufferDest, uint8_t* a_rgbFlatDataBufferSrc);
@@ -198,6 +205,8 @@ public:
     int64_t getMaxValueL() const;
     void setMinMaxValuesL(int64_t a_minValue, int64_t a_maxValue);
 
+    void calcBufferDistribution(int32_t a_percent);
+
     double getDistribMinValue() const;
     double getDistribMaxValue() const;
     int64_t getDistribMinValueL() const;
@@ -214,6 +223,7 @@ public:
     uint32_t getTransformType() const;
 
     template<typename T> void calcBufferMinMax();
+
 
     //// thiese functions are for debugging purposes only, they are slow
     int32_t dumpFloatDataBuffer(const std::string& a_filename, uint32_t a_rowSize);

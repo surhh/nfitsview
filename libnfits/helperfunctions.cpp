@@ -1909,8 +1909,8 @@ template<typename T> void getBufferDistributionMinMax(const uint8_t* a_buffer, s
     for (int32_t i = 0; i < FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER; ++i)
     {
         a_stats[i].percent = (double)a_stats[i].count / totalCount;
-        std::cout << "[INFO]: (F/D) index = " << i << " , a_stats[i].count = " << a_stats[i].count <<
-                     " , percent = " << a_stats[i].percent << std::endl;
+        ////std::cout << "[INFO]: (F/D) index = " << i << " , a_stats[i].count = " << a_stats[i].count <<
+        ///             " , percent = " << a_stats[i].percent << std::endl;
     }
 
     int32_t startSegment = 0, endSegment = 0;
@@ -1918,8 +1918,8 @@ template<typename T> void getBufferDistributionMinMax(const uint8_t* a_buffer, s
 
     getMaxDistribPercentRange(a_stats, startSegment, endSegment, startPercent, endPercent, a_percent);
 
-    std::cout << "[INFO]: (F/D) startSegment = " << startSegment << " , endSegment = " << endSegment <<
-                 " , startPercent = " << startPercent << " , endPercent = " << endPercent << std::endl;
+    ////std::cout << "[INFO]: (F/D) startSegment = " << startSegment << " , endSegment = " << endSegment <<
+    ////             " , startPercent = " << startPercent << " , endPercent = " << endPercent << std::endl;
 
     a_minNew = a_min + startSegment*segmentSizeF;
     a_maxNew = a_minNew + (endSegment - startSegment + 1)*segmentSizeF;

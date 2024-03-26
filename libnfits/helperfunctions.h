@@ -731,31 +731,42 @@ inline void convertByteSZ2Grayscale(uint8_t a_value, int8_t a_bscale, int8_t a_b
 }
 
 //// array of pixels (buffer) conversion functions based on the single pixel conversion functions
+
+//// for float
 void convertBufferFloat2RGBA(uint8_t* a_buffer, size_t a_size, float a_min = 0.0, float a_max = 0.0,
                              uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
 void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size, float a_min = 0.0, float a_max = 0.0, double a_bzero = 0.0, double a_bscale = 1.0,
                             bool a_zeroScaleFlag = false, uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
+
+//// for double
 void convertBufferDouble2RGBA(uint8_t* a_buffer, size_t a_size, double a_min = 0.0, double a_max = 0.0,
                               uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
 void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size, double a_min = 0.0, double a_max = 0.0, double a_bzero = 0.0, double a_bscale = 1.0,
                              bool a_zeroScaleFlag = false, uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
+
+//// for short
 void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer, bool a_gray = true,
                             uint16_t a_min = 0, uint16_t a_max = 0, uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
 void convertBufferShortSZ2RGB(uint8_t* a_buffer, size_t a_size, double a_bzero, double a_bscale, uint8_t* a_destBuffer, bool a_gray = true,
                               uint16_t a_min = 0, uint16_t a_max = 0, uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
+
+//// for byte
 void convertBufferByte2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer);
 
 void convertBufferByteSZ2RGB(uint8_t* a_buffer, size_t a_size, int8_t a_bzero, int8_t a_bscale, uint8_t* a_destBuffer);
 
+
+//// for int
 void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size, int32_t a_min = 0, int32_t a_max = 0, double a_bzero = 0.0, double a_bscale = 1.0,
                           bool a_zeroScaleFlag = false, uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
+//// for long
 void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size, int64_t a_min = 0, int64_t a_max = 0, double a_bzero = 0.0, double a_bscale = 1.0,
                            bool a_zeroScaleFlag = false, uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 

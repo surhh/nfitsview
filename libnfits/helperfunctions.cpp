@@ -512,10 +512,12 @@ void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size, float a_min, float
 
         uint8_t red, green, blue;
 
+        zeroScaleFunctionPtr(f, a_bzero, a_bscale);
+
         if (a_type != FITS_FLOAT_DOUBLE_NO_TRANSFORM)
             f = normalizeValueByRange<float>(f, a_min, min, oldRange, newRange);
 
-        zeroScaleFunctionPtr(f, a_bzero, a_bscale);
+        //zeroScaleFunctionPtr(f, a_bzero, a_bscale);
         convertFloat2RGB(f, red, green, blue);
 
         size_t indexBase = i*4;
@@ -717,11 +719,13 @@ void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size, double a_min, dou
 
         uint8_t red, green, blue;
 
+        zeroScaleFunctionPtr(f, a_bzero, a_bscale);
+
         if (a_type != FITS_FLOAT_DOUBLE_NO_TRANSFORM)
             f = normalizeValueByRange<double>(f, a_min, min, oldRange, newRange);
             //f = normalizeValue<double>(f, a_min, a_max, min, max);
 
-        zeroScaleFunctionPtr(f, a_bzero, a_bscale);
+        //zeroScaleFunctionPtr(f, a_bzero, a_bscale);
         convertDouble2RGB(f, red, green, blue);
 
         size_t indexBase = i*8;
@@ -740,6 +744,7 @@ void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size, double a_min, dou
 void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer, bool a_gray,
                             uint16_t a_min, uint16_t a_max, uint32_t a_type)
 {
+/*
     // checking for buffer granularity
     if (a_size % sizeof(uint16_t) != 0)
         return;
@@ -756,8 +761,8 @@ void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuf
     if (!a_gray)
         ptrConvertFunction = convertShort2RGB;
 
-    uint16_t oldRange = std::llabs(a_max - a_min);
-    uint16_t newRange = std::llabs(max - min);
+    uint16_t oldRange = std::abs(a_max - a_min);
+    uint16_t newRange = std::abs(max - min);
 
 #if defined(ENABLE_OPENMP)
 #pragma omp parallel for
@@ -785,6 +790,7 @@ void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuf
         a_destBuffer[indexBase + 2] = pixel.blue;
         //a_destBuffer[indexBase + 3] = 0x00;
     }
+*/
 }
 
 void convertBufferShortSZ2RGB(uint8_t* a_buffer, size_t a_size, double a_bzero, double a_bscale, uint8_t* a_destBuffer, bool a_gray,
@@ -806,8 +812,8 @@ void convertBufferShortSZ2RGB(uint8_t* a_buffer, size_t a_size, double a_bzero, 
     if (!a_gray)
         ptrConvertFunctionSZ = convertShortSZ2RGB;
 
-    uint16_t oldRange = std::llabs(a_max - a_min);
-    uint16_t newRange = std::llabs(max - min);
+    uint16_t oldRange = std::abs(a_max - a_min);
+    uint16_t newRange = std::abs(max - min);
 
 #if defined(ENABLE_OPENMP)
 #pragma omp parallel for
@@ -834,6 +840,74 @@ void convertBufferShortSZ2RGB(uint8_t* a_buffer, size_t a_size, double a_bzero, 
         a_destBuffer[indexBase + 1] = pixel.green;
         a_destBuffer[indexBase + 2] = pixel.blue;
         //a_destBuffer[indexBase + 3] = 0x00;
+    }
+}
+
+void convertBufferShortRGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer, int16_t a_min, int16_t a_max,
+                           double a_bzero, double a_bscale, bool a_gray, bool a_zeroScaleFlag, uint32_t a_type)
+{
+    // checking for buffer granularity
+    if (a_size % sizeof(int16_t) != 0)
+        return;
+
+    zeroScaleShortPtr zeroScaleFunctionPtr = zeroScaleShortDummy;
+
+    if (a_zeroScaleFlag)
+        zeroScaleFunctionPtr = zeroScaleShortMul;
+
+    convertShort2RGBGray  convertFunctionPtr = convertShort2Grayscale;
+
+    if (!a_gray)
+        convertFunctionPtr = convertShort2RGB;
+
+
+    int16_t *tmpBuf = (int16_t*)(a_buffer);
+
+    int16_t min = a_bzero + a_bscale*std::numeric_limits<int16_t>::min();
+    int16_t max = a_bzero + a_bscale*std::numeric_limits<int16_t>::max();
+
+    uint16_t oldRange =std::abs((uint16_t)(a_max - a_min)); //a_max - a_min
+    //oldRange = std::abs(oldRange);
+
+    uint16_t newRange = std::abs((uint16_t)(max - min)); //max - min;
+    //newRange = std::abs(newRange);
+
+    int16_t tmpMin = a_bzero + a_bscale*a_min;
+    if (tmpMin >= 0)
+        min = std::numeric_limits<uint16_t>::min();
+
+#if defined(ENABLE_OPENMP)
+#pragma omp parallel for
+#endif
+
+    for (size_t i = 0; i < a_size / sizeof(int16_t); ++i)
+    {
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+        int16_t s = swap16(tmpBuf[i]);
+#else
+        int16_t s = tmpBuf[i];
+#endif
+
+        uint8_t red, green, blue;
+
+        zeroScaleFunctionPtr(s, a_bzero, a_bscale);
+
+        if (a_type != FITS_FLOAT_DOUBLE_NO_TRANSFORM)
+            s = normalizeValueShortByRange(s, tmpMin, min, oldRange, newRange);
+            //s = normalizeValueShortByRange(s, a_min, tmpMin, oldRange, newRange); //// was before
+            //s = normalizeValueShortByRange(s, a_min, min, oldRange, newRange);
+
+        //zeroScaleFunctionPtr(s, a_bzero, a_bscale);
+        convertFunctionPtr(s, red, green, blue);
+        //convertFloat2RGB((float)s, red, green, blue); // experiment
+        //convertShort2RGB(s, red, green, blue);
+
+        size_t indexBase = i*4;
+
+        a_destBuffer[indexBase]     = red;
+        a_destBuffer[indexBase + 1] = green;
+        a_destBuffer[indexBase + 2] = blue;
+        //a_buffer[indexBase + 3] = 0x00;
     }
 }
 
@@ -893,14 +967,14 @@ void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size, int32_t a_min, int32
 
     int32_t *tmpBuf = (int32_t*)(a_buffer);
 
-    int32_t min = std::numeric_limits<int32_t>::min();
-    int32_t max = std::numeric_limits<int32_t>::max();
+    int32_t min = a_bzero + a_bscale*std::numeric_limits<int32_t>::min();
+    int32_t max = a_bzero + a_bscale*std::numeric_limits<int32_t>::max();
 
-    uint32_t oldRange = a_max - a_min;
-    oldRange = std::llabs(oldRange);
+    uint32_t oldRange = std::llabs((uint32_t)(a_max - a_min)); //a_max - a_min;
+    //oldRange = std::llabs(oldRange);
 
-    uint32_t newRange = max - min;
-    newRange = std::llabs(newRange);
+    uint32_t newRange = std::llabs((uint32_t)(max - min)); //max - min;
+    //newRange = std::llabs(newRange);
 
     int32_t tmpMin = a_bzero + a_bscale*a_min;
     if (tmpMin >= 0)
@@ -920,12 +994,16 @@ void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size, int32_t a_min, int32
 
         uint8_t red, green, blue;
 
+        zeroScaleFunctionPtr(s, a_bzero, a_bscale);
+
         if (a_type != FITS_FLOAT_DOUBLE_NO_TRANSFORM)
-            s = normalizeValueIntByRange(s, a_min, min, oldRange, newRange);
+            s = normalizeValueIntByRange(s, tmpMin, min, oldRange, newRange);
+            //s = normalizeValueIntByRange(s, a_min, tmpMin, oldRange, newRange); // was before
+            //s = normalizeValueIntByRange(s, a_min, min, oldRange, newRange);
             //s = normalizeValueIntLongByRange<int32_t>(s, a_min, min, oldRange, newRange);
             //s = normalizeValueIntLong<uint32_t>(s, a_min, a_max, min, max);
 
-        zeroScaleFunctionPtr(s, a_bzero, a_bscale);
+        //zeroScaleFunctionPtr(s, a_bzero, a_bscale);
         convertInt2RGB(s, red, green, blue);
 
         size_t indexBase = i*4;
@@ -951,14 +1029,14 @@ void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size, int64_t a_min, int6
 
     int64_t *tmpBuf = (int64_t*)(a_buffer);
 
-    int64_t min = std::numeric_limits<int64_t>::min();
-    int64_t max = std::numeric_limits<int64_t>::max();
+    int64_t min = a_bzero + a_bscale*std::numeric_limits<int64_t>::min();
+    int64_t max = a_bzero + a_bscale*std::numeric_limits<int64_t>::max();
 
-    uint64_t oldRange = a_max - a_min;
-    oldRange = std::llabs(oldRange);
+    uint64_t oldRange = std::llabs((uint64_t)(a_max - a_min)); //a_max - a_min;
+    //oldRange = std::llabs(oldRange);
 
-    uint64_t newRange = max - min;
-    newRange = std::llabs(newRange);
+    uint64_t newRange = std::llabs((uint64_t)(max - min)); //max - min;
+    //newRange = std::llabs(newRange);
 
     int64_t tmpMin = a_bzero + a_bscale*a_min;
     if (tmpMin >= 0)
@@ -978,12 +1056,16 @@ void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size, int64_t a_min, int6
 
         uint8_t red, green, blue;
 
+        zeroScaleFunctionPtr(s, a_bzero, a_bscale);
+
         if (a_type != FITS_FLOAT_DOUBLE_NO_TRANSFORM)
-            s = normalizeValueLongByRange(s, a_min, min, oldRange, newRange);
+            s = normalizeValueLongByRange(s, tmpMin, min, oldRange, newRange);
+            //s = normalizeValueLongByRange(s, a_min, tmpMin, oldRange, newRange); // was before
+            //s = normalizeValueLongByRange(s, a_min, min, oldRange, newRange);
             //s = normalizeValueIntLongByRange<int64_t>(s, a_min, min, oldRange, newRange);
             //s = normalizeValueIntLong<uint64_t>(s, a_min, a_max, min, max);
 
-        zeroScaleFunctionPtr(s, a_bzero, a_bscale);
+        //zeroScaleFunctionPtr(s, a_bzero, a_bscale);
         convertLong2RGB(s, red, green, blue);
 
         size_t indexBase = i*8;
@@ -1324,14 +1406,14 @@ void getDoubleBufferMinMax(const uint8_t* a_buffer, size_t a_size, double& a_min
     a_max = maxVal;
 }
 
-void getByteBufferMinMax(const uint8_t* a_buffer, size_t a_size, int8_t& a_min, int8_t& a_max)
+void getByteBufferMinMax(const uint8_t* a_buffer, size_t a_size, uint8_t& a_min, uint8_t& a_max)
 {
-    int8_t *tmpBuf = (int8_t*)(a_buffer);
+    uint8_t *tmpBuf = (uint8_t*)(a_buffer);
 
-    int8_t minVal = std::numeric_limits<int8_t>::max();
-    int8_t maxVal = std::numeric_limits<int8_t>::min();
+    uint8_t minVal = std::numeric_limits<uint8_t>::max();
+    uint8_t maxVal = std::numeric_limits<uint8_t>::min();
 
-    for (size_t i = 0; i < a_size / sizeof(int8_t); ++i)
+    for (size_t i = 0; i < a_size / sizeof(uint8_t); ++i)
     {
         if (tmpBuf[i] > maxVal)
             maxVal = tmpBuf[i];

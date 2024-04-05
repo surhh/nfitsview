@@ -1278,7 +1278,7 @@ template<typename T> void Image::calcBufferMinMax()
     float minValueF = 0.0, maxValueF = 0.0;
     double minValueD = 0.0, maxValueD = 0.0;
 
-    int8_t minValue8 = 0, maxValue8 = 0;
+    uint8_t minValue8 = 0, maxValue8 = 0;
     int16_t minValue16 = 0, maxValue16 = 0;
     int32_t minValue32 = 0, maxValue32 = 0;
     int64_t minValue64 = 0, maxValue64 = 0;
@@ -1307,7 +1307,7 @@ template<typename T> void Image::calcBufferMinMax()
             return;
         }
 
-        if (std::is_same<T, int8_t>::value)
+        if (std::is_same<T, uint8_t>::value)
         {
             libnfits::getByteBufferMinMax(m_dataBuffer, size, minValue8, maxValue8);
 
@@ -1420,7 +1420,7 @@ int64_t Image::getDistribMaxValueL() const
 
 template void Image::calcBufferMinMax<float>();
 template void Image::calcBufferMinMax<double>();
-template void Image::calcBufferMinMax<int8_t>();
+template void Image::calcBufferMinMax<uint8_t>();
 template void Image::calcBufferMinMax<int16_t>();
 template void Image::calcBufferMinMax<int32_t>();
 template void Image::calcBufferMinMax<int64_t>();
@@ -1584,6 +1584,8 @@ void Image::convertBufferAllTypes2RGB(uint8_t* tmpRow, size_t tmpBufRowSize, uin
     if (m_bitpix == 8)
         convertBufferByte2RGB(tmpRow, tmpBufRowSize, tmpDestRow);
     else if (m_bitpix == 16)
+        //// ORIGINAL working block
+        /*
         !a_zeroScaleFlag ?
             ////convertBufferShort2RGB(tmpRow, tmpBufRowSize, tmpDestRow, true, m_minValueL, m_maxValueL, a_transformType) : // original WORKING version
             convertBufferShort2RGB(tmpRow, tmpBufRowSize, tmpDestRow, true, m_finalMinValueL, m_finalMaxValueL, m_transformType) : //// final working version
@@ -1591,6 +1593,10 @@ void Image::convertBufferAllTypes2RGB(uint8_t* tmpRow, size_t tmpBufRowSize, uin
             ////                         m_minValueL, m_maxValueL, a_transformType);
             convertBufferShortSZ2RGB(tmpRow, tmpBufRowSize, m_bzero, m_bscale, tmpDestRow, true,     //// final working version
                                      m_finalMinValueL, m_finalMaxValueL, m_transformType);
+        */
+        //// End of ORIGINAL working block
+        convertBufferShortRGB(tmpRow, tmpBufRowSize, tmpDestRow, m_finalMinValueL, m_finalMaxValueL,
+                              m_bzero, m_bscale, true, a_zeroScaleFlag, m_transformType);
     else if (m_bitpix == -32)
         ////convertBufferFloat2RGB(tmpRow, tmpBufRowSize, m_minValue, m_maxValue, a_transformType); // original WORKING version
         convertBufferFloat2RGB(tmpRow, tmpBufRowSize, m_finalMinValue, m_finalMaxValue, m_bzero, m_bscale, a_zeroScaleFlag, m_transformType); //// final working BZERO+BSCALE version
@@ -1603,6 +1609,14 @@ void Image::convertBufferAllTypes2RGB(uint8_t* tmpRow, size_t tmpBufRowSize, uin
     else if (m_bitpix == 64)
         ////convertBufferLong2RGB(tmpRow, tmpBufRowSize, m_minValueL, m_maxValueL, a_transformType); // original WORKING version
         convertBufferLong2RGB(tmpRow, tmpBufRowSize, m_finalMinValueL, m_finalMaxValueL, m_bzero, m_bscale, a_zeroScaleFlag, m_transformType); //// final working BZERO+BSCALE version
+}
+
+bool Image::isDefaultBZeroBScale() const
+{
+    if (!areEqual(m_bzero, 0.0) || !areEqual(m_bscale, 1.0))
+        return false;
+    else
+        return true;
 }
 
 //// these functions are for debugging purposes only, they are slow

@@ -224,6 +224,7 @@ public:
 
     template<typename T> void calcBufferMinMax();
 
+    bool isDefaultBZeroBScale() const;
 
     //// thiese functions are for debugging purposes only, they are slow
     int32_t dumpFloatDataBuffer(const std::string& a_filename, uint32_t a_rowSize);

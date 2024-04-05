@@ -550,6 +550,7 @@ void MainWindow::clearWidgets()
     enableFileOpenRelatedWidgets(false);
 
     initHDUInfoWidgetValues();
+    initHDUInfoWidgetMinMax();
 }
 
 int32_t MainWindow::exportAllImages(bool a_msgFlag, int32_t a_transform, bool a_gray)

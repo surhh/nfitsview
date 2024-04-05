@@ -333,9 +333,9 @@ inline uint8_t normalizeValueByteByRange(uint8_t a_value, uint8_t a_min, uint8_t
     return r;
 }
 
-inline int32_t normalizeValueShortByRange(int16_t a_value, int16_t a_min, int16_t a_minNew, uint16_t a_oldRange, uint16_t a_newRange)
+inline int16_t normalizeValueShortByRange(int16_t a_value, int16_t a_min, int16_t a_minNew, uint16_t a_oldRange, uint16_t a_newRange)
 {
-    uint16_t delta = a_value - a_min;
+    int16_t delta = a_value - a_min;
     int16_t r = a_minNew + (double)(delta)*((double)a_newRange/(double)a_oldRange);
 
     return r;
@@ -343,7 +343,7 @@ inline int32_t normalizeValueShortByRange(int16_t a_value, int16_t a_min, int16_
 
 inline int32_t normalizeValueIntByRange(int32_t a_value, int32_t a_min, int32_t a_minNew, uint32_t a_oldRange, uint32_t a_newRange)
 {
-    uint32_t delta = a_value - a_min;
+    int32_t delta = a_value - a_min;
     int32_t r = a_minNew + (double)(delta)*((double)a_newRange/(double)a_oldRange);
 
     return r;
@@ -351,7 +351,7 @@ inline int32_t normalizeValueIntByRange(int32_t a_value, int32_t a_min, int32_t 
 
 inline int64_t normalizeValueLongByRange(int64_t a_value, int64_t a_min, int64_t a_minNew, uint64_t a_oldRange, uint64_t a_newRange)
 {
-    uint64_t delta = a_value - a_min;
+    int64_t delta = a_value - a_min;
     int64_t r = a_minNew + (double)(delta)*((double)a_newRange/(double)a_oldRange);
 
     return r;
@@ -646,14 +646,14 @@ inline void convertLong2RGB(int64_t a_value, uint8_t& a_red, uint8_t& a_green, u
     a_blue = (a_value & 0x0000ff0000000000) >> 40;
 }
 
-inline void convertShort2RGB(uint16_t a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue)
+inline void convertShort2RGB(int16_t a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue)
 {
     a_red = ((a_value & 0x7c00) >> 10) * 8;
     a_green = ((a_value & 0x03e0) >> 5) * 8;
     a_blue = (a_value & 0x001f) * 8;
 }
 
-inline void convertShort2RGB(uint16_t a_value, RGBPixel& a_pixel)
+inline void convertShort2RGB(int16_t a_value, RGBPixel& a_pixel)
 {
     a_pixel.red = ((a_value & 0x7c00) >> 10) * 8;
     a_pixel.green = ((a_value & 0x03e0) >> 5) * 8;
@@ -674,7 +674,7 @@ inline void convertShortSZ2RGB(uint16_t a_value, double a_bscale, double a_bzero
     convertShort2RGB(value, a_pixel);
 }
 
-inline void convertShort2Grayscale(uint16_t a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue)
+inline void convertShort2Grayscale(int16_t a_value, uint8_t& a_red, uint8_t& a_green, uint8_t& a_blue)
 {
     uint8_t color = ((float)a_value / 0xffff) * 0xff;
 
@@ -683,7 +683,7 @@ inline void convertShort2Grayscale(uint16_t a_value, uint8_t& a_red, uint8_t& a_
     a_blue = color;
 }
 
-inline void convertShort2Grayscale(uint16_t a_value, RGBPixel& a_pixel)
+inline void convertShort2Grayscale(int16_t a_value, RGBPixel& a_pixel)
 {
     uint8_t color = ((float)a_value / 0xffff) * 0xff;
 
@@ -755,6 +755,10 @@ void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuf
 void convertBufferShortSZ2RGB(uint8_t* a_buffer, size_t a_size, double a_bzero, double a_bscale, uint8_t* a_destBuffer, bool a_gray = true,
                               uint16_t a_min = 0, uint16_t a_max = 0, uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
+void convertBufferShortRGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer, int16_t a_min = 0, int16_t a_max = 0,
+                           double a_bzero = 0.0, double a_bscale = 0.0, bool a_gray = true,
+                           bool a_zeroScaleFlag = false, uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
+
 
 //// for byte
 void convertBufferByte2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer);
@@ -793,7 +797,7 @@ int32_t convertBuffer2HexString(const uint8_t* a_buffer, uint8_t* a_output, size
 std::string convertBuffer2HexString(const uint8_t* a_buffer, size_t size, uint32_t a_align);
 
 //// min-max counting functions
-void getByteBufferMinMax(const uint8_t* a_buffer, size_t a_size, int8_t& a_min, int8_t& a_max);
+void getByteBufferMinMax(const uint8_t* a_buffer, size_t a_size, uint8_t& a_min, uint8_t& a_max);
 
 void getShortBufferMinMax(const uint8_t* a_buffer, size_t a_size, int16_t& a_min, int16_t& a_max);
 
@@ -912,8 +916,10 @@ int32_t dumpByteDataBuffer(const uint8_t* a_buffer, size_t a_size, const std::st
 
 }
 
-typedef     void (*convertShort)       (uint16_t, libnfits::RGBPixel&);
-typedef     void (*convertShortSZ)     (uint16_t, double, double, libnfits::RGBPixel&);
+typedef     void (*convertShort)            (uint16_t, libnfits::RGBPixel&);
+typedef     void (*convertShortSZ)          (uint16_t, double, double, libnfits::RGBPixel&);
+typedef     void (*convertShort2RGBGray)    (int16_t, uint8_t&, uint8_t&, uint8_t&);
+
 
 typedef     void (*zeroScaleFloatPtr)       (float&, double, double);
 typedef     void (*zeroScaleDoublePtr)      (double&, double, double);

@@ -319,7 +319,7 @@ void MainWindow::populateHDUsWidget()
             if ((HDUtype == FITS_HDU_TYPE_IMAGE_XTENSION || HDUtype == FITS_HDU_TYPE_PRIMARY) &&
                 (axisesNumber >= 2 && bSuccess) && (axises.size() >= 2))
             {
-                QBrush color = Qt::cyan;
+                QBrush color = Qt::lightGray;
 
                 ui->tableWidgetHDUs->item(ui->tableWidgetHDUs->rowCount()-1, 0)->setBackground(color);
                 ui->tableWidgetHDUs->item(ui->tableWidgetHDUs->rowCount()-1, 1)->setBackground(color);

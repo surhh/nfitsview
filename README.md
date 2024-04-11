@@ -9,11 +9,12 @@ Currently nFITSview supports the following formats and features:
 -    Exporting image HDUs as PNG/TIFF/JPEG/BMP files
 -    Bulk exporting of all image HDUs as PNG files
 -    RGB gamma correction, grayscale and "Eye Comfort" filters
+-    Filtering by pixel threshold value
 -    Image zoom in/out
 -    HDU header syntax view
 -    Raw data hex preview
 -    Both regular and compressed (.fz) FITS files are supported
--    Command line exporting of FITS file  (see -h, -e command line switches).
+-    Command line exporting of FITS file  (see -h, -e command line switches)
      
      *Note: the console output is not visible on Windows platform. The command line 
      supports image exporting only in "Original" mapping mode.*
@@ -25,13 +26,13 @@ The original development of nFITSview is done under Linux, so the easiest and th
 - just build in Qt Creator. 
 - it should be also possible to build using CMake from the command line.
 
-The latest version (2.8) of nFITSview install package for Linux 64-bit (Debian-based) is available for download too. The dependencies for installing are: 
+The latest version (2.9) of nFITSview install package for Linux 64-bit (Debian-based) is available for download too. The dependencies for installing are: 
 
 libboost-iostreams1.74.0 (>= 1.74.0), libc6 (>= 2.34), libgcc-s1 (>= 3.0), libpng16-16 (>= 1.6.2-1)
 
 libqt5core5a (>= 5.15.1), libqt5gui5 (>= 5.0.2), libqt5gui5-gles (>= 5.0.2), libqt5widgets5 (>= 5.15.1), libstdc++6 (>= 11)
 
-[nfitsview2_8-x64.deb](https://github.com/surhh/nfitsview/releases/download/v2.8/nfitsview2_8-x64.deb)
+[nfitsview2_9-x64.deb](https://github.com/surhh/nfitsview/releases/download/v2.9/nfitsview2_9-x64.deb)
 
 
 # How to build under Windows
@@ -40,9 +41,9 @@ Normally there is no need to build under Windows as the install package is provi
 Anyway, for building under Windows one would need to download/install/build all the dependencies (boost, zlib, libpng), then fix the
 corresponding pathes for the libraries in the CMakeLists.txt file and then build the project using Qt Creator.
 
-The latest version (2.8) of nFITSview for Windows 64-bit to download:
+The latest version (2.9) of nFITSview for Windows 64-bit to download:
 
-[nfitsview2_8-setup-x64.exe](https://github.com/surhh/nfitsview/releases/download/v2.8/nfitsview2_8-setup-x64.exe)
+[nfitsview2_9-setup-x64.exe](https://github.com/surhh/nfitsview/releases/download/v2.9/nfitsview2_9-setup-x64.exe)
 
 
 

@@ -377,7 +377,7 @@ int32_t Image::createRGBData(uint32_t a_transformType, int32_t a_percent)
     // calculating the PNG pixel buffer size. This way is more understandable in terms of logic
     size_t bufRowSize = m_width * 3 * (m_colorDepth / (sizeof(uint8_t) * 8)) * sizeof(uint8_t);
 
-    size_t tmpBufRowSize = m_width * bytesNum * (m_colorDepth / (sizeof(uint8_t) * 8)) * sizeof(uint8_t);  // 32-bit element buffer for temp ussage
+    size_t tmpBufRowSize = m_width * bytesNum * (m_colorDepth / (sizeof(uint8_t) * 8)) * sizeof(uint8_t);  //// 32-bit element buffer for temp usage
 
     m_rgbDataBuffer = new uint8_t*[m_height]();
 
@@ -497,7 +497,7 @@ int32_t Image::createRGB32Data(uint32_t a_transformType, int32_t a_percent)
     // that's why it's multipled by 4 instead of 3 (kind of tricky stuff, but works fine)
     size_t bufRowSize = m_width * 4 * (m_colorDepth / (sizeof(uint8_t) * 8)) * sizeof(uint8_t);
 
-    size_t tmpBufRowSize = m_width * bytesNum * (m_colorDepth / (sizeof(uint8_t) * 8)) * sizeof(uint8_t);  // 32-bit element buffer for temp ussage
+    size_t tmpBufRowSize = m_width * bytesNum * (m_colorDepth / (sizeof(uint8_t) * 8)) * sizeof(uint8_t);  //// 32-bit element buffer for temp usage
 
     m_rgb32DataBuffer = new uint8_t*[m_height]();
 
@@ -590,7 +590,7 @@ int32_t Image::createRGB32FlatData(uint32_t a_transformType, int32_t a_percent)
     //// thow we need to have only RGB data, we actually need to have it 32-bit aligned for some future use cases,
     //// that's why it's multipled by 4 instead of 3 (kind of tricky stuff, but works fine)
 
-    size_t tmpBufRowSize = m_width * bytesNum * (m_colorDepth / (sizeof(uint8_t) * 8)) * sizeof(uint8_t);  //// 32/64-bit element buffer for temp ussage
+    size_t tmpBufRowSize = m_width * bytesNum * (m_colorDepth / (sizeof(uint8_t) * 8)) * sizeof(uint8_t);  //// 32/64-bit element buffer for temp usage
 
     size_t flatBufSize = m_height * m_width * 4;
 
@@ -785,15 +785,22 @@ int32_t Image::_changeRGB32FlatColorChannelLevel(uint8_t a_channel, float a_quat
     // R-channel = 0, G-channel = 1, B-channel = 2
     if ((m_rgb32FlatDataBuffer == nullptr))
         return FITS_GENERAL_ERROR;
-#if defined(ENABLE_OPENMP)
-#pragma omp parallel for
-#endif
-    for (uint32_t y = 0; y < m_height; ++y)
-    {
-        size_t indexY = y*m_width;
 
+    size_t indexY, y;  // is here due to OpenMP nested loop logic
+
+#if defined(ENABLE_OPENMP)
+#pragma omp parallel for collapse(2) private(indexY, y)
+#endif
+    for (y = 0; y < m_height; ++y)
+    {
+#if !defined(ENABLE_OPENMP)
+        indexY = y*m_width;
+#endif
         for (uint32_t x = 0; x < m_width; ++x)
         {
+#if defined(ENABLE_OPENMP)
+            indexY = y*m_width; // is here due to OpenMP nested loop logic
+#endif
             size_t index = 4*(indexY + x) + a_channel;
 
             uint32_t channelVal = m_rgb32FlatDataBuffer[index];
@@ -1074,7 +1081,7 @@ void Image::_convertBufferRGB32Flat2EyeComfortColors()
         return;
 
 #if defined(ENABLE_OPENMP)
-#pragma omp parallel for
+#pragma omp parallel for collapse(2)
 #endif
     for (uint32_t y = 0; y < m_height; ++y)
         for (uint32_t x = 0; x < m_width; ++x)

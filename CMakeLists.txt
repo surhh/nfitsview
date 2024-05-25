@@ -21,7 +21,7 @@ find_package(Qt5Network REQUIRED)
 
 set(Boost_USE_MULTITHREADED ON)     # added for libnfits
 
-set(ENABLE_OPENMP OFF) # Enable OpenMP support
+set(ENABLE_OPENMP_BUILD ON) # Enable OpenMP support
 
 # windows build specific (MinGW)
 if(WIN32)
@@ -40,7 +40,7 @@ if(WIN32)
 
     include_directories(${Boost_INCLUDE_DIR})
 
-if(NOT DEFINED ${ENABLE_OPENMP})
+if(NOT DEFINED ${ENABLE_OPENMP_BUILD})
     add_link_options("-static")
 endif()
 
@@ -140,7 +140,7 @@ endif()
 target_link_libraries(nfitsview PRIVATE Qt${QT_VERSION_MAJOR}::Widgets ${Boost_LIBRARIES} ${PNG_LIBRARY}) # added for libnfits
 target_link_libraries(nfitsview PRIVATE Qt${QT_VERSION_MAJOR}::Network) # Added for network support
 
-if(ENABLE_OPENMP)
+if(ENABLE_OPENMP_BUILD)
 find_package(OpenMP REQUIRED)
 if(OpenMP_CXX_FOUND)
     target_link_libraries(nfitsview PRIVATE OpenMP::OpenMP_CXX)

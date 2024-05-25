@@ -449,7 +449,6 @@ void convertBufferFloat2RGBA(uint8_t* a_buffer, size_t a_size, float a_min, floa
 #if defined(ENABLE_OPENMP)
 #pragma omp parallel for
 #endif
-
     for (size_t i = 0; i < a_size / sizeof(float); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -500,7 +499,6 @@ void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size, float a_min, float
 #if defined(ENABLE_OPENMP)
 #pragma omp parallel for
 #endif
-
     for (size_t i = 0; i < a_size / sizeof(float); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -540,7 +538,6 @@ void convertBufferRGB2Grayscale(uint8_t* a_buffer, size_t a_size)
 #if defined(ENABLE_OPENMP)
 #pragma omp parallel for
 #endif
-
     for (size_t i = 0; i < a_size / sizeof(float); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -567,9 +564,8 @@ void convertBufferRGB2Grayscale(uint8_t** a_buffer, uint32_t a_width, uint32_t a
         return;
 
 #if defined(ENABLE_OPENMP)
-#pragma omp parallel for
+#pragma omp parallel for collapse(2)
 #endif
-
     for (uint32_t y = 0; y < a_height; ++y)
         for (uint32_t x = 0; x < a_width; ++x)
         {
@@ -589,9 +585,8 @@ void convertBufferRGB322Grayscale(uint8_t** a_buffer, uint32_t a_width, uint32_t
         return;
 
 #if defined(ENABLE_OPENMP)
-#pragma omp parallel for
+#pragma omp parallel for collapse(2)
 #endif
-
     for (uint32_t y = 0; y < a_height; ++y)
         for (uint32_t x = 0; x < a_width; ++x)
         {
@@ -611,9 +606,8 @@ void convertBufferRGB32Flat2Grayscale(uint8_t* a_buffer, uint32_t a_width, uint3
         return;
 
 #if defined(ENABLE_OPENMP)
-#pragma omp parallel for
+#pragma omp parallel for collapse(2)
 #endif
-
     for (uint32_t y = 0; y < a_height; ++y)
         for (uint32_t x = 0; x < a_width; ++x)
         {
@@ -654,7 +648,6 @@ void convertBufferDouble2RGBA(uint8_t* a_buffer, size_t a_size, double a_min, do
 #if defined(ENABLE_OPENMP)
 #pragma omp parallel for
 #endif
-
     for (size_t i = 0; i < a_size / sizeof(double); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -707,7 +700,6 @@ void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size, double a_min, dou
 #if defined(ENABLE_OPENMP)
 #pragma omp parallel for
 #endif
-
     for (size_t i = 0; i < a_size / sizeof(double); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -767,7 +759,6 @@ void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuf
 #if defined(ENABLE_OPENMP)
 #pragma omp parallel for
 #endif
-
     for (size_t i = 0; i < a_size / sizeof(uint16_t); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -818,7 +809,6 @@ void convertBufferShortSZ2RGB(uint8_t* a_buffer, size_t a_size, double a_bzero, 
 #if defined(ENABLE_OPENMP)
 #pragma omp parallel for
 #endif
-
     for (size_t i = 0; i < a_size / sizeof(uint16_t); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -879,7 +869,6 @@ void convertBufferShortRGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuff
 #if defined(ENABLE_OPENMP)
 #pragma omp parallel for
 #endif
-
     for (size_t i = 0; i < a_size / sizeof(int16_t); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -918,7 +907,6 @@ void convertBufferByte2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuff
 #if defined(ENABLE_OPENMP)
 #pragma omp parallel for
 #endif
-
     for (size_t i = 0; i < a_size; ++i)
     {
         convertByte2Grayscale(a_buffer[i], pixel);
@@ -939,7 +927,6 @@ void convertBufferByteSZ2RGB(uint8_t* a_buffer, size_t a_size, int8_t a_bzero, i
 #if defined(ENABLE_OPENMP)
 #pragma omp parallel for
 #endif
-
     for (size_t i = 0; i < a_size; ++i)
     {
         convertByteSZ2Grayscale(a_buffer[i], a_bzero, a_bscale, pixel);
@@ -983,7 +970,6 @@ void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size, int32_t a_min, int32
 #if defined(ENABLE_OPENMP)
 #pragma omp parallel for
 #endif
-
     for (size_t i = 0; i < a_size / sizeof(int32_t); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -1045,7 +1031,6 @@ void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size, int64_t a_min, int6
 #if defined(ENABLE_OPENMP)
 #pragma omp parallel for
 #endif
-
     for (size_t i = 0; i < a_size / sizeof(int64_t); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -1302,6 +1287,9 @@ void normalizeFloatBuffer(uint8_t* a_buffer, size_t a_size, float a_min, float a
     float oldRange = std::fabs(a_max - a_min);
     float newRange = std::fabs(a_maxNew - a_minNew);
 
+#if defined(ENABLE_OPENMP)
+#pragma omp parallel for
+#endif
     for (size_t i = 0; i < a_size / sizeof(float); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -1329,6 +1317,10 @@ void normalizeDoubleBuffer(uint8_t* a_buffer, size_t a_size, double a_min, doubl
     double oldRange = std::fabs(a_max - a_min);
     double newRange = std::fabs(a_maxNew - a_minNew);
 
+#if defined(ENABLE_OPENMP)
+#pragma omp parallel for
+#endif
+
     for (size_t i = 0; i < a_size / sizeof(float); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -1355,6 +1347,9 @@ void getFloatBufferMinMax(const uint8_t* a_buffer, size_t a_size, float& a_min, 
     float minVal = std::numeric_limits<float>::max();
     float maxVal = std::numeric_limits<float>::min();
 
+////#if defined(ENABLE_OPENMP)
+////#pragma omp parallel for
+////#endif
     for (size_t i = 0; i < a_size / sizeof(float); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -1386,6 +1381,9 @@ void getDoubleBufferMinMax(const uint8_t* a_buffer, size_t a_size, double& a_min
     double minVal = std::numeric_limits<double>::max();
     double maxVal = std::numeric_limits<double>::min();
 
+////#if defined(ENABLE_OPENMP)
+////#pragma omp parallel for
+////#endif
     for (size_t i = 0; i < a_size / sizeof(double); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -1413,6 +1411,9 @@ void getByteBufferMinMax(const uint8_t* a_buffer, size_t a_size, uint8_t& a_min,
     uint8_t minVal = std::numeric_limits<uint8_t>::max();
     uint8_t maxVal = std::numeric_limits<uint8_t>::min();
 
+////#if defined(ENABLE_OPENMP)
+////#pragma omp parallel for
+////#endif
     for (size_t i = 0; i < a_size / sizeof(uint8_t); ++i)
     {
         if (tmpBuf[i] > maxVal)
@@ -1437,6 +1438,9 @@ void getShortBufferMinMax(const uint8_t* a_buffer, size_t a_size, int16_t& a_min
     int16_t minVal = std::numeric_limits<int16_t>::max();
     int16_t maxVal = std::numeric_limits<int16_t>::min();
 
+////#if defined(ENABLE_OPENMP)
+////#pragma omp parallel for
+////#endif
     for (size_t i = 0; i < a_size / sizeof(int16_t); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -1467,6 +1471,9 @@ void getIntBufferMinMax(const uint8_t* a_buffer, size_t a_size, int32_t& a_min, 
     int32_t minVal = std::numeric_limits<int32_t>::max();
     int32_t maxVal = std::numeric_limits<int32_t>::min();
 
+////#if defined(ENABLE_OPENMP)
+////#pragma omp parallel for
+////#endif
     for (size_t i = 0; i < a_size / sizeof(int32_t); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -1497,6 +1504,9 @@ void getLongBufferMinMax(const uint8_t* a_buffer, size_t a_size, int64_t& a_min,
     int64_t minVal = std::numeric_limits<int64_t>::max();
     int64_t maxVal = std::numeric_limits<int64_t>::min();
 
+////#if defined(ENABLE_OPENMP)
+////#pragma omp parallel for
+////#endif
     for (size_t i = 0; i < a_size / sizeof(int64_t); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -1529,6 +1539,9 @@ void getFloatBufferDistribution(const uint8_t* a_buffer, size_t a_size, float a_
 
     size_t pixelCount = a_size / sizeof(float);
 
+////#if defined(ENABLE_OPENMP)
+////#pragma omp parallel for
+////#endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -1561,6 +1574,9 @@ void getDoubleBufferDistribution(const uint8_t* a_buffer, size_t a_size, double 
 
     size_t pixelCount = a_size / sizeof(double);
 
+////#if defined(ENABLE_OPENMP)
+////#pragma omp parallel for
+////#endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -1597,6 +1613,9 @@ void getFloatBufferDistribution(const uint8_t* a_buffer, size_t a_size, float a_
     if (areEqual(segmentSizeF, 0.0))
         return;
 
+////#if defined(ENABLE_OPENMP)
+////#pragma omp parallel for
+////#endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -1632,6 +1651,9 @@ void getDoubleBufferDistribution(const uint8_t* a_buffer, size_t a_size, double 
     if (areEqual(segmentSizeF, 0.0))
         return;
 
+////#if defined(ENABLE_OPENMP)
+////#pragma omp parallel for
+////#endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -1659,6 +1681,9 @@ void getByteBufferDistribution(const uint8_t* a_buffer, size_t a_size, int8_t a_
 
     size_t pixelCount = a_size / sizeof(int8_t);
 
+////#if defined(ENABLE_OPENMP)
+////#pragma omp parallel for
+////#endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
         if (tmpBuf[i] >= a_min && tmpBuf[i] < a_max)
@@ -1684,6 +1709,9 @@ void getByteBufferDistribution(const uint8_t* a_buffer, size_t a_size, int8_t a_
     if (areEqual(segmentSizeF, 0.0))
         return;
 
+////#if defined(ENABLE_OPENMP)
+////#pragma omp parallel for
+////#endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
         uint32_t index = std::floor(std::fabs(tmpBuf[i] - a_min) / segmentSizeF);
@@ -1709,6 +1737,9 @@ void getShortBufferDistribution(const uint8_t* a_buffer, size_t a_size, int16_t 
 
     size_t pixelCount = a_size / sizeof(int16_t);
 
+////#if defined(ENABLE_OPENMP)
+////#pragma omp parallel for
+////#endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -1745,6 +1776,9 @@ void getShortBufferDistribution(const uint8_t* a_buffer, size_t a_size, int16_t 
     if (areEqual(segmentSizeF, 0.0))
         return;
 
+////#if defined(ENABLE_OPENMP)
+////#pragma omp parallel for
+////#endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -1777,6 +1811,9 @@ void getIntBufferDistribution(const uint8_t* a_buffer, size_t a_size, int32_t a_
 
     size_t pixelCount = a_size / sizeof(int32_t);
 
+////#if defined(ENABLE_OPENMP)
+////#pragma omp parallel for
+////#endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -1813,6 +1850,9 @@ void getIntBufferDistribution(const uint8_t* a_buffer, size_t a_size, int32_t a_
     if (areEqual(segmentSizeF, 0.0))
         return;
 
+////#if defined(ENABLE_OPENMP)
+////#pragma omp parallel for
+////#endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -1845,6 +1885,9 @@ void getLongBufferDistribution(const uint8_t* a_buffer, size_t a_size, int64_t a
 
     size_t pixelCount = a_size / sizeof(int64_t);
 
+////#if defined(ENABLE_OPENMP)
+////#pragma omp parallel for
+////#endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -1881,6 +1924,9 @@ void getLongBufferDistribution(const uint8_t* a_buffer, size_t a_size, int64_t a
     if (areEqual(segmentSizeF, 0.0))
         return;
 
+////#if defined(ENABLE_OPENMP)
+////#pragma omp parallel for
+////#endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN

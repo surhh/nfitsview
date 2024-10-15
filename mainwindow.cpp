@@ -210,7 +210,7 @@ void MainWindow::enableFileOpenRelatedWidgets(bool a_flag)
 void MainWindow::on_checkBoxGrayscale_stateChanged(int arg1)
 {
     enableRGBWidgets(!arg1);
-    enableMappingWidgets(!arg1);
+    enableMappingWidgets(!arg1 & m_bEnableMappingWidgets);
 
     ui->checkBoxEyeComfort->setEnabled(!arg1);    
 
@@ -1335,7 +1335,7 @@ void MainWindow::setWidgetsStates(const WidgetsStates& a_widgetsStates)
 void MainWindow::on_checkBoxEyeComfort_stateChanged(int arg1)
 {
     enableRGBWidgets(!arg1);
-    enableMappingWidgets(!arg1);
+    enableMappingWidgets(!arg1 & m_bEnableMappingWidgets);
 
     ui->checkBoxGrayscale->setEnabled(!arg1);
 

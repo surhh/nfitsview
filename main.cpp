@@ -6,7 +6,9 @@
 #define APP_EXIT_ERROR_CODE      (1)
 
 #define CMDLINE_SWITCH_HELP                             "-h"
+#define CMDLINE_SWITCH_HELP_FULL                        "--help"
 #define CMDLINE_SWITCH_EXPORT                           "-e"
+#define CMDLINE_SWITCH_EXPORT_FULL                      "--export"
 #define CMDLINE_SWITCH_EXPORT_OPTION_COLOR_MODE_0       "m0"
 #define CMDLINE_SWITCH_EXPORT_OPTION_COLOR_MODE_1       "m1"
 #define CMDLINE_SWITCH_EXPORT_OPTION_COLOR_RGB          "c"
@@ -32,7 +34,7 @@ int main(int argc, char *argv[])
     {
         arg1 = QCoreApplication::arguments().at(1);
 
-        if (arg1 == CMDLINE_SWITCH_HELP)
+        if (arg1 == CMDLINE_SWITCH_HELP || arg1 == CMDLINE_SWITCH_HELP_FULL)
         {
             std::cout << std::endl << "nFITSview " << NFITSVIEW_VERSION << std::endl;
             std::cout << "________________________________________________________________________" << std::endl << std::endl;
@@ -41,8 +43,8 @@ int main(int argc, char *argv[])
             std::cout << "  or" << std::endl << std::endl;
             std::cout << "nfitsview <command> <color mapping mode> <color option> [FITS file]" << std::endl << std::endl;
             std::cout << "Commands available:" << std::endl << std::endl;
-            std::cout << "  " << CMDLINE_SWITCH_EXPORT<< "  Export all image HDUs of the FITS file to PNG files" << std::endl;
-            std::cout << "  " << CMDLINE_SWITCH_HELP << "  Show this help" << std::endl << std::endl;
+            std::cout << "  " << CMDLINE_SWITCH_EXPORT << ", " << CMDLINE_SWITCH_EXPORT_FULL << "  Export all image HDUs of the FITS file to PNG files" << std::endl;
+            std::cout << "  " << CMDLINE_SWITCH_HELP << ", " << CMDLINE_SWITCH_HELP_FULL << "  Show this help" << std::endl << std::endl;
             std::cout << "Color mapping modes available:" << std::endl << std::endl;
             std::cout << "  " << CMDLINE_SWITCH_EXPORT_OPTION_COLOR_MODE_0 << "  Export image HDUs in original color mapping" << std::endl;
             std::cout << "  " << CMDLINE_SWITCH_EXPORT_OPTION_COLOR_MODE_1 << "  Export image HDUs in positive range float/integer color mapping"
@@ -57,7 +59,7 @@ int main(int argc, char *argv[])
             return APP_EXIT_SUCCESS_CODE;
         }
 
-        if (arg1 == CMDLINE_SWITCH_EXPORT)
+        if (arg1 == CMDLINE_SWITCH_EXPORT || arg1 == CMDLINE_SWITCH_EXPORT_FULL)
         {
             std::cout << "[ERROR]: No input FITS file" << std::endl;
 
@@ -73,7 +75,7 @@ int main(int argc, char *argv[])
         arg3 = QCoreApplication::arguments().at(3);
         arg4 = QCoreApplication::arguments().at(4);
 
-        if (arg1 == CMDLINE_SWITCH_EXPORT)
+        if (arg1 == CMDLINE_SWITCH_EXPORT || arg1 == CMDLINE_SWITCH_EXPORT_FULL)
         {
             int32_t transform;
 

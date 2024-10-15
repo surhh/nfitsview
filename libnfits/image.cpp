@@ -1464,7 +1464,8 @@ void Image::calcBufferDistribution(int32_t a_percent)
 {
     //// checking if the memory-mapped file is corrupted and not all data is available
     //// e.g. data required by the HDUs is bigger then the file itself
-    if ((m_baseOffset + m_width*m_height*m_bitpix) > m_maxDataBufferSize)
+    size_t offset = m_baseOffset + m_width*m_height*(std::abs(m_bitpix)/8);
+    if (offset > m_maxDataBufferSize)
         return;
     ////
 

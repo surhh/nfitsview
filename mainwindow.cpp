@@ -1560,7 +1560,7 @@ void MainWindow::enableDisableMappingComboItem(uint32_t a_index, bool a_enable)
     if (item == nullptr)
         return;
 
-    item->setFlags(!a_enable ? item->flags() & ~Qt::ItemIsEnabled: item->flags() | Qt::ItemIsEnabled);
+    //item->setFlags(!a_enable ? item->flags() & ~Qt::ItemIsEnabled: item->flags() | Qt::ItemIsEnabled);
 }
 
 void MainWindow::onSendMousewheelZoomChanged(int32_t a_scaleFactor)

@@ -858,9 +858,9 @@ template<typename T> void getBufferDistributionMinMax(const uint8_t* a_buffer, s
                                                       DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER],
                                                       bool a_isDistribCounted = false);
 
-inline void zeroScaleFloatMul(float& a_value, double a_bzero, double a_bscale)
+inline void zeroScaleFloatMul(float& a_value, float a_bzero, float a_bscale)
 {
-    a_value = a_bzero + a_bscale*(double)a_value;
+    a_value = a_bzero + a_bscale*(float)a_value;
 }
 
 inline void zeroScaleDoubleMul(double& a_value, double a_bzero, double a_bscale)
@@ -885,7 +885,7 @@ inline void zeroScaleLongMul(int64_t& a_value, double a_bzero, double a_bscale)
 
 
 
-inline void zeroScaleFloatDummy(float& a_value, double a_bzero, double a_bscale)
+inline void zeroScaleFloatDummy(float& a_value, float a_bzero, float a_bscale)
 {
 }
 
@@ -921,7 +921,7 @@ typedef     void (*convertShortSZ)          (uint16_t, double, double, libnfits:
 typedef     void (*convertShort2RGBGray)    (int16_t, uint8_t&, uint8_t&, uint8_t&);
 
 
-typedef     void (*zeroScaleFloatPtr)       (float&, double, double);
+typedef     void (*zeroScaleFloatPtr)       (float&, float, float);
 typedef     void (*zeroScaleDoublePtr)      (double&, double, double);
 typedef     void (*zeroScaleShortPtr)       (int16_t&, double, double);
 typedef     void (*zeroScaleIntPtr)         (int32_t&, double, double);

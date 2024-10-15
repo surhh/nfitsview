@@ -1462,6 +1462,12 @@ void Image::setDistribCountFlag(bool a_flag)
 
 void Image::calcBufferDistribution(int32_t a_percent)
 {
+    //// checking if the memory-mapped file is corrupted and not all data is available
+    //// e.g. data required by the HDUs is bigger then the file itself
+    if ((m_baseOffset + m_width*m_height*m_bitpix) > m_maxDataBufferSize)
+        return;
+    ////
+
     float percent = (float)(100 - a_percent) / 100;
 
     if (a_percent != m_percentThreshold)
@@ -1524,8 +1530,8 @@ void Image::calcBufferDistribution(int32_t a_percent)
             m_maxDistribValueL = tmpMax;
             m_percentThreshold = a_percent;
 
-            ////std::cout << "[INFO]: (I16) m_minValue = " << m_minValueL << " , m_maxValueL = " << m_maxValueL <<std::endl;
-            ////std::cout << "[INFO]: (I16) m_minDistribValueL = " << m_minDistribValueL << " , m_maxDistribValueL = " << m_maxDistribValueL <<std::endl;
+            std::cout << "[INFO]: (I16) m_minValue = " << m_minValueL << " , m_maxValueL = " << m_maxValueL <<std::endl;
+            std::cout << "[INFO]: (I16) m_minDistribValueL = " << m_minDistribValueL << " , m_maxDistribValueL = " << m_maxDistribValueL <<std::endl;
         }
         else if (m_bitpix == 32)
         {

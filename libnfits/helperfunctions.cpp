@@ -844,7 +844,7 @@ void convertBufferShortRGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuff
     if (a_size % sizeof(int16_t) != 0)
         return;
 
-    if (!areEqual(a_bscale, 1.0))
+    if (!areEqual(a_bscale, FITS_BSCALE_DEFAULT_VALUE))
     {
         zeroScaleFloatPtr zeroScaleFunctionPtr = zeroScaleFloatDummy;
 
@@ -1020,7 +1020,7 @@ void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size, int32_t a_min, int32
 
     int32_t *tmpBuf = (int32_t*)(a_buffer);
 
-    if (!areEqual(a_bscale, 1.0))
+    if (!areEqual(a_bscale, FITS_BSCALE_DEFAULT_VALUE))
     {
         zeroScaleFloatPtr zeroScaleFunctionPtr = zeroScaleFloatDummy;
 
@@ -1141,7 +1141,7 @@ void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size, int64_t a_min, int6
     if (a_size % sizeof(int64_t) != 0)
         return;
 
-    if (!areEqual(a_bscale, 1.0))
+    if (!areEqual(a_bscale, FITS_BSCALE_DEFAULT_VALUE))
     {
         zeroScaleDoublePtr zeroScaleFunctionPtr = zeroScaleDoubleDummy;
 

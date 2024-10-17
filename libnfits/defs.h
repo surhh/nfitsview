@@ -21,7 +21,7 @@ static int32_t percentCallbackFunctionSample(int32_t a_percent, void* a_buffer)
 #define OPENMP_THREADS_DISABLE_NUMBER           (0) // Number of excluded OpenMP threads - default here is 2
 
 #define LIBNFITS_MAJOR_VERSION                  3
-#define LIBNFITS_MINOR_VERSION                  1
+#define LIBNFITS_MINOR_VERSION                  2
 
 #define	FITS_BSCALE_DEFAULT_VALUE               (1.0)
 #define	FITS_BZERO_DEFAULT_VALUE                (0.0)

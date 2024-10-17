@@ -14,11 +14,14 @@ static int32_t percentCallbackFunctionSample(int32_t a_percent, void* a_buffer)
     return a_percent;
 }
 
-//#define DEBUG_MODE                            // enabling/disabling the debug logging used in libnfits::LOG()
+//#define DEBUG_MODE                            //// enabling/disabling the debug logging used in libnfits::LOG()
 
-#define ENABLE_OPENMP                           (1) // enabling/disabling the usage of OpenMP
-                                                // Currently OpenMP is not suitable for some of the algorithms
-#define OPENMP_THREADS_DISABLE_NUMBER           (0) // Number of excluded OpenMP threads - default here is 2
+#define ENABLE_OPENMP                           //// enabling/disabling the usage of OpenMP
+                                                //// Currently OpenMP is not suitable for some of the algorithms
+
+#define OPENMP_THREADS_DISABLE_NUMBER           (0) //// Number of excluded OpenMP threads - default here is 2
+
+#define ENABLE_FILE_MAPPING_FILE_LOADING        //// enabling for mapping file into RAM or legacy file reading
 
 #define LIBNFITS_MAJOR_VERSION                  3
 #define LIBNFITS_MINOR_VERSION                  2

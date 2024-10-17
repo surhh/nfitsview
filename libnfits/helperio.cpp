@@ -23,7 +23,7 @@ MapFile::MapFile():
 
 MapFile::~MapFile()
 {
-
+    delete [] m_memoryBuffer;
 }
 
 #if defined(__unix__) || defined(__APPLE__)
@@ -67,6 +67,8 @@ int32_t MapFile::unmapFileFromMemoryU()
 
     if ((resUnmap & resClose) != FITS_MEMORY_UNMAP_SUCCESS)
         return FITS_MEMORY_MAP_FILE_MAP_ERROR;
+
+    m_memoryBuffer = nullptr;
 
     return FITS_MEMORY_MAP_FILE_SUCCESS;
 }
@@ -117,6 +119,8 @@ int32_t MapFile::unmapFileFromMemoryW()
     if (!bFlag)
         return FITS_MEMORY_MAP_FILE_MAP_ERROR;
 
+    m_memoryBuffer = nullptr;
+
     return FITS_MEMORY_MAP_FILE_SUCCESS;
 }
 #endif
@@ -132,6 +136,60 @@ int32_t MapFile::loadFile(const std::string& a_fileName, bool a_rwFlag)
 #else
     return FITS_MEMORY_MAP_FILE_MAP_ERROR;
 #endif
+}
+
+int32_t MapFile::returnFileReadError()
+{
+    if (m_memoryBuffer != nullptr)
+        delete [] m_memoryBuffer;
+
+    close(m_fileDesc);
+
+    return FITS_MEMORY_MAP_FILE_OPEN_ERROR;
+}
+
+ssize_t MapFile::loadFileRead(const std::string& a_fileName)
+{
+    m_fileName = a_fileName;
+
+    m_fileDesc = open(a_fileName.c_str(), O_RDONLY);
+    if (m_fileDesc == FILE_READ_ERROR)
+        return FITS_MEMORY_MAP_FILE_OPEN_ERROR;
+
+    /// Getting file size
+    m_fileSize = lseek(m_fileDesc, 0, SEEK_END);
+    if (m_fileSize == FILE_READ_ERROR)
+        returnFileReadError();
+
+    m_memoryBuffer = new uint8_t[m_fileSize];
+
+    /// Moving file read pointer to the start
+    if (lseek(m_fileDesc, 0, SEEK_SET) == FILE_READ_ERROR)
+        returnFileReadError();
+
+    /// Read the complete file into the memory
+    size_t bytesRead = read(m_fileDesc, m_memoryBuffer, m_fileSize);
+    if (bytesRead != m_fileSize)
+        returnFileReadError();
+
+    /// Closing the file
+    close(m_fileDesc);
+
+    return FITS_MEMORY_MAP_FILE_SUCCESS;
+}
+
+int32_t MapFile::closeFileRead()
+{
+    delete [] m_memoryBuffer;
+
+    int32_t res = close(m_fileDesc);
+
+    int32_t retVal = FITS_MEMORY_MAP_FILE_SUCCESS;
+
+    if (res == 0)
+        retVal = FITS_MEMORY_MAP_FILE_OPEN_ERROR;
+
+    return retVal;
 }
 
 int32_t MapFile::closeFile()

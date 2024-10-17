@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <string>
 
+#define FILE_READ_ERROR     (-1)
+
 #if defined(__WIN32__) || defined(__WIN64__)
 #include <windows.h>
 #endif
@@ -40,9 +42,14 @@ public:
     ~MapFile();
 
     int32_t loadFile(const std::string& a_fileName, bool a_rwFlag = false);
+    ssize_t loadFileRead(const std::string& a_fileName);
     int32_t closeFile();
+    int32_t closeFileRead();
     uint8_t* getMappedFileBuffer() const;
     size_t getFileSize() const;
+
+private:
+    int32_t returnFileReadError();
 };
 
 }

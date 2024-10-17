@@ -30,7 +30,11 @@ FitsFile::~FitsFile()
 
 int32_t FitsFile::loadFile(const std::string& a_fileName)
 {
+#ifdef ENABLE_FILE_MAPPING_FILE_LOADING
     int32_t retVal = m_mapFile.loadFile(a_fileName);
+#else
+    int32_t retVal = m_mapFile.loadFileRead(a_fileName);
+#endif
 
     if (retVal != FITS_MEMORY_MAP_FILE_SUCCESS)
         return retVal;
@@ -74,7 +78,11 @@ int32_t FitsFile::closeFile()
 {
     m_memoryBuffer = m_memoryBufferBak;
 
+#ifdef ENABLE_FILE_MAPPING_FILE_LOADING
     int32_t resUnmap = m_mapFile.closeFile();
+#else
+    int32_t resUnmap = m_mapFile.closeFileRead();
+#endif
 
     if (resUnmap == FITS_MEMORY_MAP_FILE_SUCCESS)
         reset();

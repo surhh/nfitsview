@@ -20,6 +20,8 @@ int main(int argc, char *argv[])
 
     MainWindow w;
 
+    QGuiApplication::setDesktopFileName("nFITSview"); /// fixing app icon for Wayland
+
     int argCount = QCoreApplication::arguments().count();
 
     qint32 resOpen = FITS_GENERAL_ERROR, resConvert = 0;

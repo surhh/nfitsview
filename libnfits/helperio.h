@@ -6,10 +6,6 @@
 
 #define FILE_READ_ERROR     (-1)
 
-#if defined(__WIN32__) || defined(__WIN64__)
-#include <windows.h>
-#endif
-
 namespace libnfits
 {
 

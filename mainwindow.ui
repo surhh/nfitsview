@@ -36,7 +36,7 @@
      <x>0</x>
      <y>0</y>
      <width>1300</width>
-     <height>22</height>
+     <height>30</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -459,16 +459,16 @@
                   <number>99</number>
                  </property>
                  <property name="singleStep">
-                  <number>5</number>
+                  <number>10</number>
                  </property>
                  <property name="pageStep">
-                  <number>1</number>
+                  <number>10</number>
                  </property>
                  <property name="sliderPosition">
                   <number>1</number>
                  </property>
                  <property name="tracking">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
@@ -529,7 +529,7 @@
                   <number>100</number>
                  </property>
                  <property name="singleStep">
-                  <number>1</number>
+                  <number>10</number>
                  </property>
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
@@ -600,6 +600,9 @@
                  <property name="maximum">
                   <number>100</number>
                  </property>
+                 <property name="singleStep">
+                  <number>10</number>
+                 </property>
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
                  </property>
@@ -669,8 +672,14 @@
                  <property name="maximum">
                   <number>100</number>
                  </property>
+                 <property name="singleStep">
+                  <number>10</number>
+                 </property>
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="invertedAppearance">
+                  <bool>false</bool>
                  </property>
                  <property name="tickPosition">
                   <enum>QSlider::TicksBelow</enum>
@@ -900,7 +909,7 @@
      <normaloff>:/icons/document-open-16x16.svg</normaloff>:/icons/document-open-16x16.svg</iconset>
    </property>
    <property name="text">
-    <string>Open</string>
+    <string>&amp;Open</string>
    </property>
    <property name="toolTip">
     <string>Open FITS File</string>
@@ -915,7 +924,7 @@
      <normaloff>:/icons/document-close-16x16.svg</normaloff>:/icons/document-close-16x16.svg</iconset>
    </property>
    <property name="text">
-    <string>Close</string>
+    <string>&amp;Close</string>
    </property>
    <property name="toolTip">
     <string>Close FITS file</string>
@@ -966,7 +975,7 @@
      <normaloff>:/icons/document-export-16x16.svg</normaloff>:/icons/document-export-16x16.svg</iconset>
    </property>
    <property name="text">
-    <string>Export All</string>
+    <string>&amp;Export All</string>
    </property>
    <property name="toolTip">
     <string>Export all image HDUs as PNG files</string>
@@ -978,7 +987,7 @@
      <normaloff>:/icons/application-exit-16x16.svg</normaloff>:/icons/application-exit-16x16.svg</iconset>
    </property>
    <property name="text">
-    <string>Quit</string>
+    <string>&amp;Quit</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
@@ -1038,7 +1047,7 @@
      <normaloff>:/icons/edit-undo-16x16.svg</normaloff>:/icons/edit-undo-16x16.svg</iconset>
    </property>
    <property name="text">
-    <string>Undo</string>
+    <string>&amp;Undo</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Z</string>
@@ -1050,7 +1059,7 @@
      <normaloff>:/icons/edit-redo-16x16.svg</normaloff>:/icons/edit-redo-16x16.svg</iconset>
    </property>
    <property name="text">
-    <string>Redo</string>
+    <string>&amp;Redo</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+Z</string>
@@ -1062,7 +1071,7 @@
      <normaloff>:/icons/zoom-in-16x16.svg</normaloff>:/icons/zoom-in-16x16.svg</iconset>
    </property>
    <property name="text">
-    <string>Zoom In</string>
+    <string>&amp;Zoom In</string>
    </property>
   </action>
   <action name="actionZoomOut">
@@ -1071,7 +1080,7 @@
      <normaloff>:/icons/zoom-out-16x16.svg</normaloff>:/icons/zoom-out-16x16.svg</iconset>
    </property>
    <property name="text">
-    <string>Zoom Out</string>
+    <string>Zoom &amp;Out</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+-</string>
@@ -1083,7 +1092,7 @@
      <normaloff>:/icons/zoom-fit-best-16x16.svg</normaloff>:/icons/zoom-fit-best-16x16.svg</iconset>
    </property>
    <property name="text">
-    <string>Fit Window</string>
+    <string>&amp;Fit Window</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+F</string>
@@ -1122,7 +1131,7 @@
      <normaloff>:/icons/document-revert-16x16.svg</normaloff>:/icons/document-revert-16x16.svg</iconset>
    </property>
    <property name="text">
-    <string>Restore Original Gamma</string>
+    <string>&amp;Restore Original Gamma</string>
    </property>
    <property name="toolTip">
     <string>Restore original gamma</string>
@@ -1149,7 +1158,7 @@
      <normaloff>:/icons/view-preview-22x22.svg</normaloff>:/icons/view-preview-22x22.svg</iconset>
    </property>
    <property name="text">
-    <string>Export Current Image</string>
+    <string>&amp;Export Current Image</string>
    </property>
    <property name="toolTip">
     <string>Exports current HDU as image</string>
@@ -1164,7 +1173,7 @@
      <normaloff>:/icons/help-about-16x16.svg</normaloff>:/icons/help-about-16x16.svg</iconset>
    </property>
    <property name="text">
-    <string>About</string>
+    <string>&amp;About</string>
    </property>
    <property name="shortcut">
     <string>F1</string>
@@ -1188,7 +1197,7 @@
      <normaloff>:/icons/system-upgrade-22x22.svg</normaloff>:/icons/system-upgrade-22x22.svg</iconset>
    </property>
    <property name="text">
-    <string>Check for Update</string>
+    <string>&amp;Check for Update</string>
    </property>
    <property name="toolTip">
     <string>Check for Update</string>

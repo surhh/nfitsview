@@ -5,10 +5,6 @@
 #include <sys/mman.h>
 #endif
 
-#if defined(__WIN32__) || defined(__WIN64__)
-#include <windows.h>
-#endif
-
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>

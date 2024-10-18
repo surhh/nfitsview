@@ -4,6 +4,10 @@
 #include <cstdint>
 #include <string>
 
+#if defined(__WIN32__) || defined(__WIN64__)
+#include <windows.h>
+#endif
+
 #define FILE_READ_ERROR     (-1)
 
 namespace libnfits

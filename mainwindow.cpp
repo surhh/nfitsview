@@ -164,21 +164,35 @@ void MainWindow::enableRGBWidgets(bool a_flag)
 {
     bool b = !(ui->checkBoxGrayscale->isChecked() | ui->checkBoxEyeComfort->isChecked());
 
-    ui->horizontalSliderR->setEnabled(b & a_flag);
-    ui->horizontalSliderG->setEnabled(b & a_flag);
-    ui->horizontalSliderB->setEnabled(b & a_flag);
+    b = b & a_flag;
 
-    ui->labelR->setEnabled(b & a_flag);
-    ui->labelG->setEnabled(b & a_flag);
-    ui->labelB->setEnabled(b & a_flag);
+    ui->horizontalSliderR->setEnabled(b);
+    ui->horizontalSliderG->setEnabled(b);
+    ui->horizontalSliderB->setEnabled(b);
 
-    ui->labelRGBInfo->setEnabled(b & a_flag);
+    ui->labelR->setEnabled(b);
+    ui->labelG->setEnabled(b);
+    ui->labelB->setEnabled(b);
 
-    ui->labelValueR->setEnabled(b & a_flag);
-    ui->labelValueG->setEnabled(b & a_flag);
-    ui->labelValueB->setEnabled(b & a_flag);
+    ui->labelRGBInfo->setEnabled(b);
 
-    ui->resetRGBButton->setEnabled(b & a_flag);
+    ui->labelValueR->setEnabled(b);
+    ui->labelValueG->setEnabled(b);
+    ui->labelValueB->setEnabled(b);
+
+    ui->resetRGBButton->setEnabled(b);
+
+    ui->minRButton->setEnabled(b);
+    ui->defaultRButton->setEnabled(b);
+    ui->maxRButton->setEnabled(b);
+
+    ui->minGButton->setEnabled(b);
+    ui->defaultGButton->setEnabled(b);
+    ui->maxGButton->setEnabled(b);
+
+    ui->minBButton->setEnabled(b);
+    ui->defaultBButton->setEnabled(b);
+    ui->maxBButton->setEnabled(b);
 }
 
 void MainWindow::enableGammaWidgets(bool a_flag)
@@ -491,19 +505,19 @@ void MainWindow::on_horizontalSliderB_valueChanged(int value)
 
 void MainWindow::initGammaWidgetsValues()
 {
-    ui->horizontalSliderR->setValue(0);
-    QString valueRstr = QString::number(0) + " %";
-    valueRstr = valueRstr.rightJustified(12, ' ');
+    ui->horizontalSliderR->setValue(RGB_DEFAULT_VALUE);
+    QString valueRstr = QString::number(RGB_DEFAULT_VALUE) + " %";
+    valueRstr = valueRstr.rightJustified(LABELS_RIGHT_JUSTIFICATION_VALUE, ' ');
     ui->labelValueR->setText(valueRstr);
 
-    ui->horizontalSliderG->setValue(0);
-    QString valueGstr = QString::number(0) + " %";
-    valueGstr = valueGstr.rightJustified(12, ' ');
+    ui->horizontalSliderG->setValue(RGB_DEFAULT_VALUE);
+    QString valueGstr = QString::number(RGB_DEFAULT_VALUE) + " %";
+    valueGstr = valueGstr.rightJustified(LABELS_RIGHT_JUSTIFICATION_VALUE, ' ');
     ui->labelValueG->setText(valueGstr);
 
-    ui->horizontalSliderB->setValue(0);
-    QString valueBstr = QString::number(0) + " %";
-    valueBstr = valueBstr.rightJustified(12, ' ');
+    ui->horizontalSliderB->setValue(RGB_DEFAULT_VALUE);
+    QString valueBstr = QString::number(RGB_DEFAULT_VALUE) + " %";
+    valueBstr = valueBstr.rightJustified(LABELS_RIGHT_JUSTIFICATION_VALUE, ' ');
     ui->labelValueB->setText(valueBstr);
 
     ui->checkBoxGrayscale->setChecked(false);
@@ -819,7 +833,7 @@ void MainWindow::on_horizontalSliderQuality_valueChanged(int value)
 {
     int valueQ = value;
     QString valueQstr = QString::number(valueQ);
-    valueQstr = valueQstr.rightJustified(12, ' ');
+    valueQstr = valueQstr.rightJustified(LABELS_RIGHT_JUSTIFICATION_VALUE, ' ');
 
     ui->labelQualityValue->setText(valueQstr);
 
@@ -829,7 +843,7 @@ void MainWindow::on_horizontalSliderQuality_valueChanged(int value)
 void MainWindow::initImageExportSettingsWidgetValues()
 {
     QString valueQstr = QString::number(IMAGE_EXPORT_DEFAULT_QUALITY);
-    valueQstr = valueQstr.rightJustified(12, ' ');
+    valueQstr = valueQstr.rightJustified(LABELS_RIGHT_JUSTIFICATION_VALUE, ' ');
 
     ui->horizontalSliderQuality->setValue(IMAGE_EXPORT_DEFAULT_QUALITY);
     ui->labelQualityValue->setText(valueQstr);
@@ -1277,15 +1291,15 @@ void MainWindow::setWidgetsStates(const WidgetsStates& a_widgetsStates)
     QString valueStr;
 
     valueStr = QString::number(a_widgetsStates.gammaStates.rLevel) + " %";
-    valueStr = valueStr.rightJustified(12, ' ');
+    valueStr = valueStr.rightJustified(LABELS_RIGHT_JUSTIFICATION_VALUE, ' ');
     ui->labelValueR->setText(valueStr);
 
     valueStr = QString::number(a_widgetsStates.gammaStates.gLevel) + " %";
-    valueStr = valueStr.rightJustified(12, ' ');
+    valueStr = valueStr.rightJustified(LABELS_RIGHT_JUSTIFICATION_VALUE, ' ');
     ui->labelValueB->setText(valueStr);
 
     valueStr = QString::number(a_widgetsStates.gammaStates.bLevel) + " %";
-    valueStr = valueStr.rightJustified(12, ' ');
+    valueStr = valueStr.rightJustified(LABELS_RIGHT_JUSTIFICATION_VALUE, ' ');
     ui->labelValueB->setText(valueStr);
 
     ui->checkBoxGrayscale->setChecked(a_widgetsStates.gammaStates.gray);
@@ -1369,7 +1383,7 @@ void MainWindow::changeRGBColorChannelLevel(uint8_t a_channel, int8_t a_value)
     backupOriginalImage();
 
     QString valueStr = QString::number(a_value) + " %";
-    valueStr = valueStr.rightJustified(12, ' ');
+    valueStr = valueStr.rightJustified(LABELS_RIGHT_JUSTIFICATION_VALUE, ' ');
 
     ui->workspaceWidget->restoreImage();
 
@@ -1475,19 +1489,19 @@ void MainWindow::on_resetRGBButton_clicked()
     if (r != 0)
     {
         changeRGBColorChannelLevel(0, 0);
-        ui->horizontalSliderR->setValue(0);
+        ui->horizontalSliderR->setValue(RGB_DEFAULT_VALUE);
     }
 
     if (g != 0)
     {
         changeRGBColorChannelLevel(1, 0);
-        ui->horizontalSliderG->setValue(0);
+        ui->horizontalSliderG->setValue(RGB_DEFAULT_VALUE);
     }
 
     if (b != 0)
     {
         changeRGBColorChannelLevel(2, 0);
-        ui->horizontalSliderB->setValue(0);
+        ui->horizontalSliderB->setValue(RGB_DEFAULT_VALUE);
     }
 }
 
@@ -1606,7 +1620,7 @@ int32_t MainWindow::updateChecked()
     else
     {
         text = "You already have the latest version of nFITSview!";
-        QMessageBox::question(this, caption, text, QMessageBox::Ok);
+        QMessageBox::information(this, caption, text, QMessageBox::Ok);
     }
 
     return newVersion;
@@ -1701,3 +1715,57 @@ void MainWindow::initHDUInfoWidgetMinMax()
     ui->labelMINValue->setText("Min:");
     ui->labelMAXValue->setText("Max:");
 }
+
+void MainWindow::on_minRButton_clicked()
+{
+    ui->horizontalSliderR->setValue(RGB_MIN_VALUE);
+}
+
+
+void MainWindow::on_defaultRButton_clicked()
+{
+    ui->horizontalSliderR->setValue(RGB_DEFAULT_VALUE);
+}
+
+
+void MainWindow::on_maxRButton_clicked()
+{
+    ui->horizontalSliderR->setValue(RGB_MAX_VALUE);
+}
+
+
+void MainWindow::on_minGButton_clicked()
+{
+    ui->horizontalSliderG->setValue(RGB_MIN_VALUE);
+}
+
+
+void MainWindow::on_defaultGButton_clicked()
+{
+    ui->horizontalSliderG->setValue(RGB_DEFAULT_VALUE);
+}
+
+
+void MainWindow::on_maxGButton_clicked()
+{
+    ui->horizontalSliderG->setValue(RGB_MAX_VALUE);
+}
+
+
+void MainWindow::on_minBButton_clicked()
+{
+    ui->horizontalSliderB->setValue(RGB_MIN_VALUE);
+}
+
+
+void MainWindow::on_defaultBButton_clicked()
+{
+    ui->horizontalSliderB->setValue(RGB_DEFAULT_VALUE);
+}
+
+
+void MainWindow::on_maxBButton_clicked()
+{
+    ui->horizontalSliderB->setValue(RGB_MAX_VALUE);
+}
+

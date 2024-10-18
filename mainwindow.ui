@@ -551,8 +551,44 @@
                </item>
                <item>
                 <widget class="QLabel" name="labelValueR">
+                 <property name="font">
+                  <font>
+                   <family>Courier 10 Pitch</family>
+                   <pointsize>12</pointsize>
+                  </font>
+                 </property>
                  <property name="text">
                   <string/>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="minRButton">
+                 <property name="styleSheet">
+                  <string notr="true">color: rgb(255, 0, 0);</string>
+                 </property>
+                 <property name="text">
+                  <string>min</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="defaultRButton">
+                 <property name="styleSheet">
+                  <string notr="true">color: rgb(255, 0, 0);</string>
+                 </property>
+                 <property name="text">
+                  <string>0</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="maxRButton">
+                 <property name="styleSheet">
+                  <string notr="true">color: rgb(255, 0, 0);</string>
+                 </property>
+                 <property name="text">
+                  <string>max</string>
                  </property>
                 </widget>
                </item>
@@ -623,8 +659,44 @@
                </item>
                <item>
                 <widget class="QLabel" name="labelValueG">
+                 <property name="font">
+                  <font>
+                   <family>Courier 10 Pitch</family>
+                   <pointsize>12</pointsize>
+                  </font>
+                 </property>
                  <property name="text">
                   <string/>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="minGButton">
+                 <property name="styleSheet">
+                  <string notr="true">color: rgb(0, 170, 0);</string>
+                 </property>
+                 <property name="text">
+                  <string>min</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="defaultGButton">
+                 <property name="styleSheet">
+                  <string notr="true">color: rgb(0, 170, 0);</string>
+                 </property>
+                 <property name="text">
+                  <string>0</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="maxGButton">
+                 <property name="styleSheet">
+                  <string notr="true">color: rgb(0, 170, 0);</string>
+                 </property>
+                 <property name="text">
+                  <string>max</string>
                  </property>
                 </widget>
                </item>
@@ -701,8 +773,44 @@
                </item>
                <item>
                 <widget class="QLabel" name="labelValueB">
+                 <property name="font">
+                  <font>
+                   <family>Courier 10 Pitch</family>
+                   <pointsize>12</pointsize>
+                  </font>
+                 </property>
                  <property name="text">
                   <string/>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="minBButton">
+                 <property name="styleSheet">
+                  <string notr="true">color: rgb(0, 0, 255);</string>
+                 </property>
+                 <property name="text">
+                  <string>min</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="defaultBButton">
+                 <property name="styleSheet">
+                  <string notr="true">color: rgb(0, 0, 255);</string>
+                 </property>
+                 <property name="text">
+                  <string>0</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="maxBButton">
+                 <property name="styleSheet">
+                  <string notr="true">color: rgb(0, 0, 255);</string>
+                 </property>
+                 <property name="text">
+                  <string>max</string>
                  </property>
                 </widget>
                </item>

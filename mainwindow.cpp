@@ -529,13 +529,6 @@ void MainWindow::initMappingWidgetsValues()
     ui->comboBoxMapping->setCurrentIndex(0);
 }
 
-void MainWindow::on_tableWidgetHDUs_itemActivated(QTableWidgetItem *item)
-{
-    //// This slot is not used anymore. For better compatibility for all the supported platforms
-    //// the signal is changed to currentItemChanged(QTableWidgetItem *current, QTableWidgetItem *previous).
-    //// This one should have the same behavior on every platform. "item" is replaced with "current"
-}
-
 void MainWindow::clearWidgets()
 {
     ui->tableWidgetHDUs->clearContents();

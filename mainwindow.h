@@ -41,8 +41,6 @@ private slots:
 
     void on_horizontalSliderB_valueChanged(int value);
 
-    void on_tableWidgetHDUs_itemActivated(QTableWidgetItem *item);
-
     void on_actionExportToolBar_triggered();
 
     void on_actionExport_triggered();

@@ -51,17 +51,15 @@ The latest version (3.2) of nFITSview for Windows 64-bit to download:
 
 # Screenshots
 
-![nfitsview2_9_screenshot_1](https://github.com/surhh/nfitsview/assets/109148999/3a671fbb-c7b3-4363-b88b-eb063e690e86)
+![nfitsview3_2_screenshot_1](https://github.com/user-attachments/assets/a1a69547-7c62-4eae-a524-1672f0583d4d)
+![nfitsview3_2_screenshot_2](https://github.com/user-attachments/assets/1081da44-04a0-4430-96b6-afc5225e376b)
+![nfitsview3_2_screenshot_3](https://github.com/user-attachments/assets/32ba4c7b-9c93-44f4-a745-6e034787d4d9)
+![nfitsview3_2_screenshot_4](https://github.com/user-attachments/assets/f939aa94-e242-4382-9dce-9c51066fcedb)
+![nfitsview3_2_screenshot_5](https://github.com/user-attachments/assets/8337df2b-4558-45df-9122-7307ad0b495d)
+![nfitsview3_2_screenshot_6](https://github.com/user-attachments/assets/0a0094f6-6bef-40ca-b11c-920bbd32d951)
+![nfitsview3_2_screenshot_7](https://github.com/user-attachments/assets/ccf21653-020c-4822-a3f5-f170dd76e476)
+![nfitsview3_2_screenshot_8](https://github.com/user-attachments/assets/bf90ac17-3a7a-4b13-8212-e1c20520d929)
 
-![nfitsview2_9_screenshot_2](https://github.com/surhh/nfitsview/assets/109148999/b3db3e6a-717f-4a40-8009-990f974f9d5e)
-
-![nfitsview2_9_screenshot_3](https://github.com/surhh/nfitsview/assets/109148999/d007fd4f-a670-41c2-9945-43c598f0e70c)
-
-![nfitsview2_9_screenshot_4](https://github.com/surhh/nfitsview/assets/109148999/57de7b91-4b57-4808-9f5b-5ea4ac179742)
-
-![nfitsview2_9_screenshot_5](https://github.com/surhh/nfitsview/assets/109148999/dd36a34f-3468-4201-8547-410ccdb30be2)
-
-![nfitsview2_9_screenshot_6](https://github.com/surhh/nfitsview/assets/109148999/0328e7ec-4925-4364-8c34-feab5ff115ec)
 
 # About FITS format
 

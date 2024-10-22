@@ -1531,8 +1531,8 @@ void Image::calcBufferDistribution(int32_t a_percent)
             m_maxDistribValueL = tmpMax;
             m_percentThreshold = a_percent;
 
-            std::cout << "[INFO]: (I16) m_minValue = " << m_minValueL << " , m_maxValueL = " << m_maxValueL <<std::endl;
-            std::cout << "[INFO]: (I16) m_minDistribValueL = " << m_minDistribValueL << " , m_maxDistribValueL = " << m_maxDistribValueL <<std::endl;
+            ////std::cout << "[INFO]: (I16) m_minValue = " << m_minValueL << " , m_maxValueL = " << m_maxValueL <<std::endl;
+            ////std::cout << "[INFO]: (I16) m_minDistribValueL = " << m_minDistribValueL << " , m_maxDistribValueL = " << m_maxDistribValueL <<std::endl;
         }
         else if (m_bitpix == 32)
         {

@@ -879,7 +879,7 @@ void MainWindow::enableMappingWidgets(bool a_flag)
     ui->horizontalSliderPercent->setEnabled(static_cast<bool>(index) & a_flag);
 }
 
-void MainWindow::on_comboBoxFormat_currentIndexChanged(const QString &arg1)
+void MainWindow::on_comboBoxFormat_currentTextChanged(const QString &arg1)
 {
     m_exportFormat = QString(arg1.toLower());
     m_exportQuality = ui->horizontalSliderQuality->value();

@@ -73,8 +73,6 @@ private slots:
 
     void on_horizontalSliderQuality_valueChanged(int value);
 
-    void on_comboBoxFormat_currentIndexChanged(const QString &arg1);
-
     void on_actionAbout_triggered();
 
     void on_actionQuit_triggered();
@@ -116,6 +114,8 @@ private slots:
     void on_defaultBButton_clicked();
 
     void on_maxBButton_clicked();
+
+    void on_comboBoxFormat_currentTextChanged(const QString &arg1);
 
 private:
     Ui::MainWindow *ui;

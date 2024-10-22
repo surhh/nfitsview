@@ -17,7 +17,11 @@ set(CMAKE_VERBOSE_MAKEFILE ON)      # added for libnfits
 #SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${GCC_ARCH_NATIVE_COMPILE_FLAGS}")
 # end of setting -march=native flag
 
-find_package(Qt5Network REQUIRED)
+#find_package(Qt5Network REQUIRED) # for Qt5
+
+## Added for Qt6
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Network) # Qt6
+######################################################
 
 set(Boost_USE_MULTITHREADED ON)     # added for libnfits
 
@@ -36,7 +40,7 @@ if(WIN32)
     set(Boost_MULTITHREADED ON)
     #set(Boost_USE_STATIC_RUNTIME OFF)
 
-    find_package(Boost REQUIRED iostreams)
+    find_package(Boost REQUIRED ifostreams)
 
     include_directories(${Boost_INCLUDE_DIR})
 
@@ -50,7 +54,7 @@ endif()
 # end of windows build specific (MinGW)
 
 # added for libnfits
-find_package(Boost REQUIRED iostreams)
+find_package(Boost REQUIRED iostreams) # this may be deprecated in the future
 find_package(PNG REQUIRED)
 
 include_directories(${PNG_INCLUDE_DIR})
@@ -112,7 +116,7 @@ endif()
 # end of windows build specific  (MinGW)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(nfitsview ${PROJECT_SOURCES})
+    # qt_add_executable(nfitsview ${PROJECT_SOURCES}) # not needed anymore here
     # windows build specific (MinGW)
     if(WIN32)
         qt_add_executable(nfitsview WIN32 ${PROJECT_SOURCES})
@@ -138,7 +142,8 @@ endif()
 
 # target_link_libraries(nfitsview PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)  # the original one
 target_link_libraries(nfitsview PRIVATE Qt${QT_VERSION_MAJOR}::Widgets ${Boost_LIBRARIES} ${PNG_LIBRARY}) # added for libnfits
-target_link_libraries(nfitsview PRIVATE Qt${QT_VERSION_MAJOR}::Network) # Added for network support
+target_link_libraries(nfitsview PRIVATE Qt${QT_VERSION_MAJOR}::Network)  # Added for network support
+
 
 if(ENABLE_OPENMP_BUILD)
 find_package(OpenMP REQUIRED)

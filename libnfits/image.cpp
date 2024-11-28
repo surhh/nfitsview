@@ -467,7 +467,7 @@ int32_t Image::createRGBData(uint32_t a_transformType, int32_t a_percent)
     }
     catch (...)
     {
-        retVal = FITS_PNG_PIXEL_DATA_ERROR;
+        retVal = FITS_GENERAL_ERROR;
     }
 
     if (tmpRow != nullptr)
@@ -561,7 +561,7 @@ int32_t Image::createRGB32Data(uint32_t a_transformType, int32_t a_percent)
     }
     catch (...)
     {
-        retVal = FITS_PNG_PIXEL_DATA_ERROR;
+        retVal = FITS_GENERAL_ERROR;
     }
 
     if (tmpRow != nullptr)
@@ -654,7 +654,7 @@ int32_t Image::createRGB32FlatData(uint32_t a_transformType, int32_t a_percent)
     }
     catch (...)
     {
-        retVal = FITS_PNG_PIXEL_DATA_ERROR;
+        retVal = FITS_GENERAL_ERROR;
     }
 
     if (tmpRow != nullptr)

@@ -117,6 +117,8 @@ private slots:
 
     void on_comboBoxFormat_currentTextChanged(const QString &arg1);
 
+    void on_horizontalSliderPercent_sliderMoved(int position);
+
 private:
     Ui::MainWindow *ui;
 

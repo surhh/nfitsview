@@ -449,8 +449,7 @@ inline uint32_t convertFloat2RGBA(float a_value)
 
     if (val < minVal)
         val = minVal;
-
-    if (val > maxVal)
+    else if (val > maxVal)
         val = maxVal;
 
     int32_t offset = val % 0x100;

@@ -1528,6 +1528,8 @@ void MainWindow::on_comboBoxMapping_currentIndexChanged(int index)
     ui->labelPercent->setEnabled(index);
     ui->horizontalSliderPercent->setEnabled(index);
     ui->horizontalSliderPercent->setValue(m_percentThreshold[index]);
+
+    updateHDUInfoWidgetMinMax();
 }
 
 int32_t MainWindow::convertComboIndexToTransformType(int32_t a_index) const
@@ -1760,5 +1762,13 @@ void MainWindow::on_defaultBButton_clicked()
 void MainWindow::on_maxBButton_clicked()
 {
     ui->horizontalSliderB->setValue(RGB_MAX_VALUE);
+}
+
+
+void MainWindow::on_horizontalSliderPercent_sliderMoved(int position)
+{
+    QString valueStr = THRESHOLD_LABEL_TEXT + QString::number(100 - position) + " %";
+    valueStr = valueStr.rightJustified(16, ' ');
+    ui->labelPercent->setText(valueStr);
 }
 

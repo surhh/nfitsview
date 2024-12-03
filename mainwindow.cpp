@@ -56,6 +56,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(this, SIGNAL(sendProgressChanged(qint32)), SLOT(on_progressChanged(qint32)));
     connect(ui->workspaceWidget, SIGNAL(sendGammaCorrectionTabEnabled(bool)), this, SLOT(on_workspaceWidget_sendGammaCorrectionTabEnabled(bool)));
     connect(ui->workspaceWidget->getFITSImageLabel(), SIGNAL(sendMousewheelZoomChanged(int32_t)), this, SLOT(onSendMousewheelZoomChanged(int32_t)));
+    connect(ui->workspaceWidget->getFITSImageLabel(), SIGNAL(sendMousedragScrollChanged(int32_t, int32_t)), this, SLOT(onSendMousedragScrollChanged(int32_t, int32_t)));
 
     //// currently the Undo/Redo logic is not implemented, not needed so far, so disabling the controls
     ui->actionUndo->setVisible(false);
@@ -1772,3 +1773,24 @@ void MainWindow::on_horizontalSliderPercent_sliderMoved(int position)
     ui->labelPercent->setText(valueStr);
 }
 
+void MainWindow::onSendMousedragScrollChanged(int32_t a_scrollX, int32_t a_scrollY)
+{
+    bool isScrollX = ui->workspaceWidget->isScrollVisibleX();
+    bool isScrollY = ui->workspaceWidget->isScrollVisibleY();
+
+    /// moving the image horizontally
+    if (isScrollX)
+    {
+        int32_t scrollX = ui->workspaceWidget->getScrollPosX();
+
+        ui->workspaceWidget->setScrollPosX(scrollX - a_scrollX);
+    }
+
+    /// moving the image vertically
+    if (isScrollY)
+    {
+        int32_t scrollY = ui->workspaceWidget->getScrollPosY();
+
+        ui->workspaceWidget->setScrollPosY(scrollY - a_scrollY);
+    }
+}

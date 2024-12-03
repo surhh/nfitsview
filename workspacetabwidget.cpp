@@ -590,3 +590,13 @@ template<typename T> T WorkspaceTabWidget::getDistribMaxValue() const
     return m_fitsImage->getDistribMaxValue<T>();
 }
 
+bool WorkspaceTabWidget::isScrollVisibleX() const
+{
+    return ui->scrollArea->horizontalScrollBar()->isVisible();
+}
+
+bool WorkspaceTabWidget::isScrollVisibleY() const
+{
+    return ui->scrollArea->verticalScrollBar()->isVisible();
+}
+

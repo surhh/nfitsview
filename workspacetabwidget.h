@@ -101,6 +101,9 @@ public:
     int64_t getDistribMinValueL() const;
     int64_t getDistribMaxValueL() const;
 
+    bool isScrollVisibleX() const;
+    bool isScrollVisibleY() const;
+
     template<typename T> T getMinValue() const;
     template<typename T> T getMaxValue() const;
     template<typename T> T getDistribMinValue() const;

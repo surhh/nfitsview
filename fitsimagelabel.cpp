@@ -3,19 +3,19 @@
 #include <QWheelEvent>
 
 FITSImageLabel::FITSImageLabel():
-    m_zoomable(true)
+    m_isZoomable(true), m_scrollOffset(0,0), m_isDragging(false)
 {
 
 }
 
-void FITSImageLabel::setZoomable(bool a_zoomable)
+void FITSImageLabel::setZoomable(bool a_isZoomable)
 {
-    m_zoomable = a_zoomable;
+    m_isZoomable = a_isZoomable;
 }
 
 bool FITSImageLabel::isZoomable() const
 {
-    return m_zoomable;
+    return m_isZoomable;
 }
 
 void FITSImageLabel::wheelEvent(QWheelEvent* e)
@@ -25,7 +25,7 @@ void FITSImageLabel::wheelEvent(QWheelEvent* e)
     QPoint numDegrees = e->angleDelta();
     int32_t degreesY = e->angleDelta().y();
 
-    if (!m_zoomable)
+    if (!m_isZoomable)
     {
         e->ignore();
 
@@ -43,4 +43,39 @@ void FITSImageLabel::wheelEvent(QWheelEvent* e)
     }
 
     e->accept();
+}
+
+void FITSImageLabel::mousePressEvent(QMouseEvent *e)
+{
+    if (e->button() == Qt::LeftButton)
+    {
+        m_mousePos = e->pos();
+        m_isDragging = true;
+
+        setCursor(Qt::ClosedHandCursor);
+    }
+}
+
+void FITSImageLabel::mouseMoveEvent(QMouseEvent *e)
+{
+    if (m_isDragging)
+    {
+        QPoint deltaPos = e->pos() - m_mousePos;
+        m_scrollOffset += deltaPos;
+        m_mousePos = e->pos();
+
+        setCursor(Qt::ClosedHandCursor);
+
+        emit sendMousedragScrollChanged(deltaPos.x(), deltaPos.y());
+    }
+}
+
+void FITSImageLabel::mouseReleaseEvent(QMouseEvent *e)
+{
+    if (e->button() == Qt::LeftButton)
+    {
+        m_isDragging = false;
+
+        setCursor(Qt::ArrowCursor);
+    }
 }

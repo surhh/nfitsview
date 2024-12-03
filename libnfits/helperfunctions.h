@@ -489,7 +489,7 @@ inline uint32_t convertFloat2RGBA(float a_value)
     tmpVal = tmpVal << 8;
     retVal = retVal | tmpVal;
 
-    retVal = retVal | 0xff; //// the value for Alpha-channel, may be also 0xff
+    ////retVal = retVal | 0xff; //// the value for Alpha-channel, may be also 0xff, seems may be also ignored
 
     return retVal;
 }

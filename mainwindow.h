@@ -119,6 +119,8 @@ private slots:
 
     void on_horizontalSliderPercent_sliderMoved(int position);
 
+    void onSendMousedragScrollChanged(int32_t a_scrollX, int32_t a_scrollY);
+
 private:
     Ui::MainWindow *ui;
 

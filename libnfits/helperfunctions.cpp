@@ -42,9 +42,8 @@ int32_t countSymbol(const std::string& a_strData, const int8_t a_sym)
 
 bool containsSymbol(const std::string& a_strData, const int8_t a_sym)
 {
-    // for C++23 (is so far in draft version) ,  contains() can be used
 #if __cplusplus > 202002L  // > C++20
-    return a_strData.conains(std::string(1, a_sym));
+    return a_strData.contains(std::string(1, a_sym));
 #else
     if (a_strData.find(a_sym) != std::string::npos)
         return true;
@@ -1396,7 +1395,7 @@ std::string convertBuffer2HexString(const uint8_t* a_buffer, size_t size, uint32
     blockBuffer = new uint8_t[blockBufferSize];
 
     if (blockBuffer == nullptr)
-        return 0;
+        return retStr;
 
     for (b = 0; b < blockAmount; ++b)
     {

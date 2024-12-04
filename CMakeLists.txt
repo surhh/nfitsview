@@ -38,6 +38,12 @@ if(WIN32)
 
     set(Boost_INCLUDE_DIR "d:/boost/include/boost-1_79")
     set(Boost_LIBRARY_DIR "d:/boost/lib")
+
+    # these two lines below are for the newer version of MinGW 14.2 as Boost was built by the older one
+    set(BOOST_ROOT "d:/boost")
+    set(Boost_COMPILER ${Boost_COMPILER} "-mgw7")
+    # end of the MinGW 14.2 support directives block
+
     set(Boost_USE_STATIC_LIBS ON)
     set(Boost_MULTITHREADED ON)
     #set(Boost_USE_STATIC_RUNTIME OFF)

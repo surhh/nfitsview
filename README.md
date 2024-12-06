@@ -28,9 +28,15 @@ The original development of nFITSview is done under Linux, so the easiest and th
 
 The latest version (3.3) of nFITSview install package for Linux 64-bit (Debian-based) is available for download too. The dependencies for installing are: 
 
-libboost-iostreams1.83.0 (>= 1.83.0), libc6 (>= 2.34), libgcc-s1 (>= 3.0), libgomp1 (>= 4.9), 
-libpng16-16t64 (>= 1.6.2), libqt6core6t64 (>= 6.6.0), libqt6gui6 (>= 6.1.2), 
-libqt6network6 (>= 6.1.2), libqt6widgets6 (>= 6.1.2), libstdc++6 (>= 14)
+libboost-iostreams1.83.0 (>= 1.83.0), 
+libc6 (>= 2.34), libgcc-s1 (>= 3.0), 
+libgomp1 (>= 4.9), 
+libpng16-16t64 (>= 1.6.2), 
+libqt6core6t64 (>= 6.6.0), 
+libqt6gui6 (>= 6.1.2), 
+libqt6network6 (>= 6.1.2), 
+libqt6widgets6 (>= 6.1.2), 
+libstdc++6 (>= 14)
 
 [nfitsview3_3-x64.deb](https://github.com/surhh/nfitsview/releases/download/v3.3/nfitsview3_3-x64.deb)
 

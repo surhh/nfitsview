@@ -24,7 +24,7 @@ static int32_t percentCallbackFunctionSample(int32_t a_percent, void* a_buffer)
 #define ENABLE_FILE_MAPPING_FILE_LOADING        //// enabling for mapping file into RAM or legacy file reading
 
 #define LIBNFITS_MAJOR_VERSION                  3
-#define LIBNFITS_MINOR_VERSION                  3
+#define LIBNFITS_MINOR_VERSION                  4
 
 #define	FITS_BSCALE_DEFAULT_VALUE               (1.0)
 #define	FITS_BZERO_DEFAULT_VALUE                (0.0)

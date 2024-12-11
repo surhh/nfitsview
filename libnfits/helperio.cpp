@@ -174,23 +174,41 @@ ssize_t MapFile::loadFileRead(const std::string& a_fileName)
         returnFileReadError();
 
     /// Closing the file
-    close(m_fileDesc);
+    int32_t res = close(m_fileDesc);
 
-    return FITS_MEMORY_MAP_FILE_SUCCESS;
+    if (res != 0)
+        return FITS_MEMORY_MAP_FILE_MAP_ERROR;
+    else
+        return FITS_MEMORY_MAP_FILE_SUCCESS;
 }
 
 int32_t MapFile::closeFileRead()
 {
-    delete [] m_memoryBuffer;
+    //// Commented this part because the file is being loaded completely and is closed aftwards.
+    //// No need to call close() again, will cause an error
 
+    /*
     int32_t res = close(m_fileDesc);
 
     int32_t retVal = FITS_MEMORY_MAP_FILE_SUCCESS;
 
-    if (res == 0)
-        retVal = FITS_MEMORY_MAP_FILE_OPEN_ERROR;
+    if (res != 0)
+    {
+        retVal = FITS_MEMORY_MAP_FILE_MAP_ERROR;
+    }
+    else
+    {
+        delete [] m_memoryBuffer;
+        m_memoryBuffer = nullptr;
+    }
+    */
 
-    return retVal;
+    delete [] m_memoryBuffer;
+
+    m_memoryBuffer = nullptr;
+
+    return FITS_MEMORY_MAP_FILE_SUCCESS;
+    //retVal;
 }
 
 int32_t MapFile::closeFile()

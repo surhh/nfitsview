@@ -13,8 +13,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_VERBOSE_MAKEFILE ON)      # added for libnfits
 
 # setting -march=native flag for more explicit optimiation if needed
-#SET(GCC_ARCH_NATIVE_COMPILE_FLAGS "-march=native")
-#SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${GCC_ARCH_NATIVE_COMPILE_FLAGS}")
+###SET(GCC_ARCH_NATIVE_COMPILE_FLAGS "-march=x86-64 -mtune=native") # experiments with optimizations
+SET(GCC_ARCH_NATIVE_COMPILE_FLAGS "-march=native -mtune=native")
+SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${GCC_ARCH_NATIVE_COMPILE_FLAGS}")
 # end of setting -march=native flag
 
 ## Added for Qt6

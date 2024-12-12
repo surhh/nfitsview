@@ -1732,9 +1732,9 @@ void getFloatBufferDistribution(const uint8_t* a_buffer, size_t a_size, float a_
 
     size_t pixelCount = a_size / sizeof(float);
 
-////#if defined(ENABLE_OPENMP)
-////#pragma omp parallel for
-////#endif
+#if defined(ENABLE_OPENMP)
+#pragma omp parallel for
+#endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -1745,7 +1745,9 @@ void getFloatBufferDistribution(const uint8_t* a_buffer, size_t a_size, float a_
         float f = *((float*)&s);
 
         if (f >= a_min && f < a_max)
+        {
             ++count;
+        }
     }
 
     percent = (double)count/(double)pixelCount;
@@ -1767,9 +1769,9 @@ void getDoubleBufferDistribution(const uint8_t* a_buffer, size_t a_size, double 
 
     size_t pixelCount = a_size / sizeof(double);
 
-////#if defined(ENABLE_OPENMP)
-////#pragma omp parallel for
-////#endif
+#if defined(ENABLE_OPENMP)
+#pragma omp parallel for
+#endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -1780,7 +1782,9 @@ void getDoubleBufferDistribution(const uint8_t* a_buffer, size_t a_size, double 
         double f = *((double*)&s);
 
         if (f >= a_min && f < a_max)
+        {
             ++count;
+        }
     }
 
     percent = (double)count/(double)pixelCount;
@@ -1806,9 +1810,9 @@ void getFloatBufferDistribution(const uint8_t* a_buffer, size_t a_size, float a_
     if (areEqual(segmentSizeF, 0.0))
         return;
 
-////#if defined(ENABLE_OPENMP)
-////#pragma omp parallel for
-////#endif
+#if defined(ENABLE_OPENMP)
+#pragma omp parallel for
+#endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -1844,9 +1848,9 @@ void getDoubleBufferDistribution(const uint8_t* a_buffer, size_t a_size, double 
     if (areEqual(segmentSizeF, 0.0))
         return;
 
-////#if defined(ENABLE_OPENMP)
-////#pragma omp parallel for
-////#endif
+#if defined(ENABLE_OPENMP)
+#pragma omp parallel for
+#endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -1874,13 +1878,15 @@ void getByteBufferDistribution(const uint8_t* a_buffer, size_t a_size, int8_t a_
 
     size_t pixelCount = a_size / sizeof(int8_t);
 
-////#if defined(ENABLE_OPENMP)
-////#pragma omp parallel for
-////#endif
+#if defined(ENABLE_OPENMP)
+#pragma omp parallel for
+#endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
         if (tmpBuf[i] >= a_min && tmpBuf[i] < a_max)
+        {
             ++count;
+        }
     }
 
     percent = (double)count/(double)pixelCount;
@@ -1902,9 +1908,9 @@ void getByteBufferDistribution(const uint8_t* a_buffer, size_t a_size, int8_t a_
     if (areEqual(segmentSizeF, 0.0))
         return;
 
-////#if defined(ENABLE_OPENMP)
-////#pragma omp parallel for
-////#endif
+#if defined(ENABLE_OPENMP)
+#pragma omp parallel for
+#endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
         uint32_t index = std::floor(std::fabs(tmpBuf[i] - a_min) / segmentSizeF);
@@ -1929,9 +1935,9 @@ void getShortBufferDistribution(const uint8_t* a_buffer, size_t a_size, int16_t 
 
     size_t pixelCount = a_size / sizeof(int16_t);
 
-////#if defined(ENABLE_OPENMP)
-////#pragma omp parallel for
-////#endif
+#if defined(ENABLE_OPENMP)
+#pragma omp parallel for
+#endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -1942,7 +1948,9 @@ void getShortBufferDistribution(const uint8_t* a_buffer, size_t a_size, int16_t 
         //int16_t f = *((int16_t*)&s);
 
         if (s >= a_min && s < a_max)
+        {
             ++count;
+        }
     }
 
     percent = (double)count/(double)pixelCount;
@@ -1968,9 +1976,9 @@ void getShortBufferDistribution(const uint8_t* a_buffer, size_t a_size, int16_t 
     if (areEqual(segmentSizeF, 0.0))
         return;
 
-////#if defined(ENABLE_OPENMP)
-////#pragma omp parallel for
-////#endif
+#if defined(ENABLE_OPENMP)
+#pragma omp parallel for
+#endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -2002,9 +2010,9 @@ void getIntBufferDistribution(const uint8_t* a_buffer, size_t a_size, int32_t a_
 
     size_t pixelCount = a_size / sizeof(int32_t);
 
-////#if defined(ENABLE_OPENMP)
-////#pragma omp parallel for
-////#endif
+#if defined(ENABLE_OPENMP)
+#pragma omp parallel for
+#endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -2015,7 +2023,9 @@ void getIntBufferDistribution(const uint8_t* a_buffer, size_t a_size, int32_t a_
         //int32_t f = *((int32_t*)&s);
 
         if (s >= a_min && s < a_max)
+        {
             ++count;
+        }
     }
 
     percent = (double)count/(double)pixelCount;
@@ -2041,9 +2051,9 @@ void getIntBufferDistribution(const uint8_t* a_buffer, size_t a_size, int32_t a_
     if (areEqual(segmentSizeF, 0.0))
         return;
 
-////#if defined(ENABLE_OPENMP)
-////#pragma omp parallel for
-////#endif
+#if defined(ENABLE_OPENMP)
+#pragma omp parallel for
+#endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -2076,9 +2086,9 @@ void getLongBufferDistribution(const uint8_t* a_buffer, size_t a_size, int64_t a
 
     size_t pixelCount = a_size / sizeof(int64_t);
 
-////#if defined(ENABLE_OPENMP)
-////#pragma omp parallel for
-////#endif
+#if defined(ENABLE_OPENMP)
+#pragma omp parallel for
+#endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -2089,7 +2099,9 @@ void getLongBufferDistribution(const uint8_t* a_buffer, size_t a_size, int64_t a
         int64_t f = *((int64_t*)&s);
 
         if (f >= a_min && f < a_max)
+        {
             ++count;
+        }
     }
 
     percent = (double)count/(double)pixelCount;
@@ -2115,9 +2127,9 @@ void getLongBufferDistribution(const uint8_t* a_buffer, size_t a_size, int64_t a
     if (areEqual(segmentSizeF, 0.0))
         return;
 
-////#if defined(ENABLE_OPENMP)
-////#pragma omp parallel for
-////#endif
+#if defined(ENABLE_OPENMP)
+#pragma omp parallel for
+#endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -2135,8 +2147,6 @@ void getLongBufferDistribution(const uint8_t* a_buffer, size_t a_size, int64_t a
         a_stats[index].count++;
     }
 }
-
-
 
 float getMaxDistribPercent(const DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER], int32_t& a_segment)
 {

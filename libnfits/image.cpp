@@ -640,10 +640,12 @@ int32_t Image::createRGB32FlatData(uint32_t a_transformType, int32_t a_percent)
 
             convertBufferAllTypes2RGB(tmpRow, tmpBufRowSize, tmpDestRow);
 
+            uint64_t y_width = y*m_width;
+
             for (uint32_t x = 0; x < m_width; ++x)
             {
                 uint64_t indexSource = x*indexBase;
-                uint64_t indexDest = 4*(y*m_width + x);
+                uint64_t indexDest = 4*(y_width + x); //4*(y*m_width + x);
 
                 m_rgb32FlatDataBuffer[indexDest]     = tmpFinalRow[indexSource + 2];
                 m_rgb32FlatDataBuffer[indexDest + 1] = tmpFinalRow[indexSource + 1];

@@ -1733,7 +1733,7 @@ void getFloatBufferDistribution(const uint8_t* a_buffer, size_t a_size, float a_
     size_t pixelCount = a_size / sizeof(float);
 
 #if defined(ENABLE_OPENMP)
-#pragma omp parallel for
+#pragma omp parallel for reduction(+:count)
 #endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
@@ -1770,7 +1770,7 @@ void getDoubleBufferDistribution(const uint8_t* a_buffer, size_t a_size, double 
     size_t pixelCount = a_size / sizeof(double);
 
 #if defined(ENABLE_OPENMP)
-#pragma omp parallel for
+#pragma omp parallel for reduction(+:count)
 #endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
@@ -1879,7 +1879,7 @@ void getByteBufferDistribution(const uint8_t* a_buffer, size_t a_size, int8_t a_
     size_t pixelCount = a_size / sizeof(int8_t);
 
 #if defined(ENABLE_OPENMP)
-#pragma omp parallel for
+#pragma omp parallel for reduction(+:count)
 #endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
@@ -1936,7 +1936,7 @@ void getShortBufferDistribution(const uint8_t* a_buffer, size_t a_size, int16_t 
     size_t pixelCount = a_size / sizeof(int16_t);
 
 #if defined(ENABLE_OPENMP)
-#pragma omp parallel for
+#pragma omp parallel for reduction(+:count)
 #endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
@@ -2011,7 +2011,7 @@ void getIntBufferDistribution(const uint8_t* a_buffer, size_t a_size, int32_t a_
     size_t pixelCount = a_size / sizeof(int32_t);
 
 #if defined(ENABLE_OPENMP)
-#pragma omp parallel for
+#pragma omp parallel for reduction(+:count)
 #endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
@@ -2072,7 +2072,6 @@ void getIntBufferDistribution(const uint8_t* a_buffer, size_t a_size, int32_t a_
     }
 }
 
-
 void getLongBufferDistribution(const uint8_t* a_buffer, size_t a_size, int64_t a_min, int64_t a_max, size_t& a_count, float& a_percent)
 {
     size_t count = 0;
@@ -2087,7 +2086,7 @@ void getLongBufferDistribution(const uint8_t* a_buffer, size_t a_size, int64_t a
     size_t pixelCount = a_size / sizeof(int64_t);
 
 #if defined(ENABLE_OPENMP)
-#pragma omp parallel for
+#pragma omp parallel for reduction(+:count)
 #endif
     for (size_t i = 0; i < pixelCount; ++i)
     {

@@ -1,13 +1,50 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-    <defs id="defs3051">
-        <style type="text/css" id="current-color-scheme">
-            .ColorScheme-NegativeText {
-                color:#da4453;
-            }
-        </style>
-    </defs>
-    <path
-        style="fill:currentColor;fill-opacity:1;stroke:none" 
-        class="ColorScheme-NegativeText"
-        d="M18 20.707L21.293 24 18 27.293c.013.025.707.707.707.707L22 24.707 25.293 28l.707-.707L22.707 24 26 20.707 25.293 20 22 23.293 18.707 20zM6 4v24h11v-1H7V5h11v7h7v7h1v-8l-7-7h-1z"/>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   version="1.1"
+   id="svg2"
+   width="32"
+   height="32"
+   viewBox="0 0 32 32"
+   sodipodi:docname="document-close-32x32.png"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs6" />
+  <sodipodi:namedview
+     id="namedview4"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="Image"
+     id="g8">
+    <image
+       width="32"
+       height="32"
+       preserveAspectRatio="none"
+       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAOwAAADsAEnxA+tAAAA
+GXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAi1JREFUWIXtl79rE2EYxz/PJWeC
+BmkpVgtCHQSFigWRFlxEOygFwU5ubioYwaHgpsXBwdCiIlbUzf+iGCi6SCMKxUoVpFapOIlLxUt6
+d49DrCa5y+XNjzMOvnDL+9w93889v+5eUVW6uayuqv8LAMlIq4h0RCUizxKwicj68ZGsCJPAINAu
+hAKrij+Tyb+41xBgfWz0kgh32xStQ6LZTL4wW7kXqAGByTjEy2IS8F0NICIIg3EBKOyJBviFERdA
+mG/jNpS+HdinzzS8LzF8GJK2MVF0G1aIp6/lsHYOINt7KD1+EO7s2ElS5y/jvlqgeOsGuBsNfRtF
+wOrfhdXTC4A9PsGWsxfqiiNC8tAoiaGDJq7NALzl1zi5KSg6oRCV4qhSfHgbb/GlEYBRCgC8N4s4
+uSnSV65DKo09PgGAv/aR1LlqcXd+ztRtzSASke9jI37UA4mh4d8QVctMXLflF6qi3vTHaDMSbJSq
+9ouP7jT15i0DAEj/QKDVrN2tza+mAWoLjlI5EvW6o6MAYdXu3Lxatzs6ChAm7s7P/amJFiGMAJJH
+joaKb64wCPvEqc4BeMtL+F8+R7ZaJYT3dgn3Wd4IwHgOSG8fif0HcJ8/jXRo7d2Hrn1CnR9h5sAc
+MJ6E+u1rQ3EA//07U5dAeApiPCgEf06tGrsKrMYlL8iHaIAyxXRcAL7oTEOArfnCrKJZgRXAp5yS
+di5fYUVFL2aeFO7X6gXPBX95df1o9h/gJ+IV+oV3tkN2AAAAAElFTkSuQmCC
+"
+       id="image10" />
+  </g>
 </svg>

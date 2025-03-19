@@ -1,11 +1,46 @@
-<!DOCTYPE svg>
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
-    <defs>
-        <style type="text/css" id="current-color-scheme">
-            .ColorScheme-NegativeText {
-                color:#da4453;
-            }
-        </style>
-    </defs>
-    <path d="M 3 2 L 3 14 L 8 14 L 8 13 L 4 13 L 4 3 L 9 3 L 9 6 L 12 6 L 12 8 L 13 8 L 13 5 L 10 2 L 3 2 Z M 9.707 9.03 L 9 9.737 L 10.793 11.53 L 9 13.323 L 9.707 14.03 L 11.5 12.237 L 13.293 14.03 L 14 13.323 L 12.207 11.53 L 14 9.737 L 13.293 9.03 L 11.5 10.823 L 9.707 9.03 Z" style="fill:currentColor; fill-opacity:1; stroke:none" class="ColorScheme-NegativeText"/>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   version="1.1"
+   id="svg2"
+   width="16"
+   height="16"
+   viewBox="0 0 16 16"
+   sodipodi:docname="document-close-16x16.png"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs6" />
+  <sodipodi:namedview
+     id="namedview4"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="Image"
+     id="g8">
+    <image
+       width="16"
+       height="16"
+       preserveAspectRatio="none"
+       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAHYAAAB2AH6XKZyAAAA
+GXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAATZJREFUOI2lkj9Lw2AQxn8XbNoS
+tdQ/g/g99APo1q2DIEjBQdRVwTV0chA3HazQwQ6OLuLSTm79KlL80zYWUuk5pIlJk5pCDw7eu3ue
+5+7e9xVVZR5bCAciImlyAmioq/hnZ3f7AqgCuRSBgQq21WxfARh+61nIAAp5lKofG6FaQDY2NuOd
+l5ZJxMaAhSK5y1vM/cMglymVyV/fT4oAE5cIoF8fuPUbsidngKDdT8yDI9xGDe110wUAfl5bAGRP
+z0EE9+GO4ctTEjS+QrCKP66OkEJxGix5gkyp/Dd2vzdeB9zHerqArK5j7lVwG7XI2GblmGHzGe28
+RfGqCiLi7GyNguTKGvreiQKtRdTp+6FarbYB4zsQzwdBdYIMhMkRrAHe31bBxivofy7wrap2dIU5
+bOozzmq/ezNzHNQhIsUAAAAASUVORK5CYII=
+"
+       id="image10" />
+  </g>
 </svg>

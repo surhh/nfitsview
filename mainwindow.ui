@@ -114,6 +114,9 @@
    <addaction name="separator"/>
    <addaction name="separator"/>
    <addaction name="actionCheckForUpdateToolBar"/>
+   <addaction name="separator"/>
+   <addaction name="separator"/>
+   <addaction name="actionAboutToolBar"/>
   </widget>
   <widget class="QDockWidget" name="dockWidgetHDUs">
    <property name="minimumSize">
@@ -1309,6 +1312,21 @@
    </property>
    <property name="toolTip">
     <string>Check for Update</string>
+   </property>
+  </action>
+  <action name="actionAboutToolBar">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/help-about-22x22.svg</normaloff>:/icons/help-about-22x22.svg</iconset>
+   </property>
+   <property name="text">
+    <string>About</string>
+   </property>
+   <property name="toolTip">
+    <string>About</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
    </property>
   </action>
  </widget>

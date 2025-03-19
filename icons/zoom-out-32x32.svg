@@ -1,13 +1,68 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <defs id="defs3051">
-    <style type="text/css" id="current-color-scheme">
-      .ColorScheme-Text {
-        color:#232629;
-      }
-      </style>
-  </defs>
- <path style="fill:currentColor;fill-opacity:1;stroke:none" 
-       d="M 4 4 L 4 5 L 4 16 L 5 16 L 5 5 L 27 5 L 27 27 L 16 27 L 16 28 L 27 28 L 28 28 L 28 5 L 28 4 L 4 4 z M 23.837891 7.453125 L 16 15.292969 L 16 9.9296875 L 15 9.9296875 L 15 15.585938 L 15 17 L 22.070312 17 L 22.070312 16 L 16.707031 16 L 24.546875 8.1621094 L 23.837891 7.453125 z M 4 18 L 4 22 L 5 22 L 5 19 L 8 19 L 8 18 L 5 18 L 4 18 z M 10 18 L 10 19 L 13 19 L 13 22 L 14 22 L 14 19 L 14 18 L 13 18 L 10 18 z M 4 24 L 4 27 L 4 28 L 8 28 L 8 27 L 5 27 L 5 24 L 4 24 z M 13 24 L 13 27 L 10 27 L 10 28 L 14 28 L 14 24 L 13 24 z "
-     class="ColorScheme-Text"
-     />
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   version="1.1"
+   id="svg2"
+   width="32"
+   height="32"
+   viewBox="0 0 32 32"
+   sodipodi:docname="zoom-out-32x32.png"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs6" />
+  <sodipodi:namedview
+     id="namedview4"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="Image"
+     id="g8">
+    <image
+       width="32"
+       height="32"
+       preserveAspectRatio="none"
+       xlink:href="data:image/png;base64,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
+QmCC
+"
+       id="image10" />
+  </g>
 </svg>

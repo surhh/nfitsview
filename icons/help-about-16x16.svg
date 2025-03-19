@@ -1,12 +1,46 @@
-<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-    <style type="text/css" id="current-color-scheme">
-        .ColorScheme-Text {
-            color:#232629;
-        }
-    </style>
-    <g class="ColorScheme-Text" fill="currentColor" fill-rule="evenodd">
-        <path d="m8 2a6 6 0 0 0 -6 6 6 6 0 0 0 6 6 6 6 0 0 0 6-6 6 6 0 0 0 -6-6zm0 1a5 5 0 0 1 5 5 5 5 0 0 1 -5 5 5 5 0 0 1 -5-5 5 5 0 0 1 5-5z"/>
-        <path d="m7 4h2v2h-2z"/>
-        <path d="m7 7h2v5h-2z"/>
-    </g>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   version="1.1"
+   id="svg2"
+   width="16"
+   height="16"
+   viewBox="0 0 16 16"
+   sodipodi:docname="help-about-16x16.png"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs6" />
+  <sodipodi:namedview
+     id="namedview4"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="Image"
+     id="g8">
+    <image
+       width="16"
+       height="16"
+       preserveAspectRatio="none"
+       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAOwAAADsAEnxA+tAAAA
+GXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAU5JREFUOI2lk78uBFEUxn93Z2mp
+dBRbK0XCeyAkOpWGp/AColaKhEapFpU3EERPQqJhnO9T3DF7Z1eykr3V3HPu9+9MTrLNNKc3FRro
+A6zevA+iZiUiICAC8gco8sO2ly98Oe6ed5Ye+wDxqSM7baFEjmSshAzGWEZOGCOB1SM5nQE7fQCF
+K9lYIGWAw+wuVdjm9KHu9CRjU7URIjK4bQoUYnluFhni+xObrkAz/OygprFXKMgc3r5ly9VMp67I
+YoUDNVkLm2GO1+exYf/mY6jcEKkkcBi5dDBUsI1Cw2gtUfEbQ2pBpVXb2L8zGongkiCGrGUEq3Hw
+PT6fDoFqYTMWYe/6JddSv1PXaASFLkRPDiN50fKaZERVA1cKAhs307eBiEuANLpMCydPmyadS66R
+t18PBpcTd6E8eQ9Uh9l+mwCGP7ZRqXev0MZ/wAA/1eSdozP9kEgAAAAASUVORK5CYII=
+"
+       id="image10" />
+  </g>
 </svg>

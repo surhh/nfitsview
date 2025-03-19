@@ -121,6 +121,8 @@ private slots:
 
     void onSendMousedragScrollChanged(int32_t a_scrollX, int32_t a_scrollY);
 
+    void on_actionAboutToolBar_triggered();
+
 private:
     Ui::MainWindow *ui;
 

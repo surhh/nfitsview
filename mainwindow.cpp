@@ -1794,3 +1794,13 @@ void MainWindow::onSendMousedragScrollChanged(int32_t a_scrollX, int32_t a_scrol
         ui->workspaceWidget->setScrollPosY(scrollY - a_scrollY);
     }
 }
+
+void MainWindow::on_actionAboutToolBar_triggered()
+{
+    AboutDialog dlg;
+
+    dlg.setAppVersion(NFITSVIEW_APP_FULL_NAME);
+
+    dlg.exec();
+}
+

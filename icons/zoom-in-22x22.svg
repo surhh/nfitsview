@@ -1,14 +1,58 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22">
-  <defs id="defs3051">
-    <style type="text/css" id="current-color-scheme">
-      .ColorScheme-Text {
-        color:#232629;
-      }
-      </style>
-  </defs>
- <path 
-    style="fill:currentColor;fill-opacity:1;stroke:none" 
-	d="M 3 3 L 3 5 L 4 5 L 4 4 L 5 4 L 5 3 L 3 3 z M 8 3 L 8 4 L 10 4 L 10 3 L 8 3 z M 12 3 L 12 4 L 14 4 L 14 3 L 12 3 z M 17 3 L 17 4 L 18 4 L 18 5 L 19 5 L 19 3 L 17 3 z M 11 7 L 11 8 L 13.292969 8 L 10 11.292969 L 10.707031 12 L 14 8.7070312 L 14 11 L 15 11 L 15 7 L 14 7 L 11 7 z M 3 8 L 3 10 L 4 10 L 4 8 L 3 8 z M 18 8 L 18 10 L 19 10 L 19 8 L 18 8 z M 18 12 L 18 14 L 19 14 L 19 12 L 18 12 z M 3 13 L 3 19 L 9 19 L 9 13 L 3 13 z M 4 14 L 8 14 L 8 18 L 4 18 L 4 14 z M 18 17 L 18 18 L 17 18 L 17 19 L 19 19 L 19 17 L 18 17 z "
-	class="ColorScheme-Text"
-    />  
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   version="1.1"
+   id="svg2"
+   width="22"
+   height="22"
+   viewBox="0 0 22 22"
+   sodipodi:docname="zoom-in-22x22.png"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs6" />
+  <sodipodi:namedview
+     id="namedview4"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="Image"
+     id="g8">
+    <image
+       width="22"
+       height="22"
+       preserveAspectRatio="none"
+       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAACXBIWXMAAAJvAAACbwFluRkEAAAA
+GXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAA85JREFUOI21lO9PW1UYx7/nnhZK
+udy2XGxv+bWi0MFqEERdNpfGBK0uWjEmmy4af+0tRpe9MOEPQGOyF8ZskuwFMZoYfEUWiXHDkLmC
+blCisAXK2vBDKGsvXW/b21sUeo8vEByknajxm9zk5J7n+eR7nuc5hzDG8H/IcJ89TlGUegAuxtim
+0Wic43leBrAvJ6SAY6Oqqm8DeF/Lrrckkyo4SiCKgm40GsYYYx8JgjD0j8CKolg5jhv4dUn2DXwd
+QDhFwSoqAT0PQzqBdpcZJ1/x6nyF6bNIJHKmo6NjYz9go6qq31z/ccZ38dIM3P4uZEst0O85UC66
+jNy1IXzQ/TQsVtMntbW1Z1iRJnHbi1Qq9c7iQsx38dIMOk+/hrYGC8ie4LLqWgj+13Hu/DAMtKR7
+eHi4s5jjbTDHcdx7AwMBHOrqglhOEVgB8gxY+Pkm4gtLOwkGczlImxdXLk9Sp9N5lhDCFQUrilKv
+ab+1hNMUrS4LgvG/Wq8mFWipzK4kvtGN8V+WIYri4x6Px14IvD1uLiWpglVUooQC2saWUzWpQLkT
+h5pUoN5NoqquBlJjAwhHIa9zMJlMVrvd7gBwpyCYUrrJcQTQ8xiLbm2YrQJACNSkglJzGfhKG0x8
++U4iJQwA9FwuR4s6JoTMiVWCTtMJLvvnANld9VuluJsEX2mD6xHPThLb+B3VPJDNZhORSCRdtMY8
+z8tGo2Hs0QNm5KLLuwKq6mpgdTyw6196OohjRw9idnZ2UpbleFEwAEYp/fDkq149d20Im1p2J0Bq
+bIBVuqc/WQ3qxAQEwYympqbaUChUUgi89+Z9Gl1JdJ87PwzS5gXf6Abh6M7x01NBqMEJSAdaEJ+/
+ibfeOIwjTx6a1jTN73Q6F4uCg8GgUZKkjw205N0r303S8allrK1zoIShmgeOHT0IQTDjQt9VOB5q
+RXx+Bi+/2Azf8ccWcrncC5Ik3SoI3tbIyEinJElnbTbbE2VlZRYAeiaTSYRCoUm32113a3ql9fMv
+JyA9+DDiS3N46oiEE6e8cj6f94uieL0oGAAIIZzH47FLkmTXNI2Gw+GMLMuxUChU6nA4vr/87UTr
+4FAYdlczEtF5tDeb8eZpX7yv70JrT09PrOh7zBjTsTX4e4c/s7q66n/muY6rKUVz/XBjHmJNA34K
+TsH/UtrucDh8AL4oeM//Tk6nc0nX9edPnPLG21vMiN6ego1nECxmfXR0NL3t7F9/a2trhxOJZOz2
+3CKLxeT84ODgVwCqGWPFa7xf9fb2OiRJejYQCKT6+/vHGWNR4D7N+6/6A4C20Riy8X0mAAAAAElF
+TkSuQmCC
+"
+       id="image10" />
+  </g>
 </svg>

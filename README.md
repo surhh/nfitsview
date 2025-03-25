@@ -26,7 +26,7 @@ The original development of nFITSview is done under Linux, so the easiest and th
 - just build in Qt Creator. 
 - it should be also possible to build using CMake from the command line.
 
-The latest version (3.4) of nFITSview install package for Linux 64-bit (Debian-based) is available for download too. The dependencies for installing are: 
+The latest version (3.5) of nFITSview install package for Linux 64-bit (Debian-based) is available for download too. The dependencies for installing are: 
 
 libboost-iostreams1.83.0 (>= 1.83.0)   
 libc6 (>= 2.34)  
@@ -39,7 +39,7 @@ libqt6network6 (>= 6.1.2)
 libqt6widgets6 (>= 6.1.2)   
 libstdc++6 (>= 14)
 
-[nfitsview3_4-x64.deb](https://github.com/surhh/nfitsview/releases/download/v3.4/nfitsview3_4-x64.deb)
+[nfitsview3_5-x64.deb](https://github.com/surhh/nfitsview/releases/download/v3.5/nfitsview3_5-x64.deb)
 
 
 # How to build under Windows
@@ -48,22 +48,22 @@ Normally there is no need to build under Windows as the install package is provi
 Anyway, for building under Windows one would need to download/install/build all the dependencies (boost, zlib, libpng), then fix the
 corresponding pathes for the libraries in the CMakeLists.txt file and then build the project using Qt Creator.
 
-The latest version (3.4) of nFITSview for Windows 64-bit to download:
+The latest version (3.5) of nFITSview for Windows 64-bit to download:
 
-[nfitsview3_4-setup-x64.exe](https://github.com/surhh/nfitsview/releases/download/v3.4/nfitsview3_4-setup-x64.exe)
+[nfitsview3_5-setup-x64.exe](https://github.com/surhh/nfitsview/releases/download/v3.5/nfitsview3_5-setup-x64.exe)
 
 
 
 # Screenshots
 
-![nfitsview3_2_screenshot_1](https://github.com/user-attachments/assets/a1a69547-7c62-4eae-a524-1672f0583d4d)
-![nfitsview3_2_screenshot_2](https://github.com/user-attachments/assets/1081da44-04a0-4430-96b6-afc5225e376b)
-![nfitsview3_2_screenshot_3](https://github.com/user-attachments/assets/32ba4c7b-9c93-44f4-a745-6e034787d4d9)
-![nfitsview3_2_screenshot_4](https://github.com/user-attachments/assets/f939aa94-e242-4382-9dce-9c51066fcedb)
-![nfitsview3_2_screenshot_5](https://github.com/user-attachments/assets/8337df2b-4558-45df-9122-7307ad0b495d)
-![nfitsview3_2_screenshot_6](https://github.com/user-attachments/assets/0a0094f6-6bef-40ca-b11c-920bbd32d951)
-![nfitsview3_2_screenshot_7](https://github.com/user-attachments/assets/ccf21653-020c-4822-a3f5-f170dd76e476)
-![nfitsview3_2_screenshot_8](https://github.com/user-attachments/assets/bf90ac17-3a7a-4b13-8212-e1c20520d929)
+![nfitsview3_5_screenshot_8](https://github.com/user-attachments/assets/facb330e-2467-4ee2-b6b6-91521380a172)
+![nfitsview3_5_screenshot_7](https://github.com/user-attachments/assets/0766be56-2d17-4322-803d-2e02e2a173ab)
+![nfitsview3_5_screenshot_6](https://github.com/user-attachments/assets/95d16127-3969-46b5-94bd-6400373cf4c7)
+![nfitsview3_5_screenshot_5](https://github.com/user-attachments/assets/749fb80c-3da2-4eef-8062-5166777707a3)
+![nfitsview3_5_screenshot_4](https://github.com/user-attachments/assets/e3c0f9d2-d47a-4d2b-9371-82b245dbf973)
+![nfitsview3_5_screenshot_3](https://github.com/user-attachments/assets/7fc4a99e-8534-4321-901f-a4a5c08d7a3a)
+![nfitsview3_5_screenshot_2](https://github.com/user-attachments/assets/85fdfd7c-5ec1-44ab-afb8-163ce9b5b2e2)
+![nfitsview3_5_screenshot_1](https://github.com/user-attachments/assets/f5869e9c-58cb-449b-af56-d5db981c8eaf)
 
 
 # About FITS format

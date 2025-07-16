@@ -23,8 +23,13 @@ Currently nFITSview supports the following formats and features:
 
 The original development of nFITSview is done under Linux, so the easiest and the fastest way to build is under Linux.
 
-- just build in Qt Creator. 
-- it should be also possible to build using CMake from the command line.
+- Just build in Qt Creator. 
+- It should be also possible to build using CMake from the command line. Run the following cmake commands:
+
+  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS_RELEASE="-O3 -DNDEBUG" -B build -S .
+  cmake --build build
+
+  The nfitsview execuatble will be located in the build directory.
 
 The latest version (3.5) of nFITSview install package for Linux 64-bit (Debian-based) is available for download too. The dependencies for installing are: 
 

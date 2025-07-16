@@ -26,9 +26,9 @@ The original development of nFITSview is done under Linux, so the easiest and th
 - Just build in Qt Creator. 
 - It should be also possible to build using CMake from the command line. Run the following cmake commands:
 
-  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS_RELEASE="-O3 -DNDEBUG" -B build -S .
+        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS_RELEASE="-O3 -DNDEBUG" -B build -S .
   
-  cmake --build build
+        cmake --build build
 
   The nfitsview execuatble will be located in the build directory.
 

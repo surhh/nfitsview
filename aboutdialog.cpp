@@ -21,7 +21,7 @@ void AboutDialog::on_okCloseButton_clicked()
     close();
 }
 
-void AboutDialog::setAppVersion(const QString &a_strAppVresion)
+void AboutDialog::setAppVersion(const QString& a_strAppVresion)
 {
     m_strAppVersion = APP_NAME_VERSION_1 + a_strAppVresion + APP_NAME_VERSION_2;
 

@@ -13,13 +13,13 @@ UpdateChecker::~UpdateChecker()
     m_updateURL = "";
 }
 
-void UpdateChecker::setCheckURL(const QString &a_url)
+void UpdateChecker::setCheckURL(const QString& a_url)
 {
     m_checkURL = a_url;
     m_fileDownloader.setCheckURL(m_checkURL);
 }
 
-void UpdateChecker::setUpdateURL(const QString &a_url)
+void UpdateChecker::setUpdateURL(const QString& a_url)
 {
     m_updateURL = a_url;
 }
@@ -34,7 +34,7 @@ QString UpdateChecker::getUpdateURL() const
     return m_updateURL;
 }
 
-int32_t UpdateChecker::checkUpdate(int32_t a_curVer, int32_t &a_majorVer, int32_t &a_minorVer)
+int32_t UpdateChecker::checkUpdate(int32_t a_curVer, int32_t& a_majorVer, int32_t& a_minorVer)
 {
     int32_t checkRes = 0;
 

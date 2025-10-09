@@ -43,7 +43,7 @@ void FileDownloader::doRequest()
     m_netAccessManager->get(request);
 }
 
-void FileDownloader::setCheckURL(const QString &a_url)
+void FileDownloader::setCheckURL(const QString& a_url)
 {
     m_url = QUrl(a_url);
 }

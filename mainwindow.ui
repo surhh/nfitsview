@@ -986,6 +986,11 @@
                    <string>BMP</string>
                   </property>
                  </item>
+                 <item>
+                  <property name="text">
+                   <string>PPM</string>
+                  </property>
+                 </item>
                 </widget>
                </item>
                <item>

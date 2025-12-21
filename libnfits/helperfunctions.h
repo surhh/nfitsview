@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <any>
 #include <ctime>
+#include <chrono>
 #include <cmath>
 
 #include "defs.h"
@@ -913,6 +914,11 @@ int32_t dumpDoubleDataBuffer(const uint8_t* a_buffer, size_t a_size, const std::
 
 int32_t dumpByteDataBuffer(const uint8_t* a_buffer, size_t a_size, const std::string& a_filename);
 
+void profileTimers(const std::string& a_message, bool a_start = true);
+
+void debugStartProfiling();
+
+void debugEndProfiling(const std::string& a_message);
 }
 
 typedef     void (*convertShort)            (uint16_t, libnfits::RGBPixel&);

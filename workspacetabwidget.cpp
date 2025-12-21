@@ -205,7 +205,6 @@ void WorkspaceTabWidget::insertImage(const uint8_t* a_image, ImageParams& a_imag
     else if (a_imageParams.bitpix == 8)
             image->calcBufferMinMax<uint8_t>();
 
-
     image->createRGB32FlatData(a_transformType, a_percent);
 
     imageHDU.index = a_imageParams.hduIndex;

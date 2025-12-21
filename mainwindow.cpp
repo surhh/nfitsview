@@ -108,7 +108,6 @@ MainWindow::MainWindow(QWidget *parent)
     int32_t numThreads = omp_get_max_threads();
     numThreads = numThreads > 2 ? numThreads - OPENMP_THREADS_DISABLE_NUMBER : numThreads;
     omp_set_num_threads(numThreads);
-    //omp_set_num_threads(omp_get_max_threads() / 2);
 #endif
 }
 
@@ -410,16 +409,34 @@ int32_t MainWindow::openFITSFileByName(const QString& a_fileName, bool a_bShowMs
 
     setProgress(25);
 
+#if defined(PROFILING_MODE)
+    libnfits::debugStartProfiling();
+#endif
     resTemp = m_fitsFile.loadFile(m_fitsFileName.toStdString());
+#if defined(PROFILING_MODE)
+    libnfits::debugEndProfiling("m_fitsFile.loadFile()");
+#endif
 
     if (resTemp == FITS_GENERAL_SUCCESS)
     {
         m_fitsFile.setCallbackFunction(progressCallbackFunction, (void *)this);
 
         // this function loads all the image HDUs into the corresponding Image objects
+#if defined(PROFILING_MODE)
+        libnfits::debugStartProfiling();
+#endif
         setAllWorkspaceImages();
+#if defined(PROFILING_MODE)
+        libnfits::debugEndProfiling("setAllWorkspaceImages()");
+#endif
 
+#if defined(PROFILING_MODE)
+        libnfits::debugStartProfiling();
+#endif
         populateHDUsWidget();
+#if defined(PROFILING_MODE)
+        libnfits::debugEndProfiling("populateHDUsWidget()");
+#endif
         enableFileOpenRelatedWidgets();
 
         setWindowTitle(QString(NFITSVIEW_APP_NAME) + " - " + getFileName());

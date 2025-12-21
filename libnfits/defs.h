@@ -15,8 +15,9 @@ static int32_t percentCallbackFunctionSample(int32_t a_percent, void* a_buffer)
 }
 
 //#define DEBUG_MODE                            //// enabling/disabling the debug logging used in libnfits::LOG()
+#define PROFILING_MODE
 
-#define ENABLE_OPENMP                           //// enabling/disabling the usage of OpenMP
+//#define ENABLE_OPENMP                           //// enabling/disabling the usage of OpenMP
                                                 //// Currently OpenMP is not suitable for some of the algorithms
 
 #define OPENMP_THREADS_DISABLE_NUMBER           (0) //// Number of excluded OpenMP threads - default here is 2

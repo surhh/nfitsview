@@ -45,7 +45,7 @@ static int32_t percentCallbackFunctionSample(int32_t a_percent, void* a_buffer)
 
 #define FITS_UNDEFINED_VALUE                    (-1)
 
-#define FITS_COMPRESS_MEMORY_CHUNK_MB           (64)                // 64 MB
+#define FITS_COMPRESS_MEMORY_CHUNK_MB           (64)                /// default is 64 MB
 #define FITS_COMPRESS_MEMORY_CHUNK_SIZE         (FITS_COMPRESS_MEMORY_CHUNK_MB * 1024 * 1024)
 
 #define FITS_HEADER_RECORD_ASSIGNMENT_CHAR      '='

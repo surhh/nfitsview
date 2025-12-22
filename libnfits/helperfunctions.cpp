@@ -2438,7 +2438,7 @@ void profileTimers(const std::string& a_message, bool a_start)
 
         std::chrono::duration<double> elapsedSeconds = endTime - startTime;
 
-        std::cout << "[PROFILING INFO]: Profiling <" << a_message <<  "> , Elasped time: " << elapsedSeconds << std::endl;
+        std::cout << "[PROFILING INFO]: Profiling <" << a_message <<  "> , Elapsed time: " << elapsedSeconds << std::endl;
     }
 }
 

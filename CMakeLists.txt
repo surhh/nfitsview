@@ -19,11 +19,7 @@ SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${GCC_ARCH_NATIVE_COMPILE_FLAGS}")
 # end of setting -march=native flag
 
 ## Added for Qt6
-if(WIN32)
-    find_package(Qt5Network REQUIRED) # for Qt5
-else()
-    find_package(Qt6 REQUIRED COMPONENTS Core Gui Network) # Qt6
-endif()
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Network) # Qt6
 ######################################################
 
 set(Boost_USE_MULTITHREADED ON)     # added for libnfits
@@ -32,16 +28,16 @@ set(Boost_USE_MULTITHREADED ON)     # added for libnfits
 
 # windows build specific (MinGW)
 if(WIN32)
-    include_directories("d:/build-lpng1637-Desktop-Release")
+    include_directories("c:/nfitsview_deps/build-lpng1637-Desktop-Release")
 
-    set(ZLIB_INCLUDE_DIR "d:/zlib-1.2.12")
-    set(ZLIB_LIBRARY "d:/build-zlib-1.2.12-Desktop-Release/libzlibstatic.a")
+    set(ZLIB_INCLUDE_DIR "c:/nfitsview_deps/zlib-1.2.12")
+    set(ZLIB_LIBRARY "c:/nfitsview_deps/build-zlib-1.2.12-Desktop-Release/libzlibstatic.a")
 
-    set(Boost_INCLUDE_DIR "d:/boost/include/boost-1_79")
-    set(Boost_LIBRARY_DIR "d:/boost/lib")
+    set(Boost_INCLUDE_DIR "c:/nfitsview_deps/boost/include/boost-1_79")
+    set(Boost_LIBRARY_DIR "c:/nfitsview_deps/boost/lib")
 
     # these two lines below are for the newer version of MinGW 14.2 as Boost was built by the older one
-    set(BOOST_ROOT "d:/boost")
+    set(BOOST_ROOT "c:/nfitsview_deps/boost")
     set(Boost_COMPILER ${Boost_COMPILER} "-mgw7")
     # end of the MinGW 14.2 support directives block
 
@@ -57,8 +53,8 @@ if(NOT DEFINED ${ENABLE_OPENMP_BUILD})
     add_link_options("-static")
 endif()
 
-    set(PNG_PNG_INCLUDE_DIR "d:/lpng1637")
-    set(PNG_LIBRARY "d:/build-lpng1637-Desktop-Release/libpng.a")
+    set(PNG_PNG_INCLUDE_DIR "c:/nfitsview_deps/lpng1637")
+    set(PNG_LIBRARY "c:/nfitsview_deps/build-lpng1637-Desktop-Release/libpng.a")
 endif()
 # end of windows build specific (MinGW)
 
@@ -68,11 +64,7 @@ find_package(PNG REQUIRED)
 
 include_directories(${PNG_INCLUDE_DIR})
 
-if(WIN32)
-    find_package(QT NAMES Qt5 COMPONENTS Widgets REQUIRED)
-else()
-    find_package(QT NAMES Qt6 COMPONENTS Widgets REQUIRED)
-endif()
+find_package(QT NAMES Qt6 COMPONENTS Widgets REQUIRED)
 
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 
@@ -149,7 +141,7 @@ endif()
 
 # windows build specific (MinGW), is needed to have icons visible in the toolbar and menu
 if(WIN32)
-    qt5_import_plugins(${PROJECT_NAME} INCLUDE Qt5::QSvgPlugin)
+    qt6_import_plugins(${PROJECT_NAME} INCLUDE Qt6::QSvgPlugin)
 endif()
 # end of windows build specific (MinGW)
 

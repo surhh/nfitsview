@@ -28,7 +28,7 @@ endif()
 
 set(Boost_USE_MULTITHREADED ON)     # added for libnfits
 
-set(ENABLE_OPENMP_BUILD ON) # Enable OpenMP support
+###set(ENABLE_OPENMP_BUILD ON) # Enable OpenMP support
 
 # windows build specific (MinGW)
 if(WIN32)

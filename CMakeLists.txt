@@ -28,16 +28,16 @@ set(Boost_USE_MULTITHREADED ON)     # added for libnfits
 
 # windows build specific (MinGW)
 if(WIN32)
-    include_directories("c:/nfitsview_deps/build-lpng1637-Desktop-Release")
+    include_directories("c:/projects/nfitsview_deps/build-lpng1637-Desktop-Release")
 
-    set(ZLIB_INCLUDE_DIR "c:/nfitsview_deps/zlib-1.2.12")
-    set(ZLIB_LIBRARY "c:/nfitsview_deps/build-zlib-1.2.12-Desktop-Release/libzlibstatic.a")
+    set(ZLIB_INCLUDE_DIR "c:/projects/nfitsview_deps/zlib-1.2.12")
+    set(ZLIB_LIBRARY "c:/projects/nfitsview_deps/build-zlib-1.2.12-Desktop-Release/libzlibstatic.a")
 
-    set(Boost_INCLUDE_DIR "c:/nfitsview_deps/boost/include/boost-1_79")
-    set(Boost_LIBRARY_DIR "c:/nfitsview_deps/boost/lib")
+    set(Boost_INCLUDE_DIR "c:/projects/nfitsview_deps/boost/include/boost-1_79")
+    set(Boost_LIBRARY_DIR "c:/projects/nfitsview_deps/boost/lib")
 
     # these two lines below are for the newer version of MinGW 14.2 as Boost was built by the older one
-    set(BOOST_ROOT "c:/nfitsview_deps/boost")
+    set(BOOST_ROOT "c:/projects/nfitsview_deps/boost")
     set(Boost_COMPILER ${Boost_COMPILER} "-mgw7")
     # end of the MinGW 14.2 support directives block
 
@@ -53,8 +53,8 @@ if(NOT DEFINED ${ENABLE_OPENMP_BUILD})
     add_link_options("-static")
 endif()
 
-    set(PNG_PNG_INCLUDE_DIR "c:/nfitsview_deps/lpng1637")
-    set(PNG_LIBRARY "c:/nfitsview_deps/build-lpng1637-Desktop-Release/libpng.a")
+    set(PNG_PNG_INCLUDE_DIR "c:/projects/nfitsview_deps/lpng1637")
+    set(PNG_LIBRARY "c:/projects/nfitsview_deps/build-lpng1637-Desktop-Release/libpng.a")
 endif()
 # end of windows build specific (MinGW)
 

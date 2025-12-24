@@ -495,9 +495,9 @@ void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size, float a_min, float
     float oldRange = std::fabs(a_max - a_min);
     float newRange = std::fabs(max - min);
 
-#if defined(ENABLE_OPENMP)
-#pragma omp parallel for
-#endif
+///#if defined(ENABLE_OPENMP)
+///#pragma omp parallel for
+///#endif
     for (size_t i = 0; i < a_size / sizeof(float); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -696,9 +696,9 @@ void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size, double a_min, dou
     double oldRange = std::fabs(a_max - a_min);
     double newRange = std::fabs(max - min);
 
-#if defined(ENABLE_OPENMP)
-#pragma omp parallel for
-#endif
+///#if defined(ENABLE_OPENMP)
+///#pragma omp parallel for
+///#endif
     for (size_t i = 0; i < a_size / sizeof(double); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -872,16 +872,16 @@ void convertBufferShortRGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuff
         float oldRange = std::fabs(curMax - curMin);
         float newRange = std::fabs(max - min);
 
-    #if defined(ENABLE_OPENMP)
-    #pragma omp parallel for
-    #endif
+///#if defined(ENABLE_OPENMP)
+///#pragma omp parallel for
+///#endif
         for (size_t i = 0; i < a_size / sizeof(int16_t); ++i)
         {
-    #if __BYTE_ORDER == __LITTLE_ENDIAN
+#if __BYTE_ORDER == __LITTLE_ENDIAN
             int16_t s = swap16(tmpBuf[i]);
-    #else
+#else
             int16_t s = tmpBuf[i];
-    #endif
+#endif
 
             float f = s;
 
@@ -971,9 +971,9 @@ void convertBufferByte2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuff
 {
     RGBPixel pixel;
 
-#if defined(ENABLE_OPENMP)
-#pragma omp parallel for
-#endif
+///#if defined(ENABLE_OPENMP)
+///#pragma omp parallel for
+///#endif
     for (size_t i = 0; i < a_size; ++i)
     {
         convertByte2Grayscale(a_buffer[i], pixel);
@@ -1046,9 +1046,9 @@ void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size, int32_t a_min, int32
         float oldRange = std::fabs(curMax - curMin);
         float newRange = std::fabs(max - min);
 
-#if defined(ENABLE_OPENMP)
-#pragma omp parallel for
-#endif
+///#if defined(ENABLE_OPENMP)
+///#pragma omp parallel for
+///#endif
         for (size_t i = 0; i < a_size / sizeof(int32_t); ++i)
         {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -1169,9 +1169,9 @@ void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size, int64_t a_min, int6
         double oldRange = std::fabs(curMax - curMin);
         double newRange = std::fabs(max - min);
 
-#if defined(ENABLE_OPENMP)
-#pragma omp parallel for
-#endif
+///#if defined(ENABLE_OPENMP)
+///#pragma omp parallel for
+///#endif
         for (size_t i = 0; i < a_size / sizeof(int64_t); ++i)
         {
 #if __BYTE_ORDER == __LITTLE_ENDIAN

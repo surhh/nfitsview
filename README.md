@@ -35,7 +35,9 @@ The original development of nFITSview is done under Linux, so the easiest and th
   The nfitsview execuatble will be located in the build directory.
 
 
-The latest version (3.7) of nFITSview install package for Linux 64-bit (Debian-based) is available for download too. The dependencies for installing are: 
+The latest version (3.7) of nFITSview install package for Linux 64-bit (Debian-based) is available for download too. 
+
+The dependencies for installing are: 
 
 libboost-iostreams1.83.0 (>= 1.88.0) , libc6 (>= 2.34) , libgcc-s1 (>= 3.0) , libgomp1 (>= 4.9) , libpng16-16t64 (>= 1.6.46) 
 

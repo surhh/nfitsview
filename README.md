@@ -18,6 +18,8 @@ Currently nFITSview supports the following formats and features:
      
      *Note: the console output is not visible on Windows platform. The command line 
      supports image exporting only in "Original" mapping mode.*
+
+     ***Known issues: update checking stopped working in Windows***
     
 # How to build under Linux
 

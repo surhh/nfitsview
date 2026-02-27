@@ -19,12 +19,13 @@ SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${GCC_ARCH_NATIVE_COMPILE_FLAGS}")
 # end of setting -march=native flag
 
 ## Added for Qt6
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Network) # Qt6
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Network Charts) # Qt6
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Charts)
 ######################################################
 
 set(Boost_USE_MULTITHREADED ON)     # added for libnfits
 
-set(ENABLE_OPENMP_BUILD ON) # Enable OpenMP support
+#set(ENABLE_OPENMP_BUILD ON) # Enable OpenMP support
 
 # windows build specific (MinGW)
 if(WIN32)
@@ -148,6 +149,7 @@ endif()
 # target_link_libraries(nfitsview PRIVATE Qt${QT_VERSION_MAJOR}::Widgets) # the original one
 target_link_libraries(nfitsview PRIVATE Qt${QT_VERSION_MAJOR}::Widgets ${Boost_LIBRARIES} ${PNG_LIBRARY}) # added for libnfits
 target_link_libraries(nfitsview PRIVATE Qt${QT_VERSION_MAJOR}::Network) # Added for network support
+target_link_libraries(nfitsview PRIVATE Qt${QT_VERSION_MAJOR}::Charts) # Added for charts
 
 
 if(ENABLE_OPENMP_BUILD)

@@ -47,6 +47,11 @@
 
 #define LABELS_RIGHT_JUSTIFICATION_VALUE        (8)
 
+constexpr int32_t minTickCountX = 10, maxTickCountX = 15;
+constexpr int32_t minTickCountY = 3, maxTickCountY = 5;
+
+constexpr float tickQautientX = 10.0f;
+
 struct GammaWidgetsStates
 {
     int8_t      rLevel;
@@ -88,6 +93,12 @@ struct ZoomWidgetsStates
     bool        fitWindowEnabled;
 };
 
+struct StretchingWidgetsStates
+{
+    int32_t     percentile;
+    int32_t     stretching;
+};
+
 struct ScrollState
 {
     int32_t x;
@@ -96,13 +107,14 @@ struct ScrollState
 
 struct WidgetsStates
 {
-    bool                    stored;
-    bool                    imageChanged;
+    bool                        stored;
+    bool                        imageChanged;
 
-    GammaWidgetsStates      gammaStates;
-    ExportWidgetsStates     exportStates;
-    ZoomWidgetsStates       zoomStates;
-    ScrollState             scrollState;
+    GammaWidgetsStates          gammaStates;
+    ExportWidgetsStates         exportStates;
+    ZoomWidgetsStates           zoomStates;
+    StretchingWidgetsStates     stretchingStates;
+    ScrollState                 scrollState;
 
     WidgetsStates()
     {

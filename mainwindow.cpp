@@ -25,7 +25,7 @@
 // This function acts as a wrapper over the callback method of signal/slot.
 // "this" pointer of MainWindow is passed to callback function and then it
 // is used in order to emit the signal from MainWindow class.
-qint32 progressCallbackFunction(qint32 a_value, void* a_buffer = nullptr)
+qint32 progressCallbackFunction(qint32 a_value, void* a_buffer)
 {
     MainWindow* mainWnd = static_cast<MainWindow*>(a_buffer);
 
@@ -47,6 +47,7 @@ MainWindow::MainWindow(QWidget *parent)
     , m_bEyeComfort(false)
     , m_exportFormat(IMAGE_EXPORT_TYPE_PNG)
     , m_exportQuality(IMAGE_EXPORT_DEFAULT_QUALITY)
+    , m_bEnableStretchingWidgets(false)
 {
     ui->setupUi(this);
 
@@ -54,9 +55,15 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(m_sliderZoom, SIGNAL(valueChanged(int)), SLOT(om_m_sliderZoom_valueChanged(int)));
     connect(this, SIGNAL(sendProgressChanged(qint32)), SLOT(on_progressChanged(qint32)));
+
     connect(ui->workspaceWidget, SIGNAL(sendGammaCorrectionTabEnabled(bool)), this, SLOT(on_workspaceWidget_sendGammaCorrectionTabEnabled(bool)));
     connect(ui->workspaceWidget->getFITSImageLabel(), SIGNAL(sendMousewheelZoomChanged(int32_t)), this, SLOT(onSendMousewheelZoomChanged(int32_t)));
     connect(ui->workspaceWidget->getFITSImageLabel(), SIGNAL(sendMousedragScrollChanged(int32_t, int32_t)), this, SLOT(onSendMousedragScrollChanged(int32_t, int32_t)));
+
+    connect(ui->workspaceWidget, SIGNAL(sendDrawHistogramChartInt(libnfits::DistribStats const*, int64_t, int64_t, size_t)),
+                  SLOT(onDrawHistogramChartInt(libnfits::DistribStats const*, int64_t, int64_t, size_t)));
+    connect(ui->workspaceWidget, SIGNAL(sendDrawHistogramChartDouble(libnfits::DistribStats const*, double, double, size_t)),
+                  SLOT(onDrawHistogramChartDouble(libnfits::DistribStats const*, double, double, size_t)));
 
     //// currently the Undo/Redo logic is not implemented, not needed so far, so disabling the controls
     ui->actionUndo->setVisible(false);
@@ -77,10 +84,12 @@ MainWindow::MainWindow(QWidget *parent)
     enableImageExportWidgets(false);
     enableImageExportSettigsWidgets(false);
     enableMappingWidgets(m_bEnableMappingWidgets);
+    enableStretchingtWidgets(m_bEnableStretchingWidgets);
 
     initGammaWidgetsValues();
     initMappingWidgetsValues();
     initImageExportSettingsWidgetValues();
+    initStretchingWidgetsValues();
 
     ui->toolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 
@@ -104,11 +113,45 @@ MainWindow::MainWindow(QWidget *parent)
     if (m_fileDownloader != nullptr)
         connect(m_fileDownloader, SIGNAL(downloaded()),this, SLOT(updateChecked()));
 
+    /// Historgram chart
+    m_lineSeries = new QLineSeries();
+    m_lineSeriesLow = new QLineSeries();
+    m_areaSeries = new QAreaSeries(m_lineSeries, m_lineSeriesLow);
+
+    m_histChart = new QChart();
+    m_histChart->addSeries(m_areaSeries);
+
+    m_axisX = new QValueAxis();
+    m_axisY = new QValueAxis();
+
+    m_axisX->setLabelFormat("%i");
+    m_axisY->setLabelFormat("^ %i");
+
+    initChartDefaultMetrics();
+
+    m_histChart->setTitle("Histogram of distribution");
+    m_histChart->setMargins(QMargins(0, 0, 0, 0));
+    m_histChart->legend()->hide();
+
+    m_histChart->addAxis(m_axisX, Qt::AlignBottom);
+    m_histChart->addAxis(m_axisY, Qt::AlignLeft);
+
+    m_areaSeries->attachAxis(m_axisX);
+    m_areaSeries->attachAxis(m_axisY);
+
+    m_histChartView = new QChartView(m_histChart);
+    m_histChartView->setFocusPolicy(Qt::NoFocus);
+    m_histChartView->setRenderHint(QPainter::Antialiasing);
+    m_histChartView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    ui->horizontalLayoutStretching_2->addWidget(m_histChartView);
+    /// End of histogram chart
+
 #if defined(ENABLE_OPENMP)
     int32_t numThreads = omp_get_max_threads();
     numThreads = numThreads > 2 ? numThreads - OPENMP_THREADS_DISABLE_NUMBER : numThreads;
     omp_set_num_threads(numThreads);
-#endif
+#endif    
 }
 
 MainWindow::~MainWindow()
@@ -120,6 +163,20 @@ MainWindow::~MainWindow()
     delete m_sliderZoom;
 
     delete m_fileDownloader;
+
+    /// delete chart objects
+    delete m_axisX;
+
+    delete m_axisY;
+
+    delete m_lineSeries;
+
+    delete m_lineSeriesLow;
+
+    delete m_areaSeries;
+
+    delete m_histChart;
+    ////////////////
 
     delete ui;
 }
@@ -225,6 +282,7 @@ void MainWindow::on_checkBoxGrayscale_stateChanged(int arg1)
 {
     enableRGBWidgets(!arg1);
     enableMappingWidgets(!arg1 & m_bEnableMappingWidgets);
+    enableStretchingtWidgets(!arg1 & m_bEnableStretchingWidgets);
 
     ui->checkBoxEyeComfort->setEnabled(!arg1);    
 
@@ -466,11 +524,11 @@ int32_t MainWindow::closeFITSFile()
     clearWidgets();
     initGammaWidgetsValues();
     initMappingWidgetsValues();
-    enableImageExportWidgets(false);
-    enableImageExportSettigsWidgets(false);
+    initStretchingWidgetsValues();
 
-    //ui->workspaceWidget->clearImage();
     ui->workspaceWidget->clearImages();
+
+    initChartDefaultMetrics();
 
     m_scaleFactor = 100;
 
@@ -568,11 +626,16 @@ void MainWindow::clearWidgets()
     m_bEnableGammaWidgets = false;
     m_bEnableZoomWidget = false;
     m_bEnableMappingWidgets = false;
+    m_bEnableStretchingWidgets = false;
 
     enableZoomWidgets(m_bEnableZoomWidget);
     enableGammaWidgets(m_bEnableGammaWidgets);
     enableMappingWidgets(m_bEnableMappingWidgets);
+    enableStretchingtWidgets(m_bEnableStretchingWidgets);
     enableFileOpenRelatedWidgets(false);
+
+    enableImageExportWidgets(false);
+    enableImageExportSettigsWidgets(false);
 
     initHDUInfoWidgetValues();
     initHDUInfoWidgetMinMax();
@@ -784,6 +847,7 @@ void MainWindow::restoreOriginalImage()
 
     initGammaWidgetsValues();
     initMappingWidgetsValues();
+    initStretchingWidgetsValues();
     enableRestoreWidgets(false);
 
     m_bImageChanged = false;
@@ -989,6 +1053,8 @@ void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current
     {
         populateHeaderWidget(row);
         populateRawDataWidget(row);
+
+        initChartDefaultMetrics();
     }
     else
         return;
@@ -1042,7 +1108,10 @@ void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current
                 else
                     m_bEnableMappingWidgets = false;
 
+                m_bEnableStretchingWidgets = true;
+
                 enableMappingWidgets(m_bEnableMappingWidgets);
+                enableStretchingtWidgets(m_bEnableStretchingWidgets);
 
                 bool bPosBitpix = bitpix > 0 ? false : true;
                 enableDisableMappingComboItem(2, bPosBitpix);
@@ -1098,6 +1167,7 @@ void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current
 
                         initGammaWidgetsValues();
                         initMappingWidgetsValues();
+                        initStretchingWidgetsValues();
                     }
                 }
             }
@@ -1107,11 +1177,13 @@ void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current
             m_bEnableGammaWidgets = false;
             m_bEnableZoomWidget = false;
             m_bEnableMappingWidgets = false;
+            m_bEnableStretchingWidgets = false;
             enableGammaWidgets(m_bEnableGammaWidgets);
             enableZoomWidgets(m_bEnableZoomWidget);
             enableImageExportWidgets(false);
             enableImageExportSettigsWidgets(false);
             enableMappingWidgets(m_bEnableMappingWidgets);
+            enableStretchingtWidgets(m_bEnableStretchingWidgets);
 
             //ui->workspaceWidget->imageSetVisible(false);
 
@@ -1138,6 +1210,7 @@ void MainWindow::on_workspaceWidget_sendGammaCorrectionTabEnabled(bool a_flag)
     enableGammaWidgets(m_bEnableGammaWidgets & a_flag);
     enableZoomWidgets(m_bEnableZoomWidget & a_flag);
     enableMappingWidgets(m_bEnableMappingWidgets & a_flag);
+    enableStretchingtWidgets(m_bEnableStretchingWidgets & a_flag);
 }
 
 void MainWindow::setProgress(int32_t a_progress)
@@ -1227,11 +1300,12 @@ int32_t MainWindow::setAllWorkspaceImages()
 
 WidgetsStates MainWindow::getWidgetsStates() const
 {
-    WidgetsStates       widgetStates;
-    GammaWidgetsStates  gammaStates;
-    ExportWidgetsStates exportStates;
-    ZoomWidgetsStates   zoomStates;
-    ScrollState         scrollStates;
+    WidgetsStates               widgetStates;
+    GammaWidgetsStates          gammaStates;
+    ExportWidgetsStates         exportStates;
+    ZoomWidgetsStates           zoomStates;
+    StretchingWidgetsStates     stretchingStates;
+    ScrollState                 scrollStates;
 
 
     gammaStates.rLevel = ui->horizontalSliderR->value();
@@ -1261,6 +1335,8 @@ WidgetsStates MainWindow::getWidgetsStates() const
     exportStates.qualityEnabled = ui->horizontalSliderQuality->isEnabled();
 
 
+    stretchingStates.percentile = ui->comboBoxPercentile->currentIndex();
+    stretchingStates.stretching = ui->comboBoxStretching->currentIndex();
 
     zoomStates.factor = m_sliderZoom->value();
     zoomStates.zoomEnabled = m_sliderZoom->isEnabled();
@@ -1275,6 +1351,7 @@ WidgetsStates MainWindow::getWidgetsStates() const
 
     widgetStates.gammaStates = gammaStates;
     widgetStates.exportStates = exportStates;
+    widgetStates.stretchingStates = stretchingStates;
     widgetStates.zoomStates = zoomStates;
     widgetStates.scrollState = scrollStates;
 
@@ -1334,6 +1411,8 @@ void MainWindow::setWidgetsStates(const WidgetsStates& a_widgetsStates)
     ui->horizontalSliderQuality->setValue(a_widgetsStates.exportStates.quality);
     ui->horizontalSliderQuality->setEnabled(a_widgetsStates.exportStates.qualityEnabled);
 
+    ui->comboBoxPercentile->setCurrentIndex(a_widgetsStates.stretchingStates.percentile);
+    ui->comboBoxStretching->setCurrentIndex(a_widgetsStates.stretchingStates.stretching);
 
     m_sliderZoom->setValue(a_widgetsStates.zoomStates.factor);
     m_sliderZoom->setEnabled(a_widgetsStates.zoomStates.zoomEnabled);
@@ -1361,6 +1440,7 @@ void MainWindow::on_checkBoxEyeComfort_stateChanged(int arg1)
 {
     enableRGBWidgets(!arg1);
     enableMappingWidgets(!arg1 & m_bEnableMappingWidgets);
+    enableStretchingtWidgets(!arg1 & m_bEnableStretchingWidgets);
 
     ui->checkBoxGrayscale->setEnabled(!arg1);
 
@@ -1821,3 +1901,117 @@ void MainWindow::on_actionAboutToolBar_triggered()
     dlg.exec();
 }
 
+template<typename T> void MainWindow::onDrawHistogramChart(libnfits::DistribStats const* a_distribStats, T a_min, T a_max, size_t a_size)
+{
+    float maxPercent = 0.0f;
+
+    size_t maxPixelCount = 0;
+
+    for (size_t i = 0; i < a_size; ++i)
+    {
+        ///std::cout << "---> a_distribStats[" << i << "].percent = " << a_distribStats[i].percent <<
+        ///             " a_distribStats[" << i << "].count " << a_distribStats[i].count << std::endl;
+
+        if (a_distribStats[i].count > maxPixelCount)
+        {
+            std::cout << "---> a_distribStats[" << i << "].percent = " << a_distribStats[i].percent <<
+                " a_distribStats[" << i << "].count " << a_distribStats[i].count << " , maxPixelCount = " << maxPixelCount << std::endl;
+
+            maxPercent = a_distribStats[i].percent;
+            maxPixelCount = a_distribStats[i].count;                                    
+        }
+    }
+
+    m_lineSeries->clear();
+    m_lineSeriesLow->clear();
+
+    m_axisX->setRange(a_min, a_max);
+
+    if (maxPixelCount > 0)
+        m_axisY->setRange(0, std::round(std::log10f(maxPixelCount))*1.1f);
+    else
+        m_axisY->setRange(0, 1);
+
+    T range = std::abs(a_max - a_min);
+
+    int32_t tickCountX = std::round(range / tickQautientX);
+
+    if (tickCountX > maxTickCountX)
+        tickCountX = maxTickCountX;
+    else
+        tickCountX = minTickCountX;
+
+    m_axisX->setTickCount(tickCountX);
+
+    std::cout << "---> in MainWindow::onDrawHistogramChart #2... maxPercent = " << maxPercent << std::endl;
+    std::cout << "---> in MainWindow::onDrawHistogramChart #3... maxPixelCount = " << maxPixelCount << std::endl;
+    std::cout << "---> in MainWindow::onDrawHistogramChart #4... min, max = " << a_min << " , " << a_max << std::endl;
+
+    double stretchQ = ((double)(range) / (a_size));
+
+    for (size_t i = 0; i < a_size; ++i)
+    {
+        double scaledX = a_min + i*stretchQ;
+
+        double value = a_distribStats[i].count > 0 ? std::log10f(a_distribStats[i].count) : 0;
+
+        m_lineSeries->append(scaledX, value);
+        m_lineSeriesLow->append(scaledX, 0);
+    }
+
+    std::cout << "---> in MainWindow::onDrawHistogramChart #5 - FINISHED" << std::endl;
+}
+
+void MainWindow::initChartDefaultMetrics()
+{
+    m_axisX->setTickCount(minTickCountX);
+    m_axisX->setRange(0, minTickCountX);
+    m_axisY->setTickCount(minTickCountY);
+    m_axisY->setRange(0, minTickCountY);
+
+    m_lineSeries->clear();
+    m_lineSeriesLow->clear();
+
+    m_lineSeries->setPointsVisible(false);
+    m_lineSeriesLow->setPointsVisible(false);
+    m_areaSeries->setPointsVisible(false);
+}
+
+void MainWindow::onDrawHistogramChartInt(libnfits::DistribStats const* a_distribStats, int64_t a_min, int64_t a_max, size_t a_size)
+{
+    onDrawHistogramChart<int64_t>(a_distribStats, a_min, a_max, a_size);
+}
+
+void MainWindow::onDrawHistogramChartDouble(libnfits::DistribStats const* a_distribStats, double a_min, double a_max, size_t a_size)
+{
+    onDrawHistogramChart<double>(a_distribStats, a_min, a_max, a_size);
+}
+
+template void MainWindow::onDrawHistogramChart<int64_t>(libnfits::DistribStats const* a_distribStats, int64_t a_min, int64_t a_max, size_t a_size);
+template void MainWindow::onDrawHistogramChart<double>(libnfits::DistribStats const* a_distribStats, double a_min, double a_max, size_t a_size);
+
+void MainWindow::on_comboBoxPercentile_currentIndexChanged(int index)
+{
+
+}
+
+
+void MainWindow::on_comboBoxStretching_currentIndexChanged(int index)
+{
+
+}
+
+void MainWindow::enableStretchingtWidgets(bool a_flag)
+{
+    ui->comboBoxStretching->setEnabled(a_flag);
+    ui->comboBoxPercentile->setEnabled(a_flag);
+
+    ui->labelStretching->setEnabled(a_flag);
+    ui->labelPercentile->setEnabled(a_flag);
+}
+
+void MainWindow::initStretchingWidgetsValues()
+{
+    ui->comboBoxPercentile->setCurrentIndex(0);
+    ui->comboBoxStretching->setCurrentIndex(0);
+}

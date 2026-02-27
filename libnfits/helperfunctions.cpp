@@ -164,6 +164,9 @@ int32_t findFirstCharOutOfQuotes(const std::string& a_strData, const int8_t a_sy
 
 bool isValueContinued(const std::string& a_strData)
 {
+    if (a_strData.empty())
+        return false;
+
     return a_strData[a_strData.length() - 1] == FITS_VALUE_CONTINUE_CHAR ? true : false;
 }
 
@@ -468,7 +471,7 @@ void convertBufferFloat2RGBA(uint8_t* a_buffer, size_t a_size, float a_min, floa
 void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size, float a_min, float a_max, double a_bzero, double a_bscale, bool a_zeroScaleFlag,
                             uint32_t a_type)
 {
-    // checking for buffer granularity
+    /// checking for buffer granularity
     if (a_size % sizeof(float) != 0)
         return;
 
@@ -477,7 +480,7 @@ void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size, float a_min, float
     if (a_zeroScaleFlag)
         zeroScaleFunctionPtr = zeroScaleFloatMul;
 
-    uint32_t *tmpBuf = (uint32_t*)(a_buffer);
+    uint32_t *writeBuffer = (uint32_t*)(a_buffer);
 
     float min = FITS_FLOAT_DOUBLE_RANGE_MIN_ZERO, max = FITS_FLOAT_DOUBLE_RANGE_MAX_POSITIVE;
 
@@ -501,28 +504,23 @@ void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size, float a_min, float
     for (size_t i = 0; i < a_size / sizeof(float); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-        uint32_t s = swap32(tmpBuf[i]);
+        uint32_t s = swap32(writeBuffer[i]);
 #else
-        uint32_t s = tmpBuf[i];
+        uint32_t s = writeBuffer[i]; ///tmpBuf[i];
 #endif
         float f = *((float *)&s);
-
-        uint8_t red, green, blue;
 
         zeroScaleFunctionPtr(f, a_bzero, a_bscale);
 
         if (a_type != FITS_FLOAT_DOUBLE_NO_TRANSFORM)
+        {
             f = normalizeValueByRange<float>(f, a_min, min, oldRange, newRange);
+        }
 
         //zeroScaleFunctionPtr(f, a_bzero, a_bscale);
-        convertFloat2RGB(f, red, green, blue);
 
-        size_t indexBase = i*4;
-
-        a_buffer[indexBase]     = red;
-        a_buffer[indexBase + 1] = green;
-        a_buffer[indexBase + 2] = blue;
-        //a_buffer[indexBase + 3] = 0x00;
+        ////writeBuffer[i] = convertFloat2RGBA(f);  //// original version
+        writeBuffer[i] = convertFloat2Grayscale(f, a_min, a_max, stretchFloatDummy);
     }
 }
 
@@ -932,16 +930,16 @@ void convertBufferShortRGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuff
         if (tmpMin >= 0)
             min = std::numeric_limits<uint16_t>::min();
 
-    #if defined(ENABLE_OPENMP)
-    #pragma omp parallel for
-    #endif
+///#if defined(ENABLE_OPENMP)
+///#pragma omp parallel for
+///#endif
         for (size_t i = 0; i < a_size / sizeof(int16_t); ++i)
         {
-    #if __BYTE_ORDER == __LITTLE_ENDIAN
+#if __BYTE_ORDER == __LITTLE_ENDIAN
             int16_t s = swap16(tmpBuf[i]);
-    #else
+#else
             int16_t s = tmpBuf[i];
-    #endif
+#endif
 
             uint8_t red, green, blue;
 
@@ -1811,7 +1809,7 @@ void getFloatBufferDistribution(const uint8_t* a_buffer, size_t a_size, float a_
         return;
 
 #if defined(ENABLE_OPENMP)
-#pragma omp parallel for
+///#pragma omp parallel for
 #endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
@@ -1849,7 +1847,7 @@ void getDoubleBufferDistribution(const uint8_t* a_buffer, size_t a_size, double 
         return;
 
 #if defined(ENABLE_OPENMP)
-#pragma omp parallel for
+///#pragma omp parallel for
 #endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
@@ -1909,7 +1907,7 @@ void getByteBufferDistribution(const uint8_t* a_buffer, size_t a_size, int8_t a_
         return;
 
 #if defined(ENABLE_OPENMP)
-#pragma omp parallel for
+///#pragma omp parallel for
 #endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
@@ -1977,7 +1975,7 @@ void getShortBufferDistribution(const uint8_t* a_buffer, size_t a_size, int16_t 
         return;
 
 #if defined(ENABLE_OPENMP)
-#pragma omp parallel for
+///#pragma omp parallel for
 #endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
@@ -2052,7 +2050,7 @@ void getIntBufferDistribution(const uint8_t* a_buffer, size_t a_size, int32_t a_
         return;
 
 #if defined(ENABLE_OPENMP)
-#pragma omp parallel for
+///#pragma omp parallel for
 #endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
@@ -2127,7 +2125,7 @@ void getLongBufferDistribution(const uint8_t* a_buffer, size_t a_size, int64_t a
         return;
 
 #if defined(ENABLE_OPENMP)
-#pragma omp parallel for
+///#pragma omp parallel for
 #endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
@@ -2208,9 +2206,9 @@ template<typename T> void getBufferDistributionMinMax(const uint8_t* a_buffer, s
                                                       DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER],
                                                       bool a_isDistribCounted)
 {
-    //// commented this out as double type is suits better in corner cases of integer divisions
-    //// T rangeF = std::fabs(a_max - a_min);
-    //// T segmentSizeF = rangeF/(T)FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER;
+    //// commented this out as double type suits better in corner cases of integer divisions
+    ////T rangeF = std::fabs(a_max - a_min);
+    ////T segmentSizeF = rangeF/(T)FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER;
 
     double rangeF = std::fabs(a_max - a_min);
     double segmentSizeF = rangeF/(T)FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER;

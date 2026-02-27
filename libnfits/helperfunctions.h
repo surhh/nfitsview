@@ -478,6 +478,8 @@ inline uint32_t convertFloat2RGBA(float a_value)
 
     uint32_t retVal = 0, tmpVal = 0;
 
+    /// old way
+    /*
     tmpVal = tmpBuf[0]; //// 0
     tmpVal = tmpVal << 24;
     retVal = retVal | tmpVal;
@@ -489,6 +491,21 @@ inline uint32_t convertFloat2RGBA(float a_value)
     tmpVal = tmpBuf[2]; //// 2
     tmpVal = tmpVal << 8;
     retVal = retVal | tmpVal;
+    */
+    ///
+
+    /// new way
+    tmpVal = tmpBuf[2]; //// 0
+    tmpVal = tmpVal << 16;
+    retVal = retVal | tmpVal;
+
+    tmpVal = tmpBuf[1]; //// 1
+    tmpVal = tmpVal << 8;
+    retVal = retVal | tmpVal;
+
+    tmpVal = tmpBuf[0]; //// 2
+    retVal = retVal | tmpVal;
+    ///
 
     ////retVal = retVal | 0xff; //// the value for Alpha-channel, may be also 0xff, seems may be also ignored
 
@@ -730,6 +747,117 @@ inline void convertByteSZ2Grayscale(uint8_t a_value, int8_t a_bscale, int8_t a_b
     convertByte2Grayscale(value, a_pixel);
 }
 
+//// new grayscale functions
+///////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////
+///
+
+typedef     void (*stretchFloatPtr)       (float&);
+typedef     void (*stretchDoublePtr)      (double&);
+//zeroScaleFloatPtr a_zeroScaleFuncPtr
+
+inline uint32_t convertFloat2Grayscale(float a_value, float a_min, float a_max, stretchFloatPtr a_stetchFuncPtr)
+{
+    uint32_t retVal = 0;
+
+    if (areEqual(a_min, a_max))
+    {
+        return retVal;
+    }
+
+    a_stetchFuncPtr(a_value);
+
+    float range = std::fabs(a_max - a_min);
+
+    uint32_t tmpVal = static_cast<uint32_t>((std::fabs(a_value - a_min)/range) * 255.0);
+
+    retVal = tmpVal << 16;
+
+    retVal = retVal | (tmpVal << 8);
+
+    retVal = retVal | tmpVal;
+
+    return retVal;
+}
+
+inline uint32_t convertFloatSZ2Grayscale(float a_value, float a_bscale, float a_bzero, stretchFloatPtr a_stetchFuncPtr)
+{
+    a_stetchFuncPtr(a_value);
+
+    return 10;
+}
+
+inline uint32_t convertDouble2Grayscale(double a_value, double a_min, double a_max, stretchDoublePtr a_stetchFuncPtr)
+{
+    uint32_t retVal = 0;
+
+    if (areEqual(a_min, a_max))
+    {
+        return retVal;
+    }
+
+    a_stetchFuncPtr(a_value);
+
+    double range = std::fabs(a_max - a_min);
+
+    uint32_t tmpVal = static_cast<uint32_t>((std::fabs(a_value - a_min)/range) * 255.0);
+
+    retVal = tmpVal << 16;
+
+    retVal = retVal | (tmpVal << 8);
+
+    retVal = retVal | tmpVal;
+
+    return retVal;
+}
+
+inline uint32_t convertDoubleSZ2Grayscale(double a_value, double a_bscale, double a_bzero, stretchDoublePtr a_stetchFuncPtr)
+{
+    a_stetchFuncPtr(a_value);
+
+    return 10;
+}
+
+inline void stretchFloatDummy(float& a_value)
+{
+}
+
+inline void stretchDoubleDummy(double& a_value)
+{
+}
+
+inline void stretchSquareroot(float& a_value)
+{
+   a_value = std::sqrtf(a_value);
+}
+
+inline void stretchLogarithmic(float& a_value)
+{
+    a_value = std::logf(a_value);
+}
+
+inline void stretchArcsinh(float& a_value)
+{
+    a_value = std::asinhf(a_value);
+}
+
+inline void stretchSquareroot(double& a_value)
+{
+    a_value = std::sqrtl(a_value);
+}
+
+inline void stretchLogarithmic(double& a_value)
+{
+    a_value = std::logl(a_value);
+}
+
+inline void stretchArcsinh(double& a_value)
+{
+    a_value = std::asinl(a_value);
+}
+
+/// end of new grayscale functions
+
 //// array of pixels (buffer) conversion functions based on the single pixel conversion functions
 
 //// for float
@@ -845,7 +973,6 @@ void getLongBufferDistribution(const uint8_t* a_buffer, size_t a_size, int64_t a
 
 void getLongBufferDistribution(const uint8_t* a_buffer, size_t a_size, int64_t a_min, int64_t a_max,
                                DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER]);
-
 
 float getMaxDistribPercent(const DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER], int32_t& a_segment);
 

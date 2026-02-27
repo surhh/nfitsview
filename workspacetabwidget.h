@@ -111,11 +111,17 @@ public:
 
     FITSImageLabel* getFITSImageLabel() const;
 
+    libnfits::DistribStats const* getDistribStats() const;
+
 private slots:
     void on_WorkspaceTabWidget_currentChanged(int index);
 
 signals:
     void sendGammaCorrectionTabEnabled(bool a_flag);
+
+    void sendDrawHistogramChartInt(libnfits::DistribStats const* a_distribStats, int64_t a_min, int64_t a_max, size_t a_size);
+
+    void sendDrawHistogramChartDouble(libnfits::DistribStats const* a_distribStats, double a_min, double a_max, size_t a_size);
 
 private:
     Ui::WorkspaceTabWidget *ui;

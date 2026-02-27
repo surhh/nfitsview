@@ -400,6 +400,19 @@ void WorkspaceTabWidget::setImage(uint32_t a_hduIndex, uint32_t a_transformType,
             ////
 
             reloadImage();
+
+            if (it->image->getBitPix() > 0)
+            {
+                emit sendDrawHistogramChartInt(it->image->getDistribStats(), it->image->getMinValueL(),
+                                               it->image->getMaxValueL(), FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER);
+            }
+            else if (it->image->getBitPix() < 0)
+            {
+                emit sendDrawHistogramChartDouble(it->image->getDistribStats(), it->image->getMinValue(),
+                                               it->image->getMaxValue(), FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER);
+            }
+
+
         }
     }
 }
@@ -599,3 +612,7 @@ bool WorkspaceTabWidget::isScrollVisibleY() const
     return ui->scrollArea->verticalScrollBar()->isVisible();
 }
 
+libnfits::DistribStats const* WorkspaceTabWidget::getDistribStats() const
+{
+    return m_fitsImage->getDistribStats();
+}

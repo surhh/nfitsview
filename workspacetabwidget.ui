@@ -37,11 +37,31 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>376</width>
+         <width>378</width>
          <height>249</height>
         </rect>
        </property>
       </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="tabHeader">
+   <attribute name="title">
+    <string>Header</string>
+   </attribute>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QTextEdit" name="textEditHeader">
+      <property name="font">
+       <font>
+        <family>Courier 10 Pitch</family>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
      </widget>
     </item>
    </layout>
@@ -62,26 +82,6 @@
       </property>
       <property name="lineWrapMode">
        <enum>QTextEdit::NoWrap</enum>
-      </property>
-      <property name="readOnly">
-       <bool>true</bool>
-      </property>
-     </widget>
-    </item>
-   </layout>
-  </widget>
-  <widget class="QWidget" name="tabHeader">
-   <attribute name="title">
-    <string>Header</string>
-   </attribute>
-   <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
-     <widget class="QTextEdit" name="textEditHeader">
-      <property name="font">
-       <font>
-        <family>Courier 10 Pitch</family>
-        <pointsize>12</pointsize>
-       </font>
       </property>
       <property name="readOnly">
        <bool>true</bool>

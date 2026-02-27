@@ -7,6 +7,15 @@
 #include <QLabel>
 #include <QTableWidgetItem>
 
+/// Histogram chart
+#include <QtCharts/QLineSeries>
+#include <QtCharts/QAreaSeries>
+#include <QtCharts/QBarSet>
+#include <QtCharts/QChart>
+#include <QtCharts/QChartView>
+#include <QtCharts/QValueAxis>
+///
+
 #include "defsui.h"
 #include "libnfits/fitsfile.h"
 #include "updatemanager/filedownloader.h"
@@ -123,6 +132,14 @@ private slots:
 
     void on_actionAboutToolBar_triggered();
 
+    void onDrawHistogramChartInt(libnfits::DistribStats const* a_distribStats, int64_t a_min, int64_t a_max, size_t a_size);
+
+    void onDrawHistogramChartDouble(libnfits::DistribStats const* a_distribStats, double a_min, double a_max, size_t a_size);
+
+    void on_comboBoxPercentile_currentIndexChanged(int index);
+
+    void on_comboBoxStretching_currentIndexChanged(int index);
+
 private:
     Ui::MainWindow *ui;
 
@@ -145,6 +162,7 @@ private:
     bool                m_bEnableGammaWidgets;
     bool                m_bEnableZoomWidget;
     bool                m_bEnableMappingWidgets;
+    bool                m_bEnableStretchingWidgets;
 
     bool                m_bGrayscale;
     bool                m_bEyeComfort;
@@ -154,6 +172,16 @@ private:
 
     FileDownloader     *m_fileDownloader;
 
+    /// Historgram chart
+    QLineSeries*        m_lineSeries;
+    QLineSeries*        m_lineSeriesLow;
+    QAreaSeries*        m_areaSeries;
+    QChart*             m_histChart;
+    QChartView*         m_histChartView;
+    QValueAxis*         m_axisX;
+    QValueAxis*         m_axisY;
+    ///////
+
 private:
     void createStatusBarWidgets();
     void initGammaWidgetsValues();
@@ -161,6 +189,7 @@ private:
     void initImageExportSettingsWidgetValues();
     void initHDUInfoWidgetValues();
     void initHDUInfoWidgetMinMax();
+    void initStretchingWidgetsValues();
     void enableGammaWidgets(bool a_flag = true);
     void enableRGBWidgets(bool a_flag = true);
     void enableFileOpenRelatedWidgets(bool a_flag = true);
@@ -169,6 +198,7 @@ private:
     void enableImageExportWidgets(bool a_flag = true);
     void enableImageExportSettigsWidgets(bool a_flag = true);
     void enableMappingWidgets(bool a_flag = true);
+    void enableStretchingtWidgets(bool a_flag = true);
     void scrollToCenter();
     void scaleImage();
     void fitToWindow();
@@ -213,7 +243,12 @@ private:
 
     void checkForUpdate();
 
+    template<typename T> void onDrawHistogramChart(libnfits::DistribStats const* a_distribStats, T a_min, T a_max, size_t a_size);
+
+    void initChartDefaultMetrics();
+
 signals:
     void sendProgressChanged(qint32 a_value);
+
 };
 #endif // MAINWINDOW_H

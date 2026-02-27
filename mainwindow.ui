@@ -10,14 +10,20 @@
     <height>720</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
   <property name="minimumSize">
    <size>
-    <width>1200</width>
+    <width>1300</width>
     <height>600</height>
    </size>
   </property>
   <property name="windowTitle">
-   <string>nFITSview 0.1</string>
+   <string>nFITSview</string>
   </property>
   <property name="windowIcon">
    <iconset resource="resources.qrc">
@@ -306,6 +312,174 @@
        <property name="currentIndex">
         <number>0</number>
        </property>
+       <widget class="QWidget" name="StretchingTab">
+        <attribute name="title">
+         <string>Stretching and Threshold</string>
+        </attribute>
+        <layout class="QGridLayout" name="gridLayout_7">
+         <item row="0" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayoutStretching">
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayoutStretching_1">
+             <property name="sizeConstraint">
+              <enum>QLayout::SetDefaultConstraint</enum>
+             </property>
+             <item>
+              <layout class="QVBoxLayout" name="verticalLayoutStretching_1_2">
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayoutStretching_1_1">
+                 <item>
+                  <widget class="QLabel" name="labelPercentile">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="text">
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Percentile % :&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="comboBoxPercentile">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <item>
+                    <property name="text">
+                     <string>100</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>99.9</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>99.5</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>99</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>98</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>97</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>96</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>95</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>94</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>93</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>92</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>91</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>90</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="labelStretching">
+                   <property name="text">
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stretching function: &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="comboBoxStretching">
+                   <item>
+                    <property name="text">
+                     <string>Linear</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Logarithmic</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Square root</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>ArcSinH</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_4">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeType">
+                    <enum>QSizePolicy::Expanding</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayoutStretching_2">
+             <item>
+              <layout class="QVBoxLayout" name="verticalLayoutStretching_2_2"/>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
        <widget class="QWidget" name="ToolsTabGammaCorrection">
         <attribute name="title">
          <string>Gamma Correction</string>

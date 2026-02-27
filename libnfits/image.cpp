@@ -596,14 +596,14 @@ int32_t Image::createRGB32FlatData(uint32_t a_transformType, int32_t a_percent)
 
     if (m_rgb32FlatDataBuffer == nullptr)
     {
-        m_rgb32FlatDataBuffer = new uint8_t[flatBufSize];
+        m_rgb32FlatDataBuffer = new (std::align_val_t{std::hardware_destructive_interference_size}) uint8_t[flatBufSize];
         std::memset(m_rgb32FlatDataBuffer, 0, flatBufSize);
     }
 
     if (m_rgb32FlatDataBuffer == nullptr)
         return FITS_GENERAL_ERROR;
 
-    uint8_t* tmpRow = new uint8_t[tmpBufRowSize];
+    uint8_t* tmpRow = new (std::align_val_t{std::hardware_destructive_interference_size}) uint8_t[tmpBufRowSize];
 
     uint8_t* tmpDestRow = nullptr;
 
@@ -612,7 +612,7 @@ int32_t Image::createRGB32FlatData(uint32_t a_transformType, int32_t a_percent)
     if (m_bitpix == 16 || m_bitpix == 8)
     {
         //tmpDestRow = new uint8_t[tmpBufRowSize * (bytesNum == 2 ? 2 : 1)];
-        tmpDestRow = new uint8_t[tmpBufRowSize * (32/std::abs(m_bitpix))];
+        tmpDestRow = new (std::align_val_t{std::hardware_destructive_interference_size}) uint8_t[tmpBufRowSize * (32/std::abs(m_bitpix))];
         tmpFinalRow = tmpDestRow;
     }
 
@@ -1633,6 +1633,11 @@ bool Image::isDefaultBZeroBScale() const
         return false;
     else
         return true;
+}
+
+DistribStats const* Image::getDistribStats() const
+{
+    return m_distribStats;
 }
 
 //// these functions are for debugging purposes only, they are slow

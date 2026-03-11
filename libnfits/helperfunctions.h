@@ -26,8 +26,9 @@ struct RGBPixel
 
 struct DistribStats
 {
-    size_t count;
-    float percent;
+    size_t  count;
+    float   percent;
+    size_t  cdf;     /// cumulative distribution function for percentile calculation
 };
 
 template<typename ... many> void LOG(const std::string& a_str, many ... a_args)
@@ -315,7 +316,9 @@ template<typename T> inline T normalizeValue(T a_value, T a_min, T a_max, T a_mi
 
 template<typename T> inline T normalizeValueByRange(T a_value, T a_min, T a_minNew, T a_oldRange, T a_newRange)
 {
-    return a_minNew + (a_value - a_min)*((double)a_newRange/(double)a_oldRange);
+    return a_minNew + (a_value - a_min)*((double)a_newRange/(double)a_oldRange); /// original version
+    //return (double)a_minNew + ((double)a_value - (double)a_min)*((double)a_newRange/(double)a_oldRange);
+    //return a_minNew + (a_value - a_min)*(a_newRange/a_oldRange);
 }
 
 template<typename T> inline T normalizeValueIntLong(T a_value, T a_min, T a_max, T a_minNew, T a_maxNew)
@@ -752,24 +755,45 @@ inline void convertByteSZ2Grayscale(uint8_t a_value, int8_t a_bscale, int8_t a_b
 ///////////////////////////////////////////////////////////////////
 ///
 
-typedef     void (*stretchFloatPtr)       (float&);
-typedef     void (*stretchDoublePtr)      (double&);
+typedef     void (*stretchFloatPtr)     (float &);
+typedef     void (*stretchDoublePtr)    (double &);
+typedef     void (*stretchUBytePtr)     (uint8_t &);
+typedef     void (*stretchBytePtr)      (int8_t &);
+typedef     void (*stretchShortPtr)     (int16_t &);
+typedef     void (*stretchIntPtr)       (int32_t &);
+typedef     void (*stretchLongPtr)      (int64_t &);
+
 //zeroScaleFloatPtr a_zeroScaleFuncPtr
 
-inline uint32_t convertFloat2Grayscale(float a_value, float a_min, float a_max, stretchFloatPtr a_stetchFuncPtr)
+inline uint32_t convertByte2Grayscale(int16_t a_value, int16_t a_min, int16_t a_range, stretchShortPtr a_stetchFuncPtr)
 {
     uint32_t retVal = 0;
 
-    if (areEqual(a_min, a_max))
-    {
-        return retVal;
-    }
+    a_stetchFuncPtr(a_value);
+
+    //uint32_t tmpVal = static_cast<uint32_t>((std::fabs(a_value - a_min)/range) * 255.0);
+    //uint32_t tmpVal = static_cast<uint32_t>(std::round(std::fabs(a_value - a_min)/a_range) * 255.0); /// looks better
+    uint32_t tmpVal = static_cast<uint32_t>(((float)(std::abs(a_value - a_min))/a_range) * 255.0);
+
+    retVal = tmpVal << 16;
+
+    retVal = retVal | (tmpVal << 8);
+
+    retVal = retVal | tmpVal;
+
+    return retVal;
+}
+
+
+inline uint32_t convertFloat2Grayscale(float a_value, float a_min, float a_range, stretchFloatPtr a_stetchFuncPtr)
+{
+    uint32_t retVal = 0;
 
     a_stetchFuncPtr(a_value);
 
-    float range = std::fabs(a_max - a_min);
-
-    uint32_t tmpVal = static_cast<uint32_t>((std::fabs(a_value - a_min)/range) * 255.0);
+    //uint32_t tmpVal = static_cast<uint32_t>((std::fabs(a_value - a_min)/range) * 255.0);
+    //uint32_t tmpVal = static_cast<uint32_t>(std::round(std::fabs(a_value - a_min)/a_range) * 255.0); /// looks better
+    uint32_t tmpVal = static_cast<uint32_t>((std::fabs(a_value - a_min)/a_range) * 255.0); /// test
 
     retVal = tmpVal << 16;
 
@@ -818,53 +842,177 @@ inline uint32_t convertDoubleSZ2Grayscale(double a_value, double a_bscale, doubl
     return 10;
 }
 
-inline void stretchFloatDummy(float& a_value)
+///
+inline void stretchLinear(float& a_value)
 {
 }
 
-inline void stretchDoubleDummy(double& a_value)
+inline void stretchLinear(double& a_value)
 {
 }
 
+inline void stretchLinear(uint8_t& a_value)
+{
+}
+
+inline void stretchLinear(int8_t& a_value)
+{
+}
+
+inline void stretchLinear(int16_t& a_value)
+{
+}
+
+inline void stretchLinear(int32_t& a_value)
+{
+}
+
+inline void stretchLinear(int64_t& a_value)
+{
+}
+
+///
 inline void stretchSquareroot(float& a_value)
 {
-   a_value = std::sqrtf(a_value);
-}
-
-inline void stretchLogarithmic(float& a_value)
-{
-    a_value = std::logf(a_value);
-}
-
-inline void stretchArcsinh(float& a_value)
-{
-    a_value = std::asinhf(a_value);
+   a_value = std::sqrt(a_value);
 }
 
 inline void stretchSquareroot(double& a_value)
 {
-    a_value = std::sqrtl(a_value);
+    a_value = std::sqrt(a_value);
+}
+
+inline void stretchSquareroot(uint8_t& a_value)
+{
+    a_value = std::sqrt(a_value);
+}
+
+inline void stretchSquareroot(int8_t& a_value)
+{
+    a_value = std::sqrt(a_value);
+}
+
+inline void stretchSquareroot(int16_t& a_value)
+{
+    a_value = std::sqrt(a_value);
+}
+
+inline void stretchSquareroot(int32_t& a_value)
+{
+    a_value = std::sqrt(a_value);
+}
+
+inline void stretchSquareroot(int64_t& a_value)
+{
+    a_value = std::sqrt(a_value);
+}
+///
+
+///
+inline void stretchLogarithmic(float& a_value)
+{
+    a_value = std::log(a_value);
 }
 
 inline void stretchLogarithmic(double& a_value)
 {
-    a_value = std::logl(a_value);
+    a_value = std::log(a_value);
+}
+
+inline void stretchLogarithmic(uint8_t& a_value)
+{
+    a_value = std::log(a_value);
+}
+
+inline void stretchLogarithmic(int8_t& a_value)
+{
+    a_value = std::log(a_value);
+}
+
+inline void stretchLogarithmic(int16_t& a_value)
+{
+    a_value = std::log(a_value);
+}
+
+inline void stretchLogarithmic(int32_t& a_value)
+{
+    a_value = std::log(a_value);
+}
+
+inline void stretchLogarithmic(int64_t& a_value)
+{
+    a_value = std::log(a_value);
+}
+///
+
+///
+inline void stretchArcsinh(float& a_value)
+{
+    a_value = std::asinh(a_value);
 }
 
 inline void stretchArcsinh(double& a_value)
 {
-    a_value = std::asinl(a_value);
+    a_value = std::asinh(a_value);
 }
+
+inline void stretchArcsinh(uint8_t& a_value)
+{
+    a_value = std::asinh(a_value);
+}
+
+inline void stretchArcsinh(int8_t& a_value)
+{
+    a_value = std::asinh(a_value);
+}
+
+inline void stretchArcsinh(int16_t& a_value)
+{
+    a_value = std::asinh(a_value);
+}
+
+inline void stretchArcsinh(int32_t& a_value)
+{
+    a_value = std::asinh(a_value);
+}
+
+inline void stretchArcsinh(int64_t& a_value)
+{
+    a_value = std::asinh(a_value);
+}
+///
+
+struct stretchFunctionsPtrBlock
+{
+    stretchFloatPtr         floatPtrFunc;
+    stretchDoublePtr        doublePtrFunc;
+    stretchBytePtr          uint8PtrFunc;
+    stretchBytePtr          int8PtrFunc;
+    stretchShortPtr         int16PtrFunc;
+    stretchIntPtr           int32PtrFunc;
+    stretchLongPtr          int64PtrFunc;
+};
+
+/// subarray #0 - linear function is applied (pointers for dummy functions are used, no stretching)
+const stretchFunctionsPtrBlock stretchFunctionsPtrMap[] =
+{
+    { stretchLinear, stretchLinear, stretchLinear, stretchLinear, stretchLinear, stretchLinear, stretchLinear },
+    { stretchSquareroot, stretchSquareroot, stretchSquareroot, stretchSquareroot, stretchSquareroot, stretchSquareroot, stretchSquareroot },
+    { stretchLogarithmic, stretchLogarithmic, stretchLogarithmic, stretchLogarithmic, stretchLogarithmic, stretchLogarithmic, stretchLogarithmic },
+    { stretchArcsinh, stretchArcsinh, stretchArcsinh, stretchArcsinh, stretchArcsinh, stretchArcsinh, stretchArcsinh },
+};
 
 /// end of new grayscale functions
 
 //// array of pixels (buffer) conversion functions based on the single pixel conversion functions
 
 //// for float
-void convertBufferFloat2RGBA(uint8_t* a_buffer, size_t a_size, float a_min = 0.0, float a_max = 0.0,
+void convertBufferFloat2RGBA(uint8_t* a_buffer, size_t a_size, float a_min = 0.0f, float a_max = 0.0f,
                              uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
-void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size, float a_min = 0.0, float a_max = 0.0, double a_bzero = 0.0, double a_bscale = 1.0,
+void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size,
+                            float a_min = 0.0f, float a_max = 0.0f, float a_oldMin = 0.0f, float a_oldMmax = 0.0f,
+                            double a_bzero = 0.0, double a_bscale = 1.0,
                             bool a_zeroScaleFlag = false, uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
 
@@ -884,12 +1032,21 @@ void convertBufferShortSZ2RGB(uint8_t* a_buffer, size_t a_size, double a_bzero, 
                               uint16_t a_min = 0, uint16_t a_max = 0, uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
 void convertBufferShortRGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer, int16_t a_min = 0, int16_t a_max = 0,
-                           double a_bzero = 0.0, double a_bscale = 0.0, bool a_gray = true,
+                           double a_bzero = 0, double a_bscale = 0.0, bool a_gray = true,
                            bool a_zeroScaleFlag = false, uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
+void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer,
+                            int16_t a_min = 0, int16_t a_max = 0, int16_t a_oldMin = 0, int16_t a_oldMax = 0,
+                            double a_bzero = 0.0, double a_bscale = 1.0,
+                            bool a_zeroScaleFlag = false, uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
 //// for byte
 void convertBufferByte2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer);
+
+void convertBufferByte2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer,
+                           int16_t a_min = 0, int16_t a_max = 0, int16_t a_oldMin = 0, int16_t a_oldMax = 0,
+                           double a_bzero = 0.0, double a_bscale = 1.0,
+                           bool a_zeroScaleFlag = false, uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
 void convertBufferByteSZ2RGB(uint8_t* a_buffer, size_t a_size, int8_t a_bzero, int8_t a_bscale, uint8_t* a_destBuffer);
 
@@ -956,6 +1113,8 @@ void getByteBufferDistribution(const uint8_t* a_buffer, size_t a_size, int8_t a_
 void getByteBufferDistribution(const uint8_t* a_buffer, size_t a_size, int8_t a_min, int8_t a_max,
                                DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER]);
 
+void getUByteBufferDistribution(const uint8_t* a_buffer, size_t a_size, uint8_t a_min, uint8_t a_max,
+                                DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER]);
 
 void getShortBufferDistribution(const uint8_t* a_buffer, size_t a_size, int16_t a_min, int16_t a_max, size_t& a_count, float& a_percent);
 
@@ -1032,7 +1191,11 @@ inline void zeroScaleLongDummy(int64_t& a_value, double a_bzero, double a_bscale
 {
 }
 
+template<typename T> void calcPercentileMinMax(libnfits::DistribStats const* a_distribStats, T a_min, T a_max,
+                                               float a_percentile, T& a_newMin, T& a_newMax, size_t a_pixelNum);
 
+template<typename T> T calcPercentile(libnfits::DistribStats const* a_distribStats, T a_min, T a_max,
+                                      float a_percentile, size_t a_pixelNum);
 
 //// these functions are for debugging purposes only, they are slow
 int32_t dumpFloatDataBuffer(const uint8_t* a_buffer, size_t a_size, const std::string& a_filename, uint32_t a_rowSize);
@@ -1055,9 +1218,12 @@ typedef     void (*convertShort2RGBGray)    (int16_t, uint8_t&, uint8_t&, uint8_
 
 typedef     void (*zeroScaleFloatPtr)       (float&, float, float);
 typedef     void (*zeroScaleDoublePtr)      (double&, double, double);
+typedef     void (*zeroScaleUBytePtr)       (uint8_t&, double, double);
+typedef     void (*zeroScaleBytePtr)        (int8_t&, double, double);
 typedef     void (*zeroScaleShortPtr)       (int16_t&, double, double);
 typedef     void (*zeroScaleIntPtr)         (int32_t&, double, double);
 typedef     void (*zeroScaleLongPtr)        (int64_t&, double, double);
+
 
 
 #endif // LIBNFITS_HELPERFUNCTIONS_H

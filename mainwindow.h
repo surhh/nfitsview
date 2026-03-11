@@ -153,7 +153,7 @@ private:
     QLabel             *m_labelZoomLevel;    
 
     int32_t             m_scaleFactor;
-    int32_t             m_percentThreshold[4];
+    int32_t             m_percentThreshold[FITS_NUMBER_OF_TRANSFORMS];
 
     libnfits::FitsFile  m_fitsFile;
 

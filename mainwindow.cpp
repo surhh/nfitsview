@@ -99,7 +99,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->actionZoomIn->setShortcut(QKeySequence::ZoomIn);
 
-    std::fill(m_percentThreshold, m_percentThreshold + 4, 0);
+    std::fill(m_percentThreshold, m_percentThreshold + FITS_NUMBER_OF_TRANSFORMS, 0);
 
     ui->horizontalSliderPercent->setValue(m_percentThreshold[0]);
     QString valueStr = THRESHOLD_LABEL_TEXT + QString::number(100 - ui->horizontalSliderPercent->value()) + " %";
@@ -618,7 +618,7 @@ void MainWindow::clearWidgets()
     m_sliderZoom->setValue(m_scaleFactor);
 
     //m_percentThreshold = 0;
-    std::fill(m_percentThreshold, m_percentThreshold + 4, 0);
+    std::fill(m_percentThreshold, m_percentThreshold + FITS_NUMBER_OF_TRANSFORMS, 0);
     ui->horizontalSliderPercent->setValue(m_percentThreshold[0]);
 
     ui->comboBoxMapping->setCurrentIndex(0);
@@ -1914,8 +1914,8 @@ template<typename T> void MainWindow::onDrawHistogramChart(libnfits::DistribStat
 
         if (a_distribStats[i].count > maxPixelCount)
         {
-            std::cout << "---> a_distribStats[" << i << "].percent = " << a_distribStats[i].percent <<
-                " a_distribStats[" << i << "].count " << a_distribStats[i].count << " , maxPixelCount = " << maxPixelCount << std::endl;
+            ///std::cout << "---> a_distribStats[" << i << "].percent = " << a_distribStats[i].percent <<
+            ///    " a_distribStats[" << i << "].count " << a_distribStats[i].count << " , maxPixelCount = " << maxPixelCount << std::endl;
 
             maxPercent = a_distribStats[i].percent;
             maxPixelCount = a_distribStats[i].count;                                    
@@ -1949,14 +1949,19 @@ template<typename T> void MainWindow::onDrawHistogramChart(libnfits::DistribStat
 
     double stretchQ = ((double)(range) / (a_size));
 
+    int32_t histShowStep = FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER / histChartMaxPointsToShow;
+
     for (size_t i = 0; i < a_size; ++i)
     {
         double scaledX = a_min + i*stretchQ;
 
         double value = a_distribStats[i].count > 0 ? std::log10f(a_distribStats[i].count) : 0;
 
-        m_lineSeries->append(scaledX, value);
-        m_lineSeriesLow->append(scaledX, 0);
+        if (i % histShowStep == 0)
+        {
+            m_lineSeries->append(scaledX, value);
+            m_lineSeriesLow->append(scaledX, 0);
+        }
     }
 
     std::cout << "---> in MainWindow::onDrawHistogramChart #5 - FINISHED" << std::endl;
@@ -1991,8 +1996,27 @@ template void MainWindow::onDrawHistogramChart<int64_t>(libnfits::DistribStats c
 template void MainWindow::onDrawHistogramChart<double>(libnfits::DistribStats const* a_distribStats, double a_min, double a_max, size_t a_size);
 
 void MainWindow::on_comboBoxPercentile_currentIndexChanged(int index)
-{
+{    
+    int32_t scrollX = ui->workspaceWidget->getScrollPosX();
+    int32_t scrollY = ui->workspaceWidget->getScrollPosY();
 
+    if (!m_fitsFile.isOpen())
+        return;
+
+    int32_t percentile = FITS_PERCENTILE_THRESHOLD_OFFSET + (ui->comboBoxPercentile->currentText()).toFloat();
+
+    enableRestoreWidgets(false);  //// legacy code calling, those menu and button items are not used anymore
+
+    ui->workspaceWidget->reloadImageWithTransformation(FITS_PERCENTILE_TRANSFORM, percentile);
+    m_bImageChanged = false;
+    backupOriginalImage();
+    restoreRGBColorChannelLevelsImage(ui->workspaceWidget->getCurrentImageHDUIndex(), FITS_PERCENTILE_TRANSFORM);
+
+    ui->workspaceWidget->scaleImage(m_scaleFactor);
+    ui->workspaceWidget->setScrollPosX(scrollX);
+    ui->workspaceWidget->setScrollPosY(scrollY);
+
+    updateHDUInfoWidgetMinMax();
 }
 
 

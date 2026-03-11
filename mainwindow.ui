@@ -209,6 +209,14 @@
              <layout class="QVBoxLayout" name="verticalLayoutHDUInfo_5">
               <item>
                <widget class="QLabel" name="labelMAXValue">
+                <property name="font">
+                 <font>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">color: rgb(0, 170, 0);</string>
+                </property>
                 <property name="text">
                  <string>Max:</string>
                 </property>
@@ -249,6 +257,14 @@
              <layout class="QVBoxLayout" name="verticalLayoutHDUInfo_4">
               <item>
                <widget class="QLabel" name="labelMINValue">
+                <property name="font">
+                 <font>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">color: rgb(0, 85, 255);</string>
+                </property>
                 <property name="text">
                  <string>Min:</string>
                 </property>

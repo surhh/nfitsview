@@ -62,13 +62,13 @@ private:
     double              m_bscale;
     double              m_minValue, m_minDistribValue;
     double              m_maxValue, m_maxDistribValue;
-    double              m_finalMinValue, m_finalMaxValue;
+    double              m_finalMinValue, m_finalMaxValue, m_finalClippedMinValue, m_finalClippedMaxValue;
     int64_t             m_minValueL, m_minDistribValueL;
     int64_t             m_maxValueL, m_maxDistribValueL;
-    int64_t             m_finalMinValueL, m_finalMaxValueL;
+    int64_t             m_finalMinValueL, m_finalMaxValueL, m_finalClippedMinValueL, m_finalClippedMaxValueL;
 
     uint32_t            m_transformType;
-    int32_t             m_percentThreshold;
+    float               m_percentThreshold;
     size_t              m_maxDataBufferSize;
     size_t              m_baseOffset;
     std::string         m_title;
@@ -136,7 +136,7 @@ public:
     void setRGB32Data(uint8_t** a_rgbDataBuffer);
     void copyRGB32Data(uint8_t** a_rgbDataBufferDest, uint8_t** a_rgbDataBufferSrc);
 
-    int32_t createRGB32FlatData(uint32_t a_transformType = FITS_FLOAT_DOUBLE_NO_TRANSFORM, int32_t a_percent = 0);
+    int32_t createRGB32FlatData(uint32_t a_transformType = FITS_FLOAT_DOUBLE_NO_TRANSFORM, float a_percent = 0.0);
     uint8_t* getRGB32FlatData() const;
     void setRGB32FlatData(uint8_t* a_rgbFlatDataBuffer);
     void copyRGB32FlatData(uint8_t* a_rgbFlatDataBufferDest, uint8_t* a_rgbFlatDataBufferSrc);

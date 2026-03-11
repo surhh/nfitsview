@@ -15,7 +15,7 @@ Image::Image():
     m_width(0), m_height(0), m_colorDepth(0), m_bitpix(0), m_isCompressed(false), m_isDistribCounted(false),
     m_bzero(FITS_BZERO_DEFAULT_VALUE), m_isMinMaxCounted(false),
     m_bscale(FITS_BSCALE_DEFAULT_VALUE), m_title(""), m_callbackFunc(nullptr), m_callbackFuncParam(nullptr),
-    m_transformType(FITS_FLOAT_DOUBLE_NO_TRANSFORM), m_percentThreshold(-1)
+    m_transformType(FITS_FLOAT_DOUBLE_NO_TRANSFORM), m_percentThreshold(-1.0f)
 {
     m_colorStats = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
@@ -50,7 +50,7 @@ Image::Image(const uint8_t* a_dataBuffer, uint32_t a_witdth, uint32_t a_height, 
     m_rgb32DataBackupBuffer = nullptr;
     m_rgb32FlatDataBackupBuffer = nullptr;
     m_transformType = FITS_FLOAT_DOUBLE_NO_TRANSFORM;
-    m_percentThreshold = -1;
+    m_percentThreshold = -1.0f;
 
     m_colorStats = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
@@ -573,7 +573,7 @@ int32_t Image::createRGB32Data(uint32_t a_transformType, int32_t a_percent)
     return retVal;
 }
 
-int32_t Image::createRGB32FlatData(uint32_t a_transformType, int32_t a_percent)
+int32_t Image::createRGB32FlatData(uint32_t a_transformType, float a_percent)
 {
     int32_t retVal = FITS_GENERAL_SUCCESS;
 
@@ -618,7 +618,90 @@ int32_t Image::createRGB32FlatData(uint32_t a_transformType, int32_t a_percent)
 
     m_transformType = a_transformType;
 
-    calcBufferDistribution(a_percent);
+    m_finalClippedMinValue = m_finalMinValue;
+    m_finalClippedMaxValue = m_finalMaxValue;
+    m_finalClippedMinValueL = m_finalMinValueL;
+    m_finalClippedMaxValueL = m_finalMaxValueL;
+
+    if (a_percent < FITS_PERCENTILE_THRESHOLD_OFFSET) /// old legacy threshold processing case
+    {
+        calcBufferDistribution(a_percent);
+    }
+    else if (a_transformType & FITS_PERCENTILE_TRANSFORM) /// new histogram-based percentile calculation
+    {
+        m_percentThreshold = a_percent - FITS_PERCENTILE_THRESHOLD_OFFSET;
+
+        if (!areEqual(m_percentThreshold, 100.0))
+        {
+            double min, max;
+            float minF, maxF;
+            int64_t minL, maxL;
+            int32_t min32, max32;
+            int16_t min16, max16;
+
+            if (m_bitpix == 8 || m_bitpix == 16)
+            {
+                calcPercentileMinMax<int16_t>(m_distribStats, m_finalMinValueL, m_finalMaxValueL, m_percentThreshold,
+                                              min16, max16, m_width * m_height);
+                minL = min16;
+                maxL = max16;
+            }
+            else if (m_bitpix == -32)
+            {
+                calcPercentileMinMax<float>(m_distribStats, m_finalMinValue, m_finalMaxValue, m_percentThreshold,
+                                            minF, maxF, m_width * m_height);
+                min = minF;
+                max = maxF;
+            }
+            else if (m_bitpix == 32)
+            {
+                calcPercentileMinMax<int32_t>(m_distribStats, m_finalMinValueL, m_finalMaxValueL, m_percentThreshold,
+                                              min32, max32, m_width * m_height);
+                minL = min32;
+                maxL = max32;
+            }
+            else if (m_bitpix == -64)
+            {
+                calcPercentileMinMax<double>(m_distribStats, m_finalMinValue, m_finalMaxValue, m_percentThreshold,
+                                             min, max, m_width * m_height);
+            }
+            else if (m_bitpix == 64)
+            {
+                calcPercentileMinMax<int64_t>(m_distribStats, m_finalMinValueL, m_finalMaxValueL, m_percentThreshold,
+                                              minL, maxL, m_width * m_height);
+            }
+
+
+            ///calcPercentileMinMax<float>(m_distribStats, m_finalMinValue, m_finalMaxValue, m_percentThreshold,
+            ///                            min, max, m_width * m_height);
+
+            m_finalClippedMinValue = min;
+            m_finalClippedMaxValue = max;
+            m_finalClippedMinValueL = minL;
+            m_finalClippedMaxValueL = maxL;
+
+            std::cout << "---> Original min, max: " << m_finalMinValue << " , " << m_finalMaxValue <<
+                " - new min, max: " << m_finalClippedMinValue << " , " << m_finalClippedMaxValue << " , Old Range: " << m_finalMaxValue - m_finalMinValue <<
+                " , New Range: " << m_finalClippedMaxValue - m_finalClippedMinValue <<
+                " , a_percentThreshold: " << m_percentThreshold << std::endl;
+
+            std::cout << "---> Original minL, maxL: " << m_finalMinValueL << " , " << m_finalMaxValueL <<
+                " - new min, max: " << m_finalClippedMinValueL << " , " << m_finalClippedMaxValueL << " , Old Range: " << m_finalMaxValueL - m_finalMinValueL <<
+                " , New Range: " << m_finalClippedMaxValueL - m_finalClippedMinValueL <<
+                " , a_percentThreshold: " << m_percentThreshold << std::endl;
+
+        }
+        else
+        {
+            m_transformType = FITS_FLOAT_DOUBLE_NO_TRANSFORM;
+            m_finalClippedMinValue = m_finalMinValue;
+            m_finalClippedMaxValue = m_finalMaxValue;
+            m_finalClippedMinValueL = m_finalMinValueL;
+            m_finalClippedMaxValueL = m_finalMaxValueL;
+        }
+    }
+    /// end of new histogram-based percentile calculation
+    ///////////////////////////////////////////////////////////////
 
     // Writing the buffer containing pixel data
     try
@@ -1471,7 +1554,8 @@ void Image::calcBufferDistribution(int32_t a_percent)
         return;
     ////
 
-    float percent = (float)(100 - a_percent) / 100;
+    //float percent = (float)(100 - a_percent) / 100;
+    float percent = ((float)(100 - a_percent) / 100) * (a_percent != 0) ;
 
     if (a_percent != m_percentThreshold)
     {
@@ -1479,7 +1563,7 @@ void Image::calcBufferDistribution(int32_t a_percent)
 
         if (m_bitpix == -32)
         {
-            float tmpMin,tmpMax;
+            float tmpMin, tmpMax;
 
             getBufferDistributionMinMax<float>(m_dataBuffer, m_width*m_height*bpx, percent,
                                                m_minValue, m_maxValue, tmpMin, tmpMax, m_distribStats, m_isDistribCounted);
@@ -1508,10 +1592,10 @@ void Image::calcBufferDistribution(int32_t a_percent)
         }
         else if (m_bitpix == 8)
         {
-            int8_t tmpMin, tmpMax;
+            uint8_t tmpMin, tmpMax;
 
-            getBufferDistributionMinMax<int8_t>(m_dataBuffer, m_width*m_height*bpx, percent,
-                                                m_minValueL, m_maxValueL, tmpMin, tmpMax, m_distribStats, m_isDistribCounted);
+            getBufferDistributionMinMax<uint8_t>(m_dataBuffer, m_width*m_height*bpx, percent,
+                                                 m_minValueL, m_maxValueL, tmpMin, tmpMax, m_distribStats, m_isDistribCounted);
 
             m_isDistribCounted = true;
             m_minDistribValueL = tmpMin;
@@ -1570,17 +1654,17 @@ void Image::calcBufferDistribution(int32_t a_percent)
 
     if (m_percentThreshold == 0)
     {
-        m_finalMinValue = m_minValue;
-        m_finalMaxValue = m_maxValue;
-        m_finalMinValueL = m_minValueL;
-        m_finalMaxValueL = m_maxValueL;
+        m_finalClippedMinValue = m_finalMinValue = m_minValue;
+        m_finalClippedMaxValue = m_finalMaxValue = m_maxValue;
+        m_finalClippedMinValueL = m_finalMinValueL = m_minValueL;
+        m_finalClippedMaxValueL = m_finalMaxValueL = m_maxValueL;
     }
     else
     {
-        m_finalMinValue = m_minDistribValue;
-        m_finalMaxValue = m_maxDistribValue;
-        m_finalMinValueL = m_minDistribValueL;
-        m_finalMaxValueL = m_maxDistribValueL;
+        m_finalClippedMinValue = m_finalMinValue = m_minDistribValue;
+        m_finalClippedMaxValue = m_finalMaxValue = m_maxDistribValue;
+        m_finalClippedMinValueL = m_finalMinValueL = m_minDistribValueL;
+        m_finalClippedMaxValueL = m_finalMaxValueL = m_maxDistribValueL;
     }
 }
 
@@ -1598,24 +1682,14 @@ void Image::convertBufferAllTypes2RGB(uint8_t* tmpRow, size_t tmpBufRowSize, uin
     bool a_zeroScaleFlag = !(areEqual(m_bzero, FITS_BZERO_DEFAULT_VALUE) && areEqual(m_bscale, FITS_BSCALE_DEFAULT_VALUE));
 
     if (m_bitpix == 8)
-        convertBufferByte2RGB(tmpRow, tmpBufRowSize, tmpDestRow);
+        convertBufferByte2RGB(tmpRow, tmpBufRowSize, tmpDestRow, m_finalClippedMinValueL, m_finalClippedMaxValueL, m_finalMinValue, m_finalMaxValueL,
+                              m_bzero, m_bscale, a_zeroScaleFlag, m_transformType);
     else if (m_bitpix == 16)
-        //// ORIGINAL working block
-        /*
-        !a_zeroScaleFlag ?
-            ////convertBufferShort2RGB(tmpRow, tmpBufRowSize, tmpDestRow, true, m_minValueL, m_maxValueL, a_transformType) : // original WORKING version
-            convertBufferShort2RGB(tmpRow, tmpBufRowSize, tmpDestRow, true, m_finalMinValueL, m_finalMaxValueL, m_transformType) : //// final working version
-            ////convertBufferShortSZ2RGB(tmpRow, tmpBufRowSize, m_bzero, m_bscale, tmpDestRow, true, // original WORKING version
-            ////                         m_minValueL, m_maxValueL, a_transformType);
-            convertBufferShortSZ2RGB(tmpRow, tmpBufRowSize, m_bzero, m_bscale, tmpDestRow, true,     //// final working version
-                                     m_finalMinValueL, m_finalMaxValueL, m_transformType);
-        */
-        //// End of ORIGINAL working block
-        convertBufferShortRGB(tmpRow, tmpBufRowSize, tmpDestRow, m_finalMinValueL, m_finalMaxValueL,
-                              m_bzero, m_bscale, true, a_zeroScaleFlag, m_transformType);
+        convertBufferShort2RGB(tmpRow, tmpBufRowSize, tmpDestRow, m_finalClippedMinValueL, m_finalClippedMaxValueL, m_finalMinValue, m_finalMaxValueL,
+                              m_bzero, m_bscale, a_zeroScaleFlag, m_transformType);
     else if (m_bitpix == -32)
-        ////convertBufferFloat2RGB(tmpRow, tmpBufRowSize, m_minValue, m_maxValue, a_transformType); // original WORKING version
-        convertBufferFloat2RGB(tmpRow, tmpBufRowSize, m_finalMinValue, m_finalMaxValue, m_bzero, m_bscale, a_zeroScaleFlag, m_transformType); //// final working BZERO+BSCALE version
+        convertBufferFloat2RGB(tmpRow, tmpBufRowSize, m_finalClippedMinValue, m_finalClippedMaxValue, m_finalMinValue, m_finalMaxValue,
+                               m_bzero, m_bscale, a_zeroScaleFlag, m_transformType);
     else if (m_bitpix == 32)
         ////convertBufferInt2RGB(tmpRow, tmpBufRowSize, m_minValueL, m_maxValueL, a_transformType); // original WORKING version
         convertBufferInt2RGB(tmpRow, tmpBufRowSize, m_finalMinValueL, m_finalMaxValueL, m_bzero, m_bscale, a_zeroScaleFlag, m_transformType); //// final working BZERO+BSCALE version

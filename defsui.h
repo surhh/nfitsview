@@ -49,6 +49,7 @@
 
 constexpr int32_t minTickCountX = 10, maxTickCountX = 15;
 constexpr int32_t minTickCountY = 3, maxTickCountY = 5;
+constexpr int32_t histChartMaxPointsToShow = 1000;
 
 constexpr float tickQautientX = 10.0f;
 

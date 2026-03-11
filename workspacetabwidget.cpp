@@ -395,7 +395,7 @@ void WorkspaceTabWidget::setImage(uint32_t a_hduIndex, uint32_t a_transformType,
             {
                 m_fitsImage->deleteAllData();
                 m_fitsImage->createRGB32FlatData(a_transformType, a_percent);
-                //libnfits::LOG("in setImage(uint32_t a_hduIndex, uint32_t a_transformType), a_transformType = % ", a_transformType);
+                ///libnfits::LOG("in setImage(uint32_t a_hduIndex, uint32_t a_transformType), a_transformType = % ", a_transformType);
             }
             ////
 

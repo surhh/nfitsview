@@ -124,14 +124,22 @@ static int32_t percentCallbackFunctionSample(int32_t a_percent, void* a_buffer)
 #define FITS_FLOAT_DOUBLE_LINEAR_TRANSFORM_POSITIVE             (1)
 #define FITS_FLOAT_DOUBLE_LINEAR_TRANSFORM_NEGATIVE_POSITIVE    (2)
 #define FITS_FLOAT_DOUBLE_LINEAR_TRANSFORM_NEGATIVE             (3)
-#define FITS_NUMBER_OF_TRANSFORMS                               (4)
+#define FITS_PERCENTILE_TRANSFORM                               (4)
+#define FITS_STRETCHING_LINEAR_TRANSFORM                        (8)
+#define FITS_STRETCHING_LOGARITHMIC_TRANSFORM                   (16)
+#define FITS_STRETCHING_SQUARE_ROOT_TRANSFORM                   (32)
+#define FITS_STRETCHING_ARCSINH_TRANSFORM                       (64)
+#define FITS_NUMBER_OF_TRANSFORMS                               (9)
+#define FITS_PERCENTILE_THRESHOLD_OFFSET                        (1000) /// workaround for not calculating wrong distrib stats
+                                                                       /// as every percent smaller than this value will be
+                                                                       /// treated in the old threshold logic (the progressbar)
 
 #define FITS_FLOAT_DOUBLE_RANGE_MIN_ZERO             (0.0)
 #define FITS_FLOAT_DOUBLE_RANGE_MAX_ZERO             (0.0)
 #define FITS_FLOAT_DOUBLE_RANGE_MIN_NEGATIVE         (-1.0)
 #define FITS_FLOAT_DOUBLE_RANGE_MAX_POSITIVE         (1.0)
 
-#define FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER      (200) ///(100)
+#define FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER      (10000) ///was 100, current default is 200
 #define FITS_VALUE_DISTRIBUTION_RANGE_MIN_THREASHOLD (0.01)
 
 #endif // LIBNFITS_DEFS_H

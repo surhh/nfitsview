@@ -468,8 +468,8 @@ void convertBufferFloat2RGBA(uint8_t* a_buffer, size_t a_size, float a_min, floa
     }
 }
 
-void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size, float a_min, float a_max, double a_bzero, double a_bscale, bool a_zeroScaleFlag,
-                            uint32_t a_type)
+void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size, float a_min, float a_max, float a_oldMin, float a_oldMax,
+                            double a_bzero, double a_bscale, bool a_zeroScaleFlag, uint32_t a_type)
 {
     /// checking for buffer granularity
     if (a_size % sizeof(float) != 0)
@@ -482,25 +482,11 @@ void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size, float a_min, float
 
     uint32_t *writeBuffer = (uint32_t*)(a_buffer);
 
-    float min = FITS_FLOAT_DOUBLE_RANGE_MIN_ZERO, max = FITS_FLOAT_DOUBLE_RANGE_MAX_POSITIVE;
+    float newRange = std::fabs(a_max - a_min);
 
-    if (a_type == FITS_FLOAT_DOUBLE_LINEAR_TRANSFORM_NEGATIVE)
-    {
-        min = FITS_FLOAT_DOUBLE_RANGE_MIN_NEGATIVE;
-        max = FITS_FLOAT_DOUBLE_RANGE_MAX_ZERO;
-    }
-    else if (a_type == FITS_FLOAT_DOUBLE_LINEAR_TRANSFORM_NEGATIVE_POSITIVE)
-    {
-        min = FITS_FLOAT_DOUBLE_RANGE_MIN_NEGATIVE;
-        max = FITS_FLOAT_DOUBLE_RANGE_MAX_POSITIVE;
-    }
-
-    float oldRange = std::fabs(a_max - a_min);
-    float newRange = std::fabs(max - min);
-
-///#if defined(ENABLE_OPENMP)
+#if defined(ENABLE_OPENMP)
 ///#pragma omp parallel for
-///#endif
+#endif
     for (size_t i = 0; i < a_size / sizeof(float); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -512,15 +498,15 @@ void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size, float a_min, float
 
         zeroScaleFunctionPtr(f, a_bzero, a_bscale);
 
-        if (a_type != FITS_FLOAT_DOUBLE_NO_TRANSFORM)
+        if (a_type == FITS_PERCENTILE_TRANSFORM)
         {
-            f = normalizeValueByRange<float>(f, a_min, min, oldRange, newRange);
+            if (f > a_max)
+                f = a_max;
+            else if (f < a_min)
+                f = a_min;
         }
 
-        //zeroScaleFunctionPtr(f, a_bzero, a_bscale);
-
-        ////writeBuffer[i] = convertFloat2RGBA(f);  //// original version
-        writeBuffer[i] = convertFloat2Grayscale(f, a_min, a_max, stretchFloatDummy);
+        writeBuffer[i] = convertFloat2Grayscale(f, a_min, newRange, stretchFunctionsPtrMap[0].floatPtrFunc); ///
     }
 }
 
@@ -730,55 +716,48 @@ void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size, double a_min, dou
     }
 }
 
-void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer, bool a_gray,
-                            uint16_t a_min, uint16_t a_max, uint32_t a_type)
+
+void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer,
+                            int16_t a_min, int16_t a_max, int16_t a_oldMin, int16_t a_oldMax,
+                            double a_bzero, double a_bscale, bool a_zeroScaleFlag, uint32_t a_type)
 {
-/*
     // checking for buffer granularity
-    if (a_size % sizeof(uint16_t) != 0)
+    if (a_size % sizeof(int16_t) != 0)
         return;
 
-    uint16_t *tmpBuf = (uint16_t*)(a_buffer);
+    uint32_t *writeBuffer = reinterpret_cast<uint32_t*>(a_destBuffer);
 
-    uint16_t min = std::numeric_limits<uint16_t>::min();
-    uint16_t max = std::numeric_limits<uint16_t>::max();
+    zeroScaleShortPtr zeroScaleFunctionPtr = zeroScaleShortDummy;
 
-    convertShort  ptrConvertFunction = convertShort2Grayscale;
+    if (a_zeroScaleFlag)
+        zeroScaleFunctionPtr = zeroScaleShortMul;
 
-    RGBPixel pixel;
+    int16_t *tmpBuf = (int16_t*)(a_buffer);
 
-    if (!a_gray)
-        ptrConvertFunction = convertShort2RGB;
-
-    uint16_t oldRange = std::abs(a_max - a_min);
-    uint16_t newRange = std::abs(max - min);
+    int32_t newRange = std::abs(a_max - a_min);
 
 #if defined(ENABLE_OPENMP)
-#pragma omp parallel for
+///#pragma omp parallel for
 #endif
-    for (size_t i = 0; i < a_size / sizeof(uint16_t); ++i)
+    for (size_t i = 0; i < a_size / sizeof(int16_t); ++i)
     {
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-        uint16_t s = swap16(tmpBuf[i]);
+        int16_t f = swap16(tmpBuf[i]);
 #else
-        uint16_t s = tmpBuf[i];
+        int16_t f = tmpBuf[i];
 #endif
+        zeroScaleFunctionPtr(f, a_bzero, a_bscale);
 
-        if (a_type != FITS_FLOAT_DOUBLE_NO_TRANSFORM)
-            s = normalizeValueShortByRange(s, a_min, min, oldRange, newRange);
-            //s = normalizeValueIntLongByRange<uint16_t>(s, a_min, min, oldRange, newRange);
-            //s = normalizeValueIntLong<uint16_t>(s, a_min, a_max, min, max);
+        if (a_type == FITS_PERCENTILE_TRANSFORM)
+        {
+            if (f > a_max)
+                f = a_max;
+            else if (f < a_min)
+                f = a_min;
+        }
 
-        ptrConvertFunction(s, pixel);
-
-        size_t indexBase = i*4;
-
-        a_destBuffer[indexBase]     = pixel.red;
-        a_destBuffer[indexBase + 1] = pixel.green;
-        a_destBuffer[indexBase + 2] = pixel.blue;
-        //a_destBuffer[indexBase + 3] = 0x00;
+        writeBuffer[i] = convertByte2Grayscale(f, a_min, newRange, stretchFunctionsPtrMap[0].int16PtrFunc);
     }
-*/
 }
 
 //// this function is obsolete, will not be used anymore
@@ -982,6 +961,40 @@ void convertBufferByte2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuff
         a_destBuffer[indexBase + 1] = pixel.green;
         a_destBuffer[indexBase + 2] = pixel.blue;
         //a_destBuffer[indexBase + 3] = 0x00;
+    }
+}
+
+void convertBufferByte2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer,
+                           int16_t a_min, int16_t a_max, int16_t a_oldMin, int16_t a_oldMmax,
+                           double a_bzero, double a_bscale, bool a_zeroScaleFlag, uint32_t a_type)
+{
+    zeroScaleShortPtr zeroScaleFunctionPtr = zeroScaleShortDummy;
+
+    if (a_zeroScaleFlag)
+        zeroScaleFunctionPtr = zeroScaleShortMul;
+
+    uint32_t *writeBuffer = reinterpret_cast<uint32_t*>(a_destBuffer);
+
+    int16_t newRange = std::abs(a_max - a_min);
+
+#if defined(ENABLE_OPENMP)
+///#pragma omp parallel for
+#endif
+    for (size_t i = 0; i < a_size; ++i)
+    {
+        int16_t f = a_buffer[i];
+
+        zeroScaleFunctionPtr(f, a_bzero, a_bscale);
+
+        if (a_type == FITS_PERCENTILE_TRANSFORM)
+        {
+            if (f > a_max)
+                f = a_max;
+            else if (f < a_min)
+                f = a_min;
+        }
+
+        writeBuffer[i] = convertByte2Grayscale(f, a_min, newRange, stretchFunctionsPtrMap[0].int16PtrFunc);
     }
 }
 
@@ -1900,7 +1913,7 @@ void getByteBufferDistribution(const uint8_t* a_buffer, size_t a_size, int8_t a_
 
     size_t pixelCount = a_size / sizeof(int8_t);
 
-    double rangeF = std::fabs(a_max - a_min);
+    double rangeF = std::abs(a_max - a_min);
     double segmentSizeF = rangeF/(double)FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER;
 
     if (areEqual(segmentSizeF, 0.0))
@@ -1911,7 +1924,32 @@ void getByteBufferDistribution(const uint8_t* a_buffer, size_t a_size, int8_t a_
 #endif
     for (size_t i = 0; i < pixelCount; ++i)
     {
-        uint32_t index = std::floor(std::fabs(tmpBuf[i] - a_min) / segmentSizeF);
+        uint32_t index = std::floor(std::abs(tmpBuf[i] - a_min) / segmentSizeF);
+
+        if (index >= FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER)
+            continue;
+
+        a_stats[index].count++;
+    }
+}
+
+void getUByteBufferDistribution(const uint8_t* a_buffer, size_t a_size, uint8_t a_min, uint8_t a_max,
+                               DistribStats (&a_stats)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER])
+{
+    size_t pixelCount = a_size / sizeof(uint8_t);
+
+    double rangeF = std::abs(a_max - a_min);
+    double segmentSizeF = rangeF/(double)FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER;
+
+    if (areEqual(segmentSizeF, 0.0))
+        return;
+
+#if defined(ENABLE_OPENMP)
+///#pragma omp parallel for
+#endif
+    for (size_t i = 0; i < pixelCount; ++i)
+    {
+        uint32_t index = std::floor(std::abs(a_buffer[i] - a_min) / segmentSizeF);
 
         if (index >= FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER)
             continue;
@@ -2210,8 +2248,8 @@ template<typename T> void getBufferDistributionMinMax(const uint8_t* a_buffer, s
     ////T rangeF = std::fabs(a_max - a_min);
     ////T segmentSizeF = rangeF/(T)FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER;
 
-    double rangeF = std::fabs(a_max - a_min);
-    double segmentSizeF = rangeF/(T)FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER;
+    long double rangeF = std::abs(a_max - a_min);
+    long double segmentSizeF = rangeF/(T)FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER;
 
     if (!a_isDistribCounted)
     {
@@ -2219,8 +2257,8 @@ template<typename T> void getBufferDistributionMinMax(const uint8_t* a_buffer, s
             getFloatBufferDistribution(a_buffer, a_size, a_min, a_max, a_stats);
         else if (std::is_same<T, double>::value)
             getDoubleBufferDistribution(a_buffer, a_size, a_min, a_max, a_stats);
-        else if (std::is_same<T, int8_t>::value)
-            getByteBufferDistribution(a_buffer, a_size, a_min, a_max, a_stats);
+        else if (std::is_same<T, int8_t>::value || std::is_same<T, uint8_t>::value)
+            getUByteBufferDistribution(a_buffer, a_size, a_min, a_max, a_stats);
         else if (std::is_same<T, int16_t>::value)
             getShortBufferDistribution(a_buffer, a_size, a_min, a_max, a_stats);
         else if (std::is_same<T, int32_t>::value)
@@ -2232,9 +2270,14 @@ template<typename T> void getBufferDistributionMinMax(const uint8_t* a_buffer, s
     }
 
     double totalCount = a_size / sizeof(T);
-    for (int32_t i = 0; i < FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER; ++i)
+    a_stats[0].percent = (double)a_stats[0].count / totalCount;
+    a_stats[0].cdf = a_stats[0].count; /// initial CDF (cumulative distribution function) value
+
+    for (int32_t i = 1; i < FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER; ++i)
     {
         a_stats[i].percent = (double)a_stats[i].count / totalCount;
+        a_stats[i].cdf = a_stats[i-1].cdf + a_stats[i].count; /// CDF (cumulative distribution function) value
+
         ////std::cout << "[INFO]: (F/D) index = " << i << " , a_stats[i].count = " << a_stats[i].count <<
         ////             " , percent = " << a_stats[i].percent << std::endl;
     }
@@ -2276,6 +2319,10 @@ template void getBufferDistributionMinMax<int8_t>(const uint8_t*, size_t, float,
                                                   int8_t&, DistribStats (&)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER],
                                                   bool a_isDistribCounted);
 
+template void getBufferDistributionMinMax<uint8_t>(const uint8_t*, size_t, float, uint8_t, uint8_t, uint8_t&,
+                                                   uint8_t&, DistribStats (&)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER],
+                                                   bool a_isDistribCounted);
+
 template void getBufferDistributionMinMax<int16_t>(const uint8_t*, size_t, float, int16_t, int16_t, int16_t&,
                                                    int16_t&, DistribStats (&)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER],
                                                    bool a_isDistribCounted);
@@ -2288,7 +2335,65 @@ template void getBufferDistributionMinMax<int64_t>(const uint8_t*, size_t, float
                                                    int64_t&, DistribStats (&)[FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER],
                                                    bool a_isDistribCounted);
 
+template<typename T> T calcPercentile(libnfits::DistribStats const* a_distribStats, T a_min, T a_max,
+                       float a_percentile, size_t a_pixelNum)
+{
+    int32_t percentilePos = std::round((a_percentile/100.0f) * a_pixelNum);
 
+    int32_t binPos = 0;
+
+    for (size_t i = 0; i < FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER; ++i)
+    {
+        if (a_distribStats[i].cdf > percentilePos)
+        {
+            binPos = i;
+            break;
+        }
+    }
+
+    ///if (binPos == -1)   /// No suitable histogram bin found. Not sure if such case can occurr, but still checking.
+    ///    return;         /// Will return a_newMin = a_newMax = 0;
+
+    T binStartVal = a_min, binEndVal = a_max;
+
+    T range = a_max - a_min;
+
+    double step = (double)range / FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER;
+
+    binStartVal += (step * binPos);
+
+    binEndVal = binStartVal + step;
+
+    size_t cdfPrev = binPos > 0 ? a_distribStats[binPos - 1].cdf : 0;
+
+    long double fraction = static_cast<long double>((percentilePos - cdfPrev)) / a_distribStats[binPos].count;
+
+    long double percentileVal = binStartVal + fraction * step;
+
+    return static_cast<T>(percentileVal);
+}
+
+template<typename T> void calcPercentileMinMax(libnfits::DistribStats const* a_distribStats, T a_min, T a_max,
+                          float a_percentile, T& a_newMin, T& a_newMax, size_t a_pixelNum)
+{
+    a_newMin = a_newMax = 0;
+
+    float percentileDelta = (100.0f - a_percentile) / 2.0f;
+
+    float percentileMin = percentileDelta;
+
+    float percentileMax = a_percentile + percentileDelta;
+
+    a_newMin = calcPercentile(a_distribStats, a_min, a_max, percentileMin, a_pixelNum);
+
+    a_newMax = calcPercentile(a_distribStats, a_min, a_max, percentileMax, a_pixelNum);
+}
+
+template void calcPercentileMinMax<float>(libnfits::DistribStats const*, float, float, float, float&, float&, size_t);
+template void calcPercentileMinMax<double>(libnfits::DistribStats const*, double, double, float, double&, double&, size_t);
+template void calcPercentileMinMax<int16_t>(libnfits::DistribStats const*, int16_t, int16_t, float, int16_t&, int16_t&, size_t);
+template void calcPercentileMinMax<int32_t>(libnfits::DistribStats const*, int32_t, int32_t, float, int32_t&, int32_t&, size_t);
+template void calcPercentileMinMax<int64_t>(libnfits::DistribStats const*, int64_t, int64_t, float, int64_t&, int64_t&, size_t);
 
 //// use for debug purposes only, slow functions
 int32_t dumpFloatDataBuffer(const uint8_t* a_buffer, size_t a_size, const std::string& a_filename, uint32_t a_rowSize)

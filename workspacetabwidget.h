@@ -95,6 +95,10 @@ public:
     double getMaxValue() const;
     int64_t getMinValueL() const;
     int64_t getMaxValueL() const;
+    double getMinClippedValue() const;
+    int64_t getMinClippedValueL() const;
+    double getMaxClippedValue() const;
+    int64_t getMaxClippedValueL() const;
 
     double getDistribMinValue() const;
     double getDistribMaxValue() const;
@@ -108,6 +112,8 @@ public:
     template<typename T> T getMaxValue() const;
     template<typename T> T getDistribMinValue() const;
     template<typename T> T getDistribMaxValue() const;
+    template<typename T> T getMinClippedValue() const;
+    template<typename T> T getMaxClippedValue() const;
 
     FITSImageLabel* getFITSImageLabel() const;
 

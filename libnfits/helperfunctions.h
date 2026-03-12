@@ -765,7 +765,45 @@ typedef     void (*stretchLongPtr)      (int64_t &);
 
 //zeroScaleFloatPtr a_zeroScaleFuncPtr
 
-inline uint32_t convertByte2Grayscale(int16_t a_value, int16_t a_min, int16_t a_range, stretchShortPtr a_stetchFuncPtr)
+inline uint32_t convertShort2Grayscale(int16_t a_value, int16_t a_min, int16_t a_range, stretchShortPtr a_stetchFuncPtr)
+{
+    uint32_t retVal = 0;
+
+    a_stetchFuncPtr(a_value);
+
+    //uint32_t tmpVal = static_cast<uint32_t>((std::fabs(a_value - a_min)/range) * 255.0);
+    //uint32_t tmpVal = static_cast<uint32_t>(std::round(std::fabs(a_value - a_min)/a_range) * 255.0); /// looks better
+    uint32_t tmpVal = static_cast<uint32_t>(((float)(std::abs(a_value - a_min))/a_range) * 255.0);
+
+    retVal = tmpVal << 16;
+
+    retVal = retVal | (tmpVal << 8);
+
+    retVal = retVal | tmpVal;
+
+    return retVal;
+}
+
+inline uint32_t convertInt2Grayscale(int32_t a_value, int32_t a_min, int32_t a_range, stretchIntPtr a_stetchFuncPtr)
+{
+    uint32_t retVal = 0;
+
+    a_stetchFuncPtr(a_value);
+
+    //uint32_t tmpVal = static_cast<uint32_t>((std::fabs(a_value - a_min)/range) * 255.0);
+    //uint32_t tmpVal = static_cast<uint32_t>(std::round(std::fabs(a_value - a_min)/a_range) * 255.0); /// looks better
+    uint32_t tmpVal = static_cast<uint32_t>(((float)(std::abs(a_value - a_min))/a_range) * 255.0);
+
+    retVal = tmpVal << 16;
+
+    retVal = retVal | (tmpVal << 8);
+
+    retVal = retVal | tmpVal;
+
+    return retVal;
+}
+
+inline uint32_t convertLong2Grayscale(int64_t a_value, int64_t a_min, int64_t a_range, stretchLongPtr a_stetchFuncPtr)
 {
     uint32_t retVal = 0;
 
@@ -871,7 +909,7 @@ inline void stretchLinear(int64_t& a_value)
 {
 }
 
-///
+/// square root
 inline void stretchSquareroot(float& a_value)
 {
    a_value = std::sqrt(a_value);
@@ -908,7 +946,7 @@ inline void stretchSquareroot(int64_t& a_value)
 }
 ///
 
-///
+/// Logarithmic
 inline void stretchLogarithmic(float& a_value)
 {
     a_value = std::log(a_value);
@@ -945,7 +983,7 @@ inline void stretchLogarithmic(int64_t& a_value)
 }
 ///
 
-///
+/// ArcSin
 inline void stretchArcsinh(float& a_value)
 {
     a_value = std::asinh(a_value);
@@ -1011,7 +1049,7 @@ void convertBufferFloat2RGBA(uint8_t* a_buffer, size_t a_size, float a_min = 0.0
                              uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
 void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size,
-                            float a_min = 0.0f, float a_max = 0.0f, float a_oldMin = 0.0f, float a_oldMmax = 0.0f,
+                            float a_min = 0.0f, float a_max = 0.0f,
                             double a_bzero = 0.0, double a_bscale = 1.0,
                             bool a_zeroScaleFlag = false, uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
@@ -1020,7 +1058,11 @@ void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size,
 void convertBufferDouble2RGBA(uint8_t* a_buffer, size_t a_size, double a_min = 0.0, double a_max = 0.0,
                               uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
-void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size, double a_min = 0.0, double a_max = 0.0, double a_bzero = 0.0, double a_bscale = 1.0,
+//void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size, double a_min = 0.0, double a_max = 0.0, double a_bzero = 0.0, double a_bscale = 1.0,
+//                             bool a_zeroScaleFlag = false, uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
+
+void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size,
+                             double a_min = 0.0, double a_max = 0.0, double a_bzero = 0.0, double a_bscale = 1.0,
                              bool a_zeroScaleFlag = false, uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
 
@@ -1036,16 +1078,14 @@ void convertBufferShortRGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuff
                            bool a_zeroScaleFlag = false, uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
 void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer,
-                            int16_t a_min = 0, int16_t a_max = 0, int16_t a_oldMin = 0, int16_t a_oldMax = 0,
-                            double a_bzero = 0.0, double a_bscale = 1.0,
+                            int16_t a_min = 0, int16_t a_max = 0, double a_bzero = 0.0, double a_bscale = 1.0,
                             bool a_zeroScaleFlag = false, uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
 //// for byte
 void convertBufferByte2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer);
 
 void convertBufferByte2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer,
-                           int16_t a_min = 0, int16_t a_max = 0, int16_t a_oldMin = 0, int16_t a_oldMax = 0,
-                           double a_bzero = 0.0, double a_bscale = 1.0,
+                           int16_t a_min = 0, int16_t a_max = 0, double a_bzero = 0.0, double a_bscale = 1.0,
                            bool a_zeroScaleFlag = false, uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
 void convertBufferByteSZ2RGB(uint8_t* a_buffer, size_t a_size, int8_t a_bzero, int8_t a_bscale, uint8_t* a_destBuffer);
@@ -1055,10 +1095,17 @@ void convertBufferByteSZ2RGB(uint8_t* a_buffer, size_t a_size, int8_t a_bzero, i
 void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size, int32_t a_min = 0, int32_t a_max = 0, double a_bzero = 0.0, double a_bscale = 1.0,
                           bool a_zeroScaleFlag = false, uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
+void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer,
+                          int32_t a_min = 0, int32_t a_max = 0, double a_bzero = 0.0, double a_bscale = 1.0,
+                          bool a_zeroScaleFlag = false, uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
+
 //// for long
 void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size, int64_t a_min = 0, int64_t a_max = 0, double a_bzero = 0.0, double a_bscale = 1.0,
                            bool a_zeroScaleFlag = false, uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
+void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer,
+                           int64_t a_min = 0, int64_t a_max = 0, double a_bzero = 0.0, double a_bscale = 1.0,
+                           bool a_zeroScaleFlag = false, uint32_t a_type = FITS_FLOAT_DOUBLE_NO_TRANSFORM);
 
 //// functions to convert buffers to grayscale
 void convertBufferRGB2Grayscale(uint8_t* a_buffer, size_t a_size);

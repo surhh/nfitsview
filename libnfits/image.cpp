@@ -609,10 +609,11 @@ int32_t Image::createRGB32FlatData(uint32_t a_transformType, float a_percent)
 
     uint8_t* tmpFinalRow = tmpRow;
 
-    if (m_bitpix == 16 || m_bitpix == 8)
+    ///if (m_bitpix == 8 || m_bitpix == 16 || m_bitpix == 32 || m_bitpix == 64)
+    if (m_bitpix >= 8 && m_bitpix <= 64)
     {
         //tmpDestRow = new uint8_t[tmpBufRowSize * (bytesNum == 2 ? 2 : 1)];
-        tmpDestRow = new (std::align_val_t{std::hardware_destructive_interference_size}) uint8_t[tmpBufRowSize * (32/std::abs(m_bitpix))];
+        tmpDestRow = new (std::align_val_t{std::hardware_destructive_interference_size}) uint8_t[tmpBufRowSize * (32/m_bitpix)];
         tmpFinalRow = tmpDestRow;
     }
 
@@ -1320,6 +1321,11 @@ double Image::getMinValue() const
     return m_minValue;
 }
 
+double Image::getMinClippedValue() const
+{
+    return m_finalClippedMinValue;
+}
+
 void Image::setMaxValue(double a_value)
 {
     m_maxValue = a_value;
@@ -1328,6 +1334,11 @@ void Image::setMaxValue(double a_value)
 double Image::getMaxValue() const
 {
     return m_maxValue;
+}
+
+double Image::getMaxClippedValue() const
+{
+    return m_finalClippedMaxValue;
 }
 
 void Image::setMinMaxValues(double a_minValue, double a_maxValue)
@@ -1344,6 +1355,16 @@ void Image::setMinValueL(int64_t a_value)
 int64_t Image::getMinValueL() const
 {
     return m_minValueL;
+}
+
+int64_t Image::getMinClippedValueL() const
+{
+    return m_finalClippedMinValueL;
+}
+
+int64_t Image::getMaxClippedValueL() const
+{
+    return m_finalClippedMaxValueL;
 }
 
 void Image::setMaxValueL(int64_t a_value)
@@ -1447,9 +1468,20 @@ template<typename T> T Image::getMinValue() const
 {
     if (std::is_same<T, float>::value || std::is_same<T, double>::value)
         return m_minValue;
-    else if (std::is_same<T, uint8_t>::value|| std::is_same<T, uint16_t>::value || std::is_same<T, uint32_t>::value
+    else if (std::is_same<T, uint8_t>::value || std::is_same<T, uint16_t>::value || std::is_same<T, uint32_t>::value
              || std::is_same<T, uint64_t>::value)
         return m_minValueL;
+    else
+        return std::numeric_limits<T>::min();
+}
+
+template<typename T> T Image::getMinClippedValue() const
+{
+    if (std::is_same<T, float>::value || std::is_same<T, double>::value)
+        return m_finalClippedMinValue;
+    else if (std::is_same<T, uint8_t>::value || std::is_same<T, uint16_t>::value || std::is_same<T, uint32_t>::value
+             || std::is_same<T, uint64_t>::value)
+        return m_finalClippedMinValueL;
     else
         return std::numeric_limits<T>::min();
 }
@@ -1461,6 +1493,17 @@ template<typename T> T Image::getMaxValue() const
     else if (std::is_same<T, uint8_t>::value || std::is_same<T, uint16_t>::value || std::is_same<T, uint32_t>::value
              || std::is_same<T, uint64_t>::value)
         return m_maxValueL;
+    else
+        return std::numeric_limits<T>::max();
+}
+
+template<typename T> T Image::getMaxClippedValue() const
+{
+    if (std::is_same<T, float>::value || std::is_same<T, double>::value)
+        return m_finalClippedMaxValue;
+    else if (std::is_same<T, uint8_t>::value || std::is_same<T, uint16_t>::value || std::is_same<T, uint32_t>::value
+             || std::is_same<T, uint64_t>::value)
+        return m_finalClippedMinValueL;
     else
         return std::numeric_limits<T>::max();
 }
@@ -1681,24 +1724,35 @@ void Image::convertBufferAllTypes2RGB(uint8_t* tmpRow, size_t tmpBufRowSize, uin
 {
     bool a_zeroScaleFlag = !(areEqual(m_bzero, FITS_BZERO_DEFAULT_VALUE) && areEqual(m_bscale, FITS_BSCALE_DEFAULT_VALUE));
 
-    if (m_bitpix == 8)
-        convertBufferByte2RGB(tmpRow, tmpBufRowSize, tmpDestRow, m_finalClippedMinValueL, m_finalClippedMaxValueL, m_finalMinValue, m_finalMaxValueL,
-                              m_bzero, m_bscale, a_zeroScaleFlag, m_transformType);
-    else if (m_bitpix == 16)
-        convertBufferShort2RGB(tmpRow, tmpBufRowSize, tmpDestRow, m_finalClippedMinValueL, m_finalClippedMaxValueL, m_finalMinValue, m_finalMaxValueL,
-                              m_bzero, m_bscale, a_zeroScaleFlag, m_transformType);
-    else if (m_bitpix == -32)
-        convertBufferFloat2RGB(tmpRow, tmpBufRowSize, m_finalClippedMinValue, m_finalClippedMaxValue, m_finalMinValue, m_finalMaxValue,
-                               m_bzero, m_bscale, a_zeroScaleFlag, m_transformType);
-    else if (m_bitpix == 32)
-        ////convertBufferInt2RGB(tmpRow, tmpBufRowSize, m_minValueL, m_maxValueL, a_transformType); // original WORKING version
-        convertBufferInt2RGB(tmpRow, tmpBufRowSize, m_finalMinValueL, m_finalMaxValueL, m_bzero, m_bscale, a_zeroScaleFlag, m_transformType); //// final working BZERO+BSCALE version
-    else if (m_bitpix == -64)
-        ////convertBufferDouble2RGB(tmpRow, tmpBufRowSize, m_minValue, m_maxValue, a_transformType); // original WORKING version
-        convertBufferDouble2RGB(tmpRow, tmpBufRowSize, m_finalMinValue, m_finalMaxValue, m_bzero, m_bscale, a_zeroScaleFlag, m_transformType); //// final working BZERO+BSCALE version
-    else if (m_bitpix == 64)
-        ////convertBufferLong2RGB(tmpRow, tmpBufRowSize, m_minValueL, m_maxValueL, a_transformType); // original WORKING version
-        convertBufferLong2RGB(tmpRow, tmpBufRowSize, m_finalMinValueL, m_finalMaxValueL, m_bzero, m_bscale, a_zeroScaleFlag, m_transformType); //// final working BZERO+BSCALE version
+    switch (m_bitpix)
+    {
+        case 8:
+            convertBufferByte2RGB(tmpRow, tmpBufRowSize, tmpDestRow, m_finalClippedMinValueL, m_finalClippedMaxValueL,
+                                  m_bzero, m_bscale, a_zeroScaleFlag, m_transformType);
+            break;
+        case 16:
+            convertBufferShort2RGB(tmpRow, tmpBufRowSize, tmpDestRow, m_finalClippedMinValueL, m_finalClippedMaxValueL,
+                                   m_bzero, m_bscale, a_zeroScaleFlag, m_transformType);
+            break;
+        case -32:
+            convertBufferFloat2RGB(tmpRow, tmpBufRowSize, m_finalClippedMinValue, m_finalClippedMaxValue,
+                                   m_bzero, m_bscale, a_zeroScaleFlag, m_transformType);
+            break;
+        case 32:
+            convertBufferInt2RGB(tmpRow, tmpBufRowSize, tmpDestRow, m_finalClippedMinValueL, m_finalClippedMaxValueL,
+                                 m_bzero, m_bscale, a_zeroScaleFlag, m_transformType);
+            break;
+        case -64:
+            convertBufferDouble2RGB(tmpRow, tmpBufRowSize, m_finalClippedMinValue, m_finalClippedMaxValue,
+                                    m_bzero, m_bscale, a_zeroScaleFlag, m_transformType);
+            break;
+        case 64:
+            convertBufferLong2RGB(tmpRow, tmpBufRowSize, tmpDestRow, m_finalClippedMinValueL, m_finalClippedMaxValueL,
+                                 m_bzero, m_bscale, a_zeroScaleFlag, m_transformType);
+            break;
+        default:
+            break;
+    }
 }
 
 bool Image::isDefaultBZeroBScale() const

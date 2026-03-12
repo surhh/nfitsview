@@ -247,6 +247,8 @@ private:
 
     void initChartDefaultMetrics();
 
+    void transformPercentileStretching();
+
 signals:
     void sendProgressChanged(qint32 a_value);
 

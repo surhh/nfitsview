@@ -562,6 +562,26 @@ int64_t WorkspaceTabWidget::getMaxValueL() const
     return m_fitsImage->getMaxValueL();
 }
 
+double WorkspaceTabWidget::getMinClippedValue() const
+{
+    return m_fitsImage->getMinClippedValue();
+}
+
+int64_t WorkspaceTabWidget::getMinClippedValueL() const
+{
+    return m_fitsImage->getMinClippedValueL();
+}
+
+double WorkspaceTabWidget::getMaxClippedValue() const
+{
+    return m_fitsImage->getMaxClippedValue();
+}
+
+int64_t WorkspaceTabWidget::getMaxClippedValueL() const
+{
+    return m_fitsImage->getMaxClippedValueL();
+}
+
 double WorkspaceTabWidget::getDistribMinValue() const
 {
     return m_fitsImage->getDistribMinValue();
@@ -600,6 +620,16 @@ template<typename T> T WorkspaceTabWidget::getDistribMinValue() const
 template<typename T> T WorkspaceTabWidget::getDistribMaxValue() const
 {
     return m_fitsImage->getDistribMaxValue<T>();
+}
+
+template<typename T> T WorkspaceTabWidget::getMinClippedValue() const
+{
+    return m_fitsImage->getMinClippedValue<T>();
+}
+
+template<typename T> T WorkspaceTabWidget::getMaxClippedValue() const
+{
+    return m_fitsImage->getMaxClippedValue<T>();
 }
 
 bool WorkspaceTabWidget::isScrollVisibleX() const

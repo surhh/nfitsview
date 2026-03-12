@@ -297,7 +297,7 @@
    <property name="minimumSize">
     <size>
      <width>1250</width>
-     <height>202</height>
+     <height>242</height>
     </size>
    </property>
    <property name="features">
@@ -316,10 +316,13 @@
     <layout class="QGridLayout" name="gridLayout_3">
      <item row="0" column="0">
       <widget class="QTabWidget" name="tabWidget">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
        <property name="minimumSize">
         <size>
          <width>200</width>
-         <height>50</height>
+         <height>200</height>
         </size>
        </property>
        <property name="tabShape">
@@ -481,6 +484,45 @@
                  </item>
                 </layout>
                </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayoutStretching_1_2">
+                 <item>
+                  <widget class="QLabel" name="labelMINValueClipped">
+                   <property name="font">
+                    <font>
+                     <bold>true</bold>
+                    </font>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">color: rgb(0, 85, 255);
+</string>
+                   </property>
+                   <property name="text">
+                    <string>Min clipped:</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayoutStretching_1_3">
+                 <item>
+                  <widget class="QLabel" name="labelMAXValueClipped">
+                   <property name="font">
+                    <font>
+                     <bold>true</bold>
+                    </font>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">color: rgb(0, 170, 0);</string>
+                   </property>
+                   <property name="text">
+                    <string>Min clipped:</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
               </layout>
              </item>
             </layout>
@@ -497,6 +539,9 @@
         </layout>
        </widget>
        <widget class="QWidget" name="ToolsTabGammaCorrection">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <attribute name="title">
          <string>Gamma Correction</string>
         </attribute>
@@ -544,6 +589,9 @@
                </item>
                <item>
                 <widget class="QCheckBox" name="checkBoxGrayscale">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -557,6 +605,9 @@
                </item>
                <item>
                 <widget class="QCheckBox" name="checkBoxEyeComfort">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -570,6 +621,9 @@
                </item>
                <item>
                 <widget class="QPushButton" name="resetRGBButton">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -589,6 +643,9 @@
                </item>
                <item>
                 <widget class="QLabel" name="labelMappping">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="text">
                   <string>Mapping:</string>
                  </property>
@@ -596,6 +653,9 @@
                </item>
                <item>
                 <widget class="QComboBox" name="comboBoxMapping">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <item>
                   <property name="text">
                    <string>Original (Raw data)</string>
@@ -620,6 +680,9 @@
                </item>
                <item>
                 <widget class="QLabel" name="labelPercent">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="text">
                   <string>Scale: </string>
                  </property>
@@ -627,6 +690,9 @@
                </item>
                <item>
                 <widget class="QSlider" name="horizontalSliderPercent">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -697,6 +763,9 @@
               <layout class="QHBoxLayout" name="horizontalLayoutTabToolsR">
                <item>
                 <widget class="QSlider" name="horizontalSliderR">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -734,6 +803,9 @@
                </item>
                <item>
                 <widget class="QLabel" name="labelR">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="text">
                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#ff0000;&quot;&gt;R&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
@@ -744,6 +816,9 @@
                </item>
                <item>
                 <widget class="QLabel" name="labelValueR">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="font">
                   <font>
                    <family>Courier 10 Pitch</family>
@@ -757,6 +832,9 @@
                </item>
                <item>
                 <widget class="QPushButton" name="minRButton">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="styleSheet">
                   <string notr="true">color: rgb(255, 0, 0);</string>
                  </property>
@@ -767,6 +845,9 @@
                </item>
                <item>
                 <widget class="QPushButton" name="defaultRButton">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="styleSheet">
                   <string notr="true">color: rgb(255, 0, 0);</string>
                  </property>
@@ -777,6 +858,9 @@
                </item>
                <item>
                 <widget class="QPushButton" name="maxRButton">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="styleSheet">
                   <string notr="true">color: rgb(255, 0, 0);</string>
                  </property>
@@ -811,6 +895,9 @@
               <layout class="QHBoxLayout" name="horizontalLayoutTabToolsG">
                <item>
                 <widget class="QSlider" name="horizontalSliderG">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="minimumSize">
                   <size>
                    <width>300</width>
@@ -842,6 +929,9 @@
                </item>
                <item>
                 <widget class="QLabel" name="labelG">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="text">
                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#007f00;&quot;&gt;G&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
@@ -852,6 +942,9 @@
                </item>
                <item>
                 <widget class="QLabel" name="labelValueG">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="font">
                   <font>
                    <family>Courier 10 Pitch</family>
@@ -865,6 +958,9 @@
                </item>
                <item>
                 <widget class="QPushButton" name="minGButton">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="styleSheet">
                   <string notr="true">color: rgb(0, 170, 0);</string>
                  </property>
@@ -875,6 +971,9 @@
                </item>
                <item>
                 <widget class="QPushButton" name="defaultGButton">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="styleSheet">
                   <string notr="true">color: rgb(0, 170, 0);</string>
                  </property>
@@ -885,6 +984,9 @@
                </item>
                <item>
                 <widget class="QPushButton" name="maxGButton">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="styleSheet">
                   <string notr="true">color: rgb(0, 170, 0);</string>
                  </property>
@@ -919,6 +1021,9 @@
               <layout class="QHBoxLayout" name="horizontalLayoutTabToolsB">
                <item>
                 <widget class="QSlider" name="horizontalSliderB">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="minimumSize">
                   <size>
                    <width>300</width>
@@ -956,6 +1061,9 @@
                </item>
                <item>
                 <widget class="QLabel" name="labelB">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="text">
                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#0000ff;&quot;&gt;B&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
@@ -966,6 +1074,9 @@
                </item>
                <item>
                 <widget class="QLabel" name="labelValueB">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="font">
                   <font>
                    <family>Courier 10 Pitch</family>
@@ -979,6 +1090,9 @@
                </item>
                <item>
                 <widget class="QPushButton" name="minBButton">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="styleSheet">
                   <string notr="true">color: rgb(0, 0, 255);</string>
                  </property>
@@ -989,6 +1103,9 @@
                </item>
                <item>
                 <widget class="QPushButton" name="defaultBButton">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="styleSheet">
                   <string notr="true">color: rgb(0, 0, 255);</string>
                  </property>
@@ -999,6 +1116,9 @@
                </item>
                <item>
                 <widget class="QPushButton" name="maxBButton">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="styleSheet">
                   <string notr="true">color: rgb(0, 0, 255);</string>
                  </property>

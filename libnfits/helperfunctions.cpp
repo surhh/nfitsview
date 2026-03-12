@@ -468,12 +468,14 @@ void convertBufferFloat2RGBA(uint8_t* a_buffer, size_t a_size, float a_min, floa
     }
 }
 
-void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size, float a_min, float a_max, float a_oldMin, float a_oldMax,
+void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size, float a_min, float a_max,
                             double a_bzero, double a_bscale, bool a_zeroScaleFlag, uint32_t a_type)
 {
     /// checking for buffer granularity
     if (a_size % sizeof(float) != 0)
         return;
+
+    uint32_t stretchIndex = a_type & FITS_PERCENTILE_TRANSFORM_AND_QUATIENT;
 
     zeroScaleFloatPtr zeroScaleFunctionPtr = zeroScaleFloatDummy;
 
@@ -498,7 +500,7 @@ void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size, float a_min, float
 
         zeroScaleFunctionPtr(f, a_bzero, a_bscale);
 
-        if (a_type == FITS_PERCENTILE_TRANSFORM)
+        if (a_type & FITS_PERCENTILE_TRANSFORM)
         {
             if (f > a_max)
                 f = a_max;
@@ -506,7 +508,7 @@ void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size, float a_min, float
                 f = a_min;
         }
 
-        writeBuffer[i] = convertFloat2Grayscale(f, a_min, newRange, stretchFunctionsPtrMap[0].floatPtrFunc); ///
+        writeBuffer[i] = convertFloat2Grayscale(f, a_min, newRange, stretchFunctionsPtrMap[stretchIndex].floatPtrFunc); ///
     }
 }
 
@@ -650,6 +652,7 @@ void convertBufferDouble2RGBA(uint8_t* a_buffer, size_t a_size, double a_min, do
     }
 }
 
+/*
 void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size, double a_min, double a_max, double a_bzero, double a_bscale,
                              bool a_zeroScaleFlag, uint32_t a_type)
 {
@@ -715,10 +718,53 @@ void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size, double a_min, dou
         //a_buffer[indexBase + 7] = 0x00;
     }
 }
+*/
+
+void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size, double a_min, double a_max,
+                             double a_bzero, double a_bscale, bool a_zeroScaleFlag, uint32_t a_type)
+{
+    /// checking for buffer granularity
+    if (a_size % sizeof(double) != 0)
+        return;
+
+    zeroScaleDoublePtr zeroScaleFunctionPtr = zeroScaleDoubleDummy;
+
+    if (a_zeroScaleFlag)
+        zeroScaleFunctionPtr = zeroScaleDoubleMul;
+
+    uint64_t *writeBuffer = (uint64_t*)(a_buffer);
+
+    double newRange = std::fabs(a_max - a_min);
+
+#if defined(ENABLE_OPENMP)
+///#pragma omp parallel for
+#endif
+    for (size_t i = 0; i < a_size / sizeof(double); ++i)
+    {
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+        uint64_t s = swap64(writeBuffer[i]);
+#else
+        uint64_t s = writeBuffer[i]; ///tmpBuf[i];
+#endif
+        double f = *((double *)&s);
+
+        zeroScaleFunctionPtr(f, a_bzero, a_bscale);
+
+        if (a_type & FITS_PERCENTILE_TRANSFORM)
+        {
+            if (f > a_max)
+                f = a_max;
+            else if (f < a_min)
+                f = a_min;
+        }
+
+        writeBuffer[i] = convertDouble2Grayscale(f, a_min, newRange, stretchFunctionsPtrMap[0].doublePtrFunc); ///
+    }
+}
 
 
 void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer,
-                            int16_t a_min, int16_t a_max, int16_t a_oldMin, int16_t a_oldMax,
+                            int16_t a_min, int16_t a_max,
                             double a_bzero, double a_bscale, bool a_zeroScaleFlag, uint32_t a_type)
 {
     // checking for buffer granularity
@@ -748,7 +794,7 @@ void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuf
 #endif
         zeroScaleFunctionPtr(f, a_bzero, a_bscale);
 
-        if (a_type == FITS_PERCENTILE_TRANSFORM)
+        if (a_type & FITS_PERCENTILE_TRANSFORM)
         {
             if (f > a_max)
                 f = a_max;
@@ -756,7 +802,7 @@ void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuf
                 f = a_min;
         }
 
-        writeBuffer[i] = convertByte2Grayscale(f, a_min, newRange, stretchFunctionsPtrMap[0].int16PtrFunc);
+        writeBuffer[i] = convertShort2Grayscale(f, a_min, newRange, stretchFunctionsPtrMap[0].int16PtrFunc);
     }
 }
 
@@ -965,7 +1011,7 @@ void convertBufferByte2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuff
 }
 
 void convertBufferByte2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer,
-                           int16_t a_min, int16_t a_max, int16_t a_oldMin, int16_t a_oldMmax,
+                           int16_t a_min, int16_t a_max,
                            double a_bzero, double a_bscale, bool a_zeroScaleFlag, uint32_t a_type)
 {
     zeroScaleShortPtr zeroScaleFunctionPtr = zeroScaleShortDummy;
@@ -986,7 +1032,7 @@ void convertBufferByte2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuff
 
         zeroScaleFunctionPtr(f, a_bzero, a_bscale);
 
-        if (a_type == FITS_PERCENTILE_TRANSFORM)
+        if (a_type & FITS_PERCENTILE_TRANSFORM)
         {
             if (f > a_max)
                 f = a_max;
@@ -994,7 +1040,7 @@ void convertBufferByte2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuff
                 f = a_min;
         }
 
-        writeBuffer[i] = convertByte2Grayscale(f, a_min, newRange, stretchFunctionsPtrMap[0].int16PtrFunc);
+        writeBuffer[i] = convertShort2Grayscale(f, a_min, newRange, stretchFunctionsPtrMap[0].int16PtrFunc);
     }
 }
 
@@ -1141,6 +1187,50 @@ void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size, int32_t a_min, int32
     }
 }
 
+void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer,
+                          int32_t a_min, int32_t a_max,
+                          double a_bzero, double a_bscale, bool a_zeroScaleFlag, uint32_t a_type)
+{
+    // checking for buffer granularity
+    if (a_size % sizeof(int32_t) != 0)
+        return;
+
+    uint32_t *writeBuffer = reinterpret_cast<uint32_t*>(a_destBuffer);
+
+    zeroScaleIntPtr zeroScaleFunctionPtr = zeroScaleIntDummy;
+
+    if (a_zeroScaleFlag)
+        zeroScaleFunctionPtr = zeroScaleIntMul;
+
+    int32_t *tmpBuf = (int32_t*)(a_buffer);
+
+    int32_t newRange = std::abs(a_max - a_min);
+
+#if defined(ENABLE_OPENMP)
+///#pragma omp parallel for
+#endif
+    for (size_t i = 0; i < a_size / sizeof(int32_t); ++i)
+    {
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+        int32_t f = swap32(tmpBuf[i]);
+#else
+        int32_t f = tmpBuf[i];
+#endif
+        zeroScaleFunctionPtr(f, a_bzero, a_bscale);
+
+        if (a_type & FITS_PERCENTILE_TRANSFORM)
+        {
+            if (f > a_max)
+                f = a_max;
+            else if (f < a_min)
+                f = a_min;
+        }
+
+        writeBuffer[i] = convertInt2Grayscale(f, a_min, newRange, stretchFunctionsPtrMap[0].int32PtrFunc);
+    }
+}
+
+
 void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size, int64_t a_min, int64_t a_max, double a_bzero, double a_bscale, bool a_zeroScaleFlag,
                            uint32_t a_type)
 {
@@ -1269,6 +1359,50 @@ void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size, int64_t a_min, int6
         }
     }
 }
+
+void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer,
+                           int64_t a_min, int64_t a_max,
+                           double a_bzero, double a_bscale, bool a_zeroScaleFlag, uint32_t a_type)
+{
+    // checking for buffer granularity
+    if (a_size % sizeof(int64_t) != 0)
+        return;
+
+    uint32_t *writeBuffer = reinterpret_cast<uint32_t*>(a_destBuffer);
+
+    zeroScaleLongPtr zeroScaleFunctionPtr = zeroScaleLongDummy;
+
+    if (a_zeroScaleFlag)
+        zeroScaleFunctionPtr = zeroScaleLongMul;
+
+    int64_t *tmpBuf = (int64_t*)(a_buffer);
+
+    int64_t newRange = std::abs(a_max - a_min);
+
+#if defined(ENABLE_OPENMP)
+///#pragma omp parallel for
+#endif
+    for (size_t i = 0; i < a_size / sizeof(int64_t); ++i)
+    {
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+        int64_t f = swap64(tmpBuf[i]);
+#else
+        int64_t f = tmpBuf[i];
+#endif
+        zeroScaleFunctionPtr(f, a_bzero, a_bscale);
+
+        if (a_type & FITS_PERCENTILE_TRANSFORM)
+        {
+            if (f > a_max)
+                f = a_max;
+            else if (f < a_min)
+                f = a_min;
+        }
+
+        writeBuffer[i] = convertLong2Grayscale(f, a_min, newRange, stretchFunctionsPtrMap[0].int64PtrFunc);
+    }
+}
+
 
 std::string char2hex(uint8_t a_char)
 {
@@ -2354,9 +2488,9 @@ template<typename T> T calcPercentile(libnfits::DistribStats const* a_distribSta
     ///if (binPos == -1)   /// No suitable histogram bin found. Not sure if such case can occurr, but still checking.
     ///    return;         /// Will return a_newMin = a_newMax = 0;
 
-    T binStartVal = a_min, binEndVal = a_max;
+    T binStartVal = a_min, binEndVal = a_max; ///T
 
-    T range = a_max - a_min;
+    T range = a_max - a_min; ///T
 
     double step = (double)range / FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER;
 
@@ -2367,6 +2501,8 @@ template<typename T> T calcPercentile(libnfits::DistribStats const* a_distribSta
     size_t cdfPrev = binPos > 0 ? a_distribStats[binPos - 1].cdf : 0;
 
     long double fraction = static_cast<long double>((percentilePos - cdfPrev)) / a_distribStats[binPos].count;
+
+    //if (cdfPrev == 0) fraction = 1;
 
     long double percentileVal = binStartVal + fraction * step;
 

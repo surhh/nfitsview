@@ -51,6 +51,10 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    ui->ToolsTabGammaCorrection->setVisible(false);
+    ui->tabWidget->removeTab(1); ///hiding Gamma correction tab
+
+
     createStatusBarWidgets();
 
     connect(m_sliderZoom, SIGNAL(valueChanged(int)), SLOT(om_m_sliderZoom_valueChanged(int)));
@@ -1750,6 +1754,9 @@ void MainWindow::updateHDUInfoWidgetMinMax()
 
         ui->labelMINValue->setText("Min: " + QString::number(min));
         ui->labelMAXValue->setText("Max: " + QString::number(max));
+        ui->labelMINValueClipped->setText("Min clipped: " + QString::number(ui->workspaceWidget->getMinClippedValue()));
+        ui->labelMAXValueClipped->setText("Max clipped: " + QString::number(ui->workspaceWidget->getMaxClippedValue()));
+
     }
     else
     {
@@ -1766,6 +1773,8 @@ void MainWindow::updateHDUInfoWidgetMinMax()
 
         ui->labelMINValue->setText("Min: " + QString::number(minL));
         ui->labelMAXValue->setText("Max: " + QString::number(maxL));
+        ui->labelMINValueClipped->setText("Min clipped: " + QString::number(ui->workspaceWidget->getMinClippedValueL()));
+        ui->labelMAXValueClipped->setText("Max clipped: " + QString::number(ui->workspaceWidget->getMaxClippedValueL()));
     }
 }
 
@@ -1995,8 +2004,41 @@ void MainWindow::onDrawHistogramChartDouble(libnfits::DistribStats const* a_dist
 template void MainWindow::onDrawHistogramChart<int64_t>(libnfits::DistribStats const* a_distribStats, int64_t a_min, int64_t a_max, size_t a_size);
 template void MainWindow::onDrawHistogramChart<double>(libnfits::DistribStats const* a_distribStats, double a_min, double a_max, size_t a_size);
 
+void MainWindow::transformPercentileStretching()
+{
+    int32_t percentile = FITS_PERCENTILE_THRESHOLD_OFFSET + (ui->comboBoxPercentile->currentText()).toFloat();
+    uint32_t stretching = ui->comboBoxStretching->currentIndex();
+
+    int32_t scrollX = ui->workspaceWidget->getScrollPosX();
+    int32_t scrollY = ui->workspaceWidget->getScrollPosY();
+
+    if (!m_fitsFile.isOpen())
+        return;
+
+    //uint32_t transform = 1;
+    //for (int32_t i = 1; i <= stretching + 3; ++i)
+    //    transform *= 2;
+
+    uint32_t transform = stretching | FITS_PERCENTILE_TRANSFORM;
+
+    enableRestoreWidgets(false);  //// legacy code calling, those menu and button items are not used anymore
+
+    ui->workspaceWidget->reloadImageWithTransformation(transform, percentile);
+    m_bImageChanged = false;
+    backupOriginalImage();
+    ///restoreRGBColorChannelLevelsImage(ui->workspaceWidget->getCurrentImageHDUIndex(), transform);
+
+    ui->workspaceWidget->scaleImage(m_scaleFactor);
+    ui->workspaceWidget->setScrollPosX(scrollX);
+    ui->workspaceWidget->setScrollPosY(scrollY);
+
+    updateHDUInfoWidgetMinMax();
+}
+
 void MainWindow::on_comboBoxPercentile_currentIndexChanged(int index)
-{    
+{
+    transformPercentileStretching();
+/*
     int32_t scrollX = ui->workspaceWidget->getScrollPosX();
     int32_t scrollY = ui->workspaceWidget->getScrollPosY();
 
@@ -2010,19 +2052,49 @@ void MainWindow::on_comboBoxPercentile_currentIndexChanged(int index)
     ui->workspaceWidget->reloadImageWithTransformation(FITS_PERCENTILE_TRANSFORM, percentile);
     m_bImageChanged = false;
     backupOriginalImage();
-    restoreRGBColorChannelLevelsImage(ui->workspaceWidget->getCurrentImageHDUIndex(), FITS_PERCENTILE_TRANSFORM);
+    ///restoreRGBColorChannelLevelsImage(ui->workspaceWidget->getCurrentImageHDUIndex(), FITS_PERCENTILE_TRANSFORM);
 
     ui->workspaceWidget->scaleImage(m_scaleFactor);
     ui->workspaceWidget->setScrollPosX(scrollX);
     ui->workspaceWidget->setScrollPosY(scrollY);
 
     updateHDUInfoWidgetMinMax();
+*/
 }
-
 
 void MainWindow::on_comboBoxStretching_currentIndexChanged(int index)
 {
+    transformPercentileStretching();
+/*
+    int32_t scrollX = ui->workspaceWidget->getScrollPosX();
+    int32_t scrollY = ui->workspaceWidget->getScrollPosY();
 
+    if (!m_fitsFile.isOpen())
+        return;
+
+    int32_t percentile = FITS_PERCENTILE_THRESHOLD_OFFSET + (ui->comboBoxPercentile->currentText()).toFloat();
+    uint32_t stretching = ui->comboBoxStretching->currentIndex();
+
+
+    uint32_t transform = 1;
+    for (int32_t i = 1; i <= stretching + 3; ++i)
+        transform *= 2;
+
+    transform |= FITS_PERCENTILE_TRANSFORM;
+
+    enableRestoreWidgets(false);  //// legacy code calling, those menu and button items are not used anymore
+
+    ui->workspaceWidget->reloadImageWithTransformation(transform, percentile);
+    m_bImageChanged = false;
+    backupOriginalImage();
+    ///restoreRGBColorChannelLevelsImage(ui->workspaceWidget->getCurrentImageHDUIndex(), transform);
+
+    ui->workspaceWidget->scaleImage(m_scaleFactor);
+    ui->workspaceWidget->setScrollPosX(scrollX);
+    ui->workspaceWidget->setScrollPosY(scrollY);
+
+    updateHDUInfoWidgetMinMax();
+*/
 }
 
 void MainWindow::enableStretchingtWidgets(bool a_flag)

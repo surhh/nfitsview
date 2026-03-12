@@ -195,14 +195,18 @@ public:
 
     void setMinValue(double a_value);
     double getMinValue() const;
+    double getMinClippedValue() const;
     void setMaxValue(double a_value);
     double getMaxValue() const;
+    double getMaxClippedValue() const;
     void setMinMaxValues(double a_minValue, double a_maxValue);
 
     void setMinValueL(int64_t a_value);
     int64_t getMinValueL() const;
+    int64_t getMinClippedValueL() const;
     void setMaxValueL(int64_t a_value);
     int64_t getMaxValueL() const;
+    int64_t getMaxClippedValueL() const;
     void setMinMaxValuesL(int64_t a_minValue, int64_t a_maxValue);
 
     void calcBufferDistribution(int32_t a_percent);
@@ -219,6 +223,8 @@ public:
     template<typename T> T getBufferMinMaxRange() const;
     template<typename T> T getDistribMinValue() const;
     template<typename T> T getDistribMaxValue() const;
+    template<typename T> T getMinClippedValue() const;
+    template<typename T> T getMaxClippedValue() const;
 
     uint32_t getTransformType() const;
 

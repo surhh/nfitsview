@@ -132,7 +132,7 @@ constexpr uint32_t FITS_STRETCHING_LOGARITHMIC_TRANSFORM =      1;
 constexpr uint32_t FITS_STRETCHING_SQUARE_ROOT_TRANSFORM =      2;
 constexpr uint32_t FITS_STRETCHING_ARCSINH_TRANSFORM =          3;
 constexpr uint32_t FITS_NUMBER_OF_TRANSFORMS =                  9;
-constexpr uint32_t  FITS_PERCENTILE_THRESHOLD_OFFSET =          1000;  /// workaround for not calculating wrong distrib stats
+constexpr uint32_t FITS_PERCENTILE_THRESHOLD_OFFSET =           1000;  /// workaround for not calculating wrong distrib stats
                                                                        /// as every percent smaller than this value will be
                                                                        /// treated in the old threshold logic (the progressbar)
 

@@ -694,7 +694,8 @@ int32_t Image::createRGB32FlatData(uint32_t a_transformType, float a_percent)
         }
         else
         {
-            m_transformType = FITS_FLOAT_DOUBLE_NO_TRANSFORM;
+            //m_transformType = FITS_FLOAT_DOUBLE_NO_TRANSFORM;
+            m_transformType &= FITS_PERCENTILE_TRANSFORM_AND_QUATIENT;
             m_finalClippedMinValue = m_finalMinValue;
             m_finalClippedMaxValue = m_finalMaxValue;
             m_finalClippedMinValueL = m_finalMinValueL;

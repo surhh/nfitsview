@@ -829,9 +829,9 @@ inline uint32_t convertFloat2Grayscale(float a_value, float a_min, float a_range
 
     a_stetchFuncPtr(a_value);
 
-    //uint32_t tmpVal = static_cast<uint32_t>((std::fabs(a_value - a_min)/range) * 255.0);
-    //uint32_t tmpVal = static_cast<uint32_t>(std::round(std::fabs(a_value - a_min)/a_range) * 255.0); /// looks better
-    uint32_t tmpVal = static_cast<uint32_t>((std::fabs(a_value - a_min)/a_range) * 255.0); /// test
+    //uint32_t tmpVal = static_cast<uint32_t>((std::fabs(a_value - a_min)/range) * 255.0); /// #1
+    //uint32_t tmpVal = static_cast<uint32_t>(std::round(std::fabs(a_value - a_min)/a_range) * 255.0); /// #2 looks better
+    uint32_t tmpVal = static_cast<uint32_t>((std::fabs(a_value - a_min)/a_range) * 255.0); /// #3 test - seems is the best
 
     retVal = tmpVal << 16;
 
@@ -949,37 +949,37 @@ inline void stretchSquareroot(int64_t& a_value)
 /// Logarithmic
 inline void stretchLogarithmic(float& a_value)
 {
-    a_value = std::log(a_value);
+    a_value = std::log1p(a_value);
 }
 
 inline void stretchLogarithmic(double& a_value)
 {
-    a_value = std::log(a_value);
+    a_value = std::log1p(a_value);
 }
 
 inline void stretchLogarithmic(uint8_t& a_value)
 {
-    a_value = std::log(a_value);
+    a_value = std::log1p(a_value);
 }
 
 inline void stretchLogarithmic(int8_t& a_value)
 {
-    a_value = std::log(a_value);
+    a_value = std::log1p(a_value);
 }
 
 inline void stretchLogarithmic(int16_t& a_value)
 {
-    a_value = std::log(a_value);
+    a_value = std::log1p(a_value);
 }
 
 inline void stretchLogarithmic(int32_t& a_value)
 {
-    a_value = std::log(a_value);
+    a_value = std::log1p(a_value);
 }
 
 inline void stretchLogarithmic(int64_t& a_value)
 {
-    a_value = std::log(a_value);
+    a_value = std::log1p(a_value);
 }
 ///
 

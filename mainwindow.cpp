@@ -1937,7 +1937,7 @@ template<typename T> void MainWindow::onDrawHistogramChart(libnfits::DistribStat
     m_axisX->setRange(a_min, a_max);
 
     if (maxPixelCount > 0)
-        m_axisY->setRange(0, std::round(std::log10f(maxPixelCount))*1.1f);
+        m_axisY->setRange(0, std::round(std::log10f(1 + maxPixelCount))*1.1f); /// 1+ is to avoid invalid log(0) case
     else
         m_axisY->setRange(0, 1);
 

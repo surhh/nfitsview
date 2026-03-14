@@ -129,11 +129,11 @@ MainWindow::MainWindow(QWidget *parent)
     m_axisY = new QValueAxis();
 
     m_axisX->setLabelFormat("%i");
-    m_axisY->setLabelFormat("^ %i");
+    m_axisY->setLabelFormat("%i");
 
     initChartDefaultMetrics();
 
-    m_histChart->setTitle("Histogram of distribution");
+    m_histChart->setTitle("Histogram of distribution. X-axis: pixel values, Y-axis: log10() of pixel value distribution count");
     m_histChart->setMargins(QMargins(0, 0, 0, 0));
     m_histChart->legend()->hide();
 
@@ -1934,27 +1934,43 @@ template<typename T> void MainWindow::onDrawHistogramChart(libnfits::DistribStat
     m_lineSeries->clear();
     m_lineSeriesLow->clear();
 
-    m_axisX->setRange(a_min, a_max);
+    m_axisX->setRange(std::floor(a_min), std::ceil(a_max));
 
     if (maxPixelCount > 0)
-        m_axisY->setRange(0, std::round(std::log10f(1 + maxPixelCount))*1.1f); /// 1+ is to avoid invalid log(0) case
+        m_axisY->setRange(0, std::round(std::log10(1 + maxPixelCount))*1.1f); /// 1+ is to avoid invalid log(0) case
     else
         m_axisY->setRange(0, 1);
 
     T range = std::abs(a_max - a_min);
 
-    int32_t tickCountX = std::round(range / tickQautientX);
+    int32_t tickCountX = std::ceil(range / tickQautientX);
+    int32_t tmpMaxTickCount = std::ceil(range) + 1;
 
     if (tickCountX > maxTickCountX)
+    {
         tickCountX = maxTickCountX;
-    else
-        tickCountX = minTickCountX;
+    }
+
+    if (tickCountX < minTickCountX)
+    {
+        if (tmpMaxTickCount < maxTickCountX)
+        {
+            tickCountX = tmpMaxTickCount;
+        }
+        else
+        {
+            tickCountX = maxTickCountX;
+        }
+    }
 
     m_axisX->setTickCount(tickCountX);
 
-    std::cout << "---> in MainWindow::onDrawHistogramChart #2... maxPercent = " << maxPercent << std::endl;
-    std::cout << "---> in MainWindow::onDrawHistogramChart #3... maxPixelCount = " << maxPixelCount << std::endl;
-    std::cout << "---> in MainWindow::onDrawHistogramChart #4... min, max = " << a_min << " , " << a_max << std::endl;
+    /// useful debug output
+    ///std::cout << "---> in MainWindow::onDrawHistogramChart #2... tickCountX = " << tickCountX << std::endl;
+    ///std::cout << "---> in MainWindow::onDrawHistogramChart #2... maxPercent = " << maxPercent << std::endl;
+    ///std::cout << "---> in MainWindow::onDrawHistogramChart #3... maxPixelCount = " << maxPixelCount << std::endl;
+    ///std::cout << "---> in MainWindow::onDrawHistogramChart #4... min, max = " << a_min << " , " << a_max << std::endl;
+    /// end of useful debug output
 
     double stretchQ = ((double)(range) / (a_size));
 
@@ -1964,7 +1980,7 @@ template<typename T> void MainWindow::onDrawHistogramChart(libnfits::DistribStat
     {
         double scaledX = a_min + i*stretchQ;
 
-        double value = a_distribStats[i].count > 0 ? std::log10f(a_distribStats[i].count) : 0;
+        double value = a_distribStats[i].count > 0 ? std::log10(a_distribStats[i].count) : 0;
 
         if (i % histShowStep == 0)
         {
@@ -1972,8 +1988,6 @@ template<typename T> void MainWindow::onDrawHistogramChart(libnfits::DistribStat
             m_lineSeriesLow->append(scaledX, 0);
         }
     }
-
-    std::cout << "---> in MainWindow::onDrawHistogramChart #5 - FINISHED" << std::endl;
 }
 
 void MainWindow::initChartDefaultMetrics()
@@ -2015,10 +2029,6 @@ void MainWindow::transformPercentileStretching()
     if (!m_fitsFile.isOpen())
         return;
 
-    //uint32_t transform = 1;
-    //for (int32_t i = 1; i <= stretching + 3; ++i)
-    //    transform *= 2;
-
     uint32_t transform = stretching | FITS_PERCENTILE_TRANSFORM;
 
     enableRestoreWidgets(false);  //// legacy code calling, those menu and button items are not used anymore
@@ -2038,63 +2048,11 @@ void MainWindow::transformPercentileStretching()
 void MainWindow::on_comboBoxPercentile_currentIndexChanged(int index)
 {
     transformPercentileStretching();
-/*
-    int32_t scrollX = ui->workspaceWidget->getScrollPosX();
-    int32_t scrollY = ui->workspaceWidget->getScrollPosY();
-
-    if (!m_fitsFile.isOpen())
-        return;
-
-    int32_t percentile = FITS_PERCENTILE_THRESHOLD_OFFSET + (ui->comboBoxPercentile->currentText()).toFloat();
-
-    enableRestoreWidgets(false);  //// legacy code calling, those menu and button items are not used anymore
-
-    ui->workspaceWidget->reloadImageWithTransformation(FITS_PERCENTILE_TRANSFORM, percentile);
-    m_bImageChanged = false;
-    backupOriginalImage();
-    ///restoreRGBColorChannelLevelsImage(ui->workspaceWidget->getCurrentImageHDUIndex(), FITS_PERCENTILE_TRANSFORM);
-
-    ui->workspaceWidget->scaleImage(m_scaleFactor);
-    ui->workspaceWidget->setScrollPosX(scrollX);
-    ui->workspaceWidget->setScrollPosY(scrollY);
-
-    updateHDUInfoWidgetMinMax();
-*/
 }
 
 void MainWindow::on_comboBoxStretching_currentIndexChanged(int index)
 {
     transformPercentileStretching();
-/*
-    int32_t scrollX = ui->workspaceWidget->getScrollPosX();
-    int32_t scrollY = ui->workspaceWidget->getScrollPosY();
-
-    if (!m_fitsFile.isOpen())
-        return;
-
-    int32_t percentile = FITS_PERCENTILE_THRESHOLD_OFFSET + (ui->comboBoxPercentile->currentText()).toFloat();
-    uint32_t stretching = ui->comboBoxStretching->currentIndex();
-
-
-    uint32_t transform = 1;
-    for (int32_t i = 1; i <= stretching + 3; ++i)
-        transform *= 2;
-
-    transform |= FITS_PERCENTILE_TRANSFORM;
-
-    enableRestoreWidgets(false);  //// legacy code calling, those menu and button items are not used anymore
-
-    ui->workspaceWidget->reloadImageWithTransformation(transform, percentile);
-    m_bImageChanged = false;
-    backupOriginalImage();
-    ///restoreRGBColorChannelLevelsImage(ui->workspaceWidget->getCurrentImageHDUIndex(), transform);
-
-    ui->workspaceWidget->scaleImage(m_scaleFactor);
-    ui->workspaceWidget->setScrollPosX(scrollX);
-    ui->workspaceWidget->setScrollPosY(scrollY);
-
-    updateHDUInfoWidgetMinMax();
-*/
 }
 
 void MainWindow::enableStretchingtWidgets(bool a_flag)

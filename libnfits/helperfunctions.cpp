@@ -2470,7 +2470,7 @@ template void getBufferDistributionMinMax<int64_t>(const uint8_t*, size_t, float
                                                    bool a_isDistribCounted);
 
 template<typename T> T calcPercentile(libnfits::DistribStats const* a_distribStats, T a_min, T a_max,
-                       float a_percentile, size_t a_pixelNum)
+                                     float a_percentile, size_t a_pixelNum)
 {
     int32_t percentilePos = std::round((a_percentile/100.0f) * a_pixelNum);
 
@@ -2492,7 +2492,7 @@ template<typename T> T calcPercentile(libnfits::DistribStats const* a_distribSta
 
     T range = a_max - a_min; ///T
 
-    double step = (double)range / FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER;
+    long double step = (long double)range / FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER;
 
     binStartVal += (step * binPos);
 
@@ -2502,15 +2502,13 @@ template<typename T> T calcPercentile(libnfits::DistribStats const* a_distribSta
 
     long double fraction = static_cast<long double>((percentilePos - cdfPrev)) / a_distribStats[binPos].count;
 
-    //if (cdfPrev == 0) fraction = 1;
-
     long double percentileVal = binStartVal + fraction * step;
 
     return static_cast<T>(percentileVal);
 }
 
 template<typename T> void calcPercentileMinMax(libnfits::DistribStats const* a_distribStats, T a_min, T a_max,
-                          float a_percentile, T& a_newMin, T& a_newMax, size_t a_pixelNum)
+                                               float a_percentile, T& a_newMin, T& a_newMax, size_t a_pixelNum)
 {
     a_newMin = a_newMax = 0;
 
@@ -2523,6 +2521,13 @@ template<typename T> void calcPercentileMinMax(libnfits::DistribStats const* a_d
     a_newMin = calcPercentile(a_distribStats, a_min, a_max, percentileMin, a_pixelNum);
 
     a_newMax = calcPercentile(a_distribStats, a_min, a_max, percentileMax, a_pixelNum);
+
+    /// this is to cover the corner case occurring during very short int32 distrubution range
+    if (areEqual(a_newMin, a_newMax))
+    {
+        a_newMin = a_min;
+        a_newMax = a_max;
+    }
 }
 
 template void calcPercentileMinMax<float>(libnfits::DistribStats const*, float, float, float, float&, float&, size_t);

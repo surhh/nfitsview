@@ -681,6 +681,8 @@ int32_t Image::createRGB32FlatData(uint32_t a_transformType, float a_percent)
             m_finalClippedMinValueL = minL;
             m_finalClippedMaxValueL = maxL;
 
+            /// useful debug output
+            /*
             std::cout << "---> Original min, max: " << m_finalMinValue << " , " << m_finalMaxValue <<
                 " - new min, max: " << m_finalClippedMinValue << " , " << m_finalClippedMaxValue << " , Old Range: " << m_finalMaxValue - m_finalMinValue <<
                 " , New Range: " << m_finalClippedMaxValue - m_finalClippedMinValue <<
@@ -690,7 +692,8 @@ int32_t Image::createRGB32FlatData(uint32_t a_transformType, float a_percent)
                 " - new min, max: " << m_finalClippedMinValueL << " , " << m_finalClippedMaxValueL << " , Old Range: " << m_finalMaxValueL - m_finalMinValueL <<
                 " , New Range: " << m_finalClippedMaxValueL - m_finalClippedMinValueL <<
                 " , a_percentThreshold: " << m_percentThreshold << std::endl;
-
+            */
+            /// end of useful debug output
         }
         else
         {

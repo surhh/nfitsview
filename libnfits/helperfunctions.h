@@ -880,7 +880,7 @@ inline uint32_t convertDoubleSZ2Grayscale(double a_value, double a_bscale, doubl
     return 10;
 }
 
-///
+/// Linear
 inline void stretchLinear(float& a_value)
 {
 }
@@ -909,7 +909,7 @@ inline void stretchLinear(int64_t& a_value)
 {
 }
 
-/// square root
+/// Square root
 inline void stretchSquareroot(float& a_value)
 {
    a_value = std::sqrt(a_value);
@@ -983,7 +983,7 @@ inline void stretchLogarithmic(int64_t& a_value)
 }
 ///
 
-/// ArcSin
+/// ArcSinH
 inline void stretchArcsinh(float& a_value)
 {
     a_value = std::asinh(a_value);

@@ -190,6 +190,7 @@ private:
     void initHDUInfoWidgetValues();
     void initHDUInfoWidgetMinMax();
     void initStretchingWidgetsValues();
+    void initStretchingWidgetMinMax();
     void enableGammaWidgets(bool a_flag = true);
     void enableRGBWidgets(bool a_flag = true);
     void enableFileOpenRelatedWidgets(bool a_flag = true);

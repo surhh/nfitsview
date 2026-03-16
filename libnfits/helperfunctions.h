@@ -222,7 +222,27 @@ inline bool greater3(uint8_t a_value1, uint8_t a_value2, uint8_t a_value3, uint8
 
 inline bool areEqual(double a_x, double a_y)
 {
-    return std::fabs(a_x - a_y) < std::numeric_limits<double>::epsilon();
+    return std::abs(a_x - a_y) < std::numeric_limits<double>::epsilon();
+}
+
+inline bool areEqual(float a_x, float a_y)
+{
+    return std::abs(a_x - a_y) < std::numeric_limits<float>::epsilon();
+}
+
+template<typename T> bool areEqualFloatDouble(T a_x, T a_y)
+{
+    return std::abs(a_x - a_y) < std::numeric_limits<T>::epsilon();
+}
+
+inline bool isGreaterZero(double a_x)
+{
+    return a_x > std::numeric_limits<double>::epsilon();
+}
+
+inline bool isGreaterZero(float a_x)
+{
+    return a_x > std::numeric_limits<float>::epsilon();
 }
 
 inline uint8_t char2alphanum(uint8_t a_char)
@@ -543,7 +563,7 @@ inline uint32_t convertFloat2RGBA(float a_value, float a_min, float a_max, float
 
 inline void convertFloat2GrayscaleByRange(float a_value, float a_min, float a_max, float a_range, uint8_t& a_r, uint8_t& a_g, uint8_t& a_b)
 {
-    if (areEqual(a_range, 0.0))
+    if (areEqual(a_range, 0.0f))
     {
         a_r = a_g = a_b = 0;
         return;
@@ -769,11 +789,11 @@ inline uint32_t convertShort2Grayscale(int16_t a_value, int16_t a_min, int16_t a
 {
     uint32_t retVal = 0;
 
-    a_stetchFuncPtr(a_value);
+    /// a_stetchFuncPtr(a_value); /// original version. Now stretch is applied to min/max/range in the caller function
 
     //uint32_t tmpVal = static_cast<uint32_t>((std::fabs(a_value - a_min)/range) * 255.0);
     //uint32_t tmpVal = static_cast<uint32_t>(std::round(std::fabs(a_value - a_min)/a_range) * 255.0); /// looks better
-    uint32_t tmpVal = static_cast<uint32_t>(((float)(std::abs(a_value - a_min))/a_range) * 255.0);
+    uint32_t tmpVal = static_cast<uint32_t>(((float)(std::abs(a_value - a_min))/a_range) * 255.0); /// #3 - seems is the best
 
     retVal = tmpVal << 16;
 
@@ -788,11 +808,11 @@ inline uint32_t convertInt2Grayscale(int32_t a_value, int32_t a_min, int32_t a_r
 {
     uint32_t retVal = 0;
 
-    a_stetchFuncPtr(a_value);
+    ///a_stetchFuncPtr(a_value); /// original version. Now stretch is applied to min/max/range in the caller function
 
     //uint32_t tmpVal = static_cast<uint32_t>((std::fabs(a_value - a_min)/range) * 255.0);
     //uint32_t tmpVal = static_cast<uint32_t>(std::round(std::fabs(a_value - a_min)/a_range) * 255.0); /// looks better
-    uint32_t tmpVal = static_cast<uint32_t>(((float)(std::abs(a_value - a_min))/a_range) * 255.0);
+    uint32_t tmpVal = static_cast<uint32_t>(((double)(std::abs(a_value - a_min))/a_range) * 255.0);   /// #3 - seems is the best
 
     retVal = tmpVal << 16;
 
@@ -807,12 +827,11 @@ inline uint32_t convertLong2Grayscale(int64_t a_value, int64_t a_min, int64_t a_
 {
     uint32_t retVal = 0;
 
-    a_stetchFuncPtr(a_value);
+    ///a_stetchFuncPtr(a_value);  /// original version. Now stretch is applied to min/max/range in the caller function
 
-    //uint32_t tmpVal = static_cast<uint32_t>((std::fabs(a_value - a_min)/range) * 255.0);
-    //uint32_t tmpVal = static_cast<uint32_t>(std::round(std::fabs(a_value - a_min)/a_range) * 255.0); /// looks better
-    uint32_t tmpVal = static_cast<uint32_t>(((float)(std::abs(a_value - a_min))/a_range) * 255.0);
+    uint32_t tmpVal = static_cast<uint32_t>(((double)(std::abs(a_value - a_min))/a_range) * 255.0);  /// #3 - seems is the best
 
+    ///tmpVal = 0xaa;
     retVal = tmpVal << 16;
 
     retVal = retVal | (tmpVal << 8);
@@ -822,16 +841,15 @@ inline uint32_t convertLong2Grayscale(int64_t a_value, int64_t a_min, int64_t a_
     return retVal;
 }
 
-
 inline uint32_t convertFloat2Grayscale(float a_value, float a_min, float a_range, stretchFloatPtr a_stetchFuncPtr)
 {
     uint32_t retVal = 0;
 
-    a_stetchFuncPtr(a_value);
+    ///a_stetchFuncPtr(a_value); /// original version. Now stretch is applied to min/max/range in the caller function
 
     //uint32_t tmpVal = static_cast<uint32_t>((std::fabs(a_value - a_min)/range) * 255.0); /// #1
     //uint32_t tmpVal = static_cast<uint32_t>(std::round(std::fabs(a_value - a_min)/a_range) * 255.0); /// #2 looks better
-    uint32_t tmpVal = static_cast<uint32_t>((std::fabs(a_value - a_min)/a_range) * 255.0); /// #3 test - seems is the best
+    uint32_t tmpVal = static_cast<uint32_t>((std::abs(a_value - a_min)/a_range) * 255.0); /// #3 - seems is the best
 
     retVal = tmpVal << 16;
 
@@ -849,20 +867,13 @@ inline uint32_t convertFloatSZ2Grayscale(float a_value, float a_bscale, float a_
     return 10;
 }
 
-inline uint32_t convertDouble2Grayscale(double a_value, double a_min, double a_max, stretchDoublePtr a_stetchFuncPtr)
+inline uint32_t convertDouble2Grayscale(double a_value, double a_min, double a_range, stretchDoublePtr a_stetchFuncPtr)
 {
     uint32_t retVal = 0;
 
-    if (areEqual(a_min, a_max))
-    {
-        return retVal;
-    }
+    ///a_stetchFuncPtr(a_value);  /// original version. Now stretch is applied to min/max/range in the caller function
 
-    a_stetchFuncPtr(a_value);
-
-    double range = std::fabs(a_max - a_min);
-
-    uint32_t tmpVal = static_cast<uint32_t>((std::fabs(a_value - a_min)/range) * 255.0);
+    uint32_t tmpVal = static_cast<uint32_t>((std::abs(a_value - a_min)/a_range) * 255.0); /// #3 - seems is the best
 
     retVal = tmpVal << 16;
 

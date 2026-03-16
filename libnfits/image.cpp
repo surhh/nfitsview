@@ -610,10 +610,15 @@ int32_t Image::createRGB32FlatData(uint32_t a_transformType, float a_percent)
     uint8_t* tmpFinalRow = tmpRow;
 
     ///if (m_bitpix == 8 || m_bitpix == 16 || m_bitpix == 32 || m_bitpix == 64)
-    if (m_bitpix >= 8 && m_bitpix <= 64)
+    if (m_bitpix >= 8 && m_bitpix <= 32)
     {
         //tmpDestRow = new uint8_t[tmpBufRowSize * (bytesNum == 2 ? 2 : 1)];
-        tmpDestRow = new (std::align_val_t{std::hardware_destructive_interference_size}) uint8_t[tmpBufRowSize * (32/m_bitpix)];
+        tmpDestRow = new (std::align_val_t{std::hardware_destructive_interference_size}) uint8_t[tmpBufRowSize * (32/m_bitpix)]; /// original version
+        tmpFinalRow = tmpDestRow;
+    }
+    else if (m_bitpix == 64)  /// new fixed version for 64-bit HDUs
+    {
+        tmpDestRow = new (std::align_val_t{std::hardware_destructive_interference_size}) uint8_t[tmpBufRowSize]; /// new fixed version for 64-bit HDUs
         tmpFinalRow = tmpDestRow;
     }
 
@@ -632,7 +637,7 @@ int32_t Image::createRGB32FlatData(uint32_t a_transformType, float a_percent)
     {
         m_percentThreshold = a_percent - FITS_PERCENTILE_THRESHOLD_OFFSET;
 
-        if (!areEqual(m_percentThreshold, 100.0))
+        if (!areEqual(m_percentThreshold, 100.0f))
         {
             double min, max;
             float minF, maxF;
@@ -1752,7 +1757,7 @@ void Image::convertBufferAllTypes2RGB(uint8_t* tmpRow, size_t tmpBufRowSize, uin
             break;
         case 64:
             convertBufferLong2RGB(tmpRow, tmpBufRowSize, tmpDestRow, m_finalClippedMinValueL, m_finalClippedMaxValueL,
-                                 m_bzero, m_bscale, a_zeroScaleFlag, m_transformType);
+                                  m_bzero, m_bscale, a_zeroScaleFlag, m_transformType);
             break;
         default:
             break;

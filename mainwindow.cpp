@@ -133,7 +133,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     initChartDefaultMetrics();
 
-    m_histChart->setTitle("Histogram of distribution. X-axis: pixel values, Y-axis: log10() of pixel value distribution count");
+    m_histChart->setTitle("FITS file histogram of pixel values. X-axis: pixel values, Y-axis: log10() of number of pixels");
     m_histChart->setMargins(QMargins(0, 0, 0, 0));
     m_histChart->legend()->hide();
 
@@ -643,6 +643,7 @@ void MainWindow::clearWidgets()
 
     initHDUInfoWidgetValues();
     initHDUInfoWidgetMinMax();
+    initStretchingWidgetMinMax();
 }
 
 int32_t MainWindow::exportAllImages(bool a_msgFlag, int32_t a_transform, bool a_gray)
@@ -1196,6 +1197,7 @@ void MainWindow::on_tableWidgetHDUs_currentItemChanged(QTableWidgetItem *current
             ui->workspaceWidget->setNoImageDataImage();
 
             initHDUInfoWidgetMinMax();
+            initStretchingWidgetMinMax();
         }
 
         axises.clear();
@@ -1818,6 +1820,12 @@ void MainWindow::initHDUInfoWidgetMinMax()
     ui->labelMAXValue->setText("Max:");
 }
 
+void MainWindow::initStretchingWidgetMinMax()
+{
+    ui->labelMINValueClipped->setText("Min clipped:");
+    ui->labelMAXValueClipped->setText("Max clipped:");
+}
+
 void MainWindow::on_minRButton_clicked()
 {
     ui->horizontalSliderR->setValue(RGB_MIN_VALUE);
@@ -1966,10 +1974,11 @@ template<typename T> void MainWindow::onDrawHistogramChart(libnfits::DistribStat
     m_axisX->setTickCount(tickCountX);
 
     /// useful debug output
-    ///std::cout << "---> in MainWindow::onDrawHistogramChart #2... tickCountX = " << tickCountX << std::endl;
-    ///std::cout << "---> in MainWindow::onDrawHistogramChart #2... maxPercent = " << maxPercent << std::endl;
-    ///std::cout << "---> in MainWindow::onDrawHistogramChart #3... maxPixelCount = " << maxPixelCount << std::endl;
-    ///std::cout << "---> in MainWindow::onDrawHistogramChart #4... min, max = " << a_min << " , " << a_max << std::endl;
+    std::cout << "---> in MainWindow::onDrawHistogramChart #2... tickCountX = " << tickCountX << std::endl;
+    std::cout << "---> in MainWindow::onDrawHistogramChart #3... maxPercent = " << maxPercent << std::endl;
+    std::cout << "---> in MainWindow::onDrawHistogramChart #4... maxPixelCount = " << maxPixelCount << std::endl;
+    std::cout << "---> in MainWindow::onDrawHistogramChart #5... min, max = " << a_min << " , " << a_max << std::endl;
+    std::cout << "---> in MainWindow::onDrawHistogramChart #6... range = " << range << std::endl;
     /// end of useful debug output
 
     double stretchQ = ((double)(range) / (a_size));

@@ -484,7 +484,35 @@ void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size, float a_min, float
 
     uint32_t *writeBuffer = (uint32_t*)(a_buffer);
 
-    float newRange = std::fabs(a_max - a_min);
+    /// stretch is applied to min/max/range
+    float min = a_min;
+    float max = a_max;
+    if (stretchIndex > 0)
+    {
+        if (stretchIndex == 3) /// arcsinh() case
+        {
+            stretchFunctionsPtrMap[stretchIndex].floatPtrFunc(min);
+            stretchFunctionsPtrMap[stretchIndex].floatPtrFunc(max);
+        }
+        else
+        {
+            if (isGreaterZero(min)) /// performing (min > 0.0f) check
+                stretchFunctionsPtrMap[stretchIndex].floatPtrFunc(min);
+            else
+                min = 0.0f;
+
+            if (isGreaterZero(max)) /// performing (max > 0.0f) check
+                stretchFunctionsPtrMap[stretchIndex].floatPtrFunc(max);
+            else
+                max = 0.0f;
+        }
+    }
+    float newRange = std::abs(max - min); /// stretch is applied to min/max/range
+    if (areEqual(newRange, 0.0f))
+        return;
+    ///
+
+    ///float newRange = std::fabs(a_max - a_min); /// original version
 
 #if defined(ENABLE_OPENMP)
 ///#pragma omp parallel for
@@ -500,6 +528,24 @@ void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size, float a_min, float
 
         zeroScaleFunctionPtr(f, a_bzero, a_bscale);
 
+        /// stretch is applied to min/max/range
+        if (stretchIndex > 0)
+        {
+            stretchFunctionsPtrMap[stretchIndex].floatPtrFunc(f);
+        }
+        if (a_type & FITS_PERCENTILE_TRANSFORM)
+        {
+            if (f > max)
+                f = max;
+            else if (f < min)
+                f = min;
+        }
+
+        writeBuffer[i] = convertFloat2Grayscale(f, min, newRange, stretchFunctionsPtrMap[stretchIndex].floatPtrFunc); ///
+        ///
+
+        /// original version is below
+        /*
         if (a_type & FITS_PERCENTILE_TRANSFORM)
         {
             if (f > a_max)
@@ -509,6 +555,7 @@ void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size, float a_min, float
         }
 
         writeBuffer[i] = convertFloat2Grayscale(f, a_min, newRange, stretchFunctionsPtrMap[stretchIndex].floatPtrFunc); ///
+        */ /// end of original version
     }
 }
 
@@ -727,6 +774,8 @@ void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size, double a_min, dou
     if (a_size % sizeof(double) != 0)
         return;
 
+    uint32_t stretchIndex = a_type & FITS_PERCENTILE_TRANSFORM_AND_QUATIENT;
+
     zeroScaleDoublePtr zeroScaleFunctionPtr = zeroScaleDoubleDummy;
 
     if (a_zeroScaleFlag)
@@ -734,7 +783,35 @@ void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size, double a_min, dou
 
     uint64_t *writeBuffer = (uint64_t*)(a_buffer);
 
-    double newRange = std::fabs(a_max - a_min);
+    /// stretch is applied to min/max/range
+    double min = a_min;
+    double max = a_max;
+    if (stretchIndex > 0)
+    {
+        if (stretchIndex == 3) /// arcsinh() case
+        {
+            stretchFunctionsPtrMap[stretchIndex].doublePtrFunc(min);
+            stretchFunctionsPtrMap[stretchIndex].doublePtrFunc(max);
+        }
+        else
+        {
+            if (isGreaterZero(min)) /// performing (min > 0.0f) check
+                stretchFunctionsPtrMap[stretchIndex].doublePtrFunc(min);
+            else
+                min = 0.0;
+
+            if (isGreaterZero(max)) /// performing (max > 0.0f) check
+                stretchFunctionsPtrMap[stretchIndex].doublePtrFunc(max);
+            else
+                max = 0.0;
+        }
+    }
+    double newRange = std::abs(max - min); /// stretch is applied to min/max/range
+    if (areEqual(newRange, 0.0))
+        return;
+    ///
+
+    /// double newRange = std::fabs(a_max - a_min); // original version
 
 #if defined(ENABLE_OPENMP)
 ///#pragma omp parallel for
@@ -744,12 +821,30 @@ void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size, double a_min, dou
 #if __BYTE_ORDER == __LITTLE_ENDIAN
         uint64_t s = swap64(writeBuffer[i]);
 #else
-        uint64_t s = writeBuffer[i]; ///tmpBuf[i];
+        uint64_t s = writeBuffer[i];
 #endif
         double f = *((double *)&s);
 
         zeroScaleFunctionPtr(f, a_bzero, a_bscale);
 
+        /// stretch is applied to min/max/range
+        if (stretchIndex > 0)
+        {
+            stretchFunctionsPtrMap[stretchIndex].doublePtrFunc(f);
+        }
+        if (a_type & FITS_PERCENTILE_TRANSFORM)
+        {
+            if (f > max)
+                f = max;
+            else if (f < min)
+                f = min;
+        }
+
+        writeBuffer[i] = convertDouble2Grayscale(f, min, newRange, stretchFunctionsPtrMap[stretchIndex].doublePtrFunc); ///
+        ///
+
+        /// original version is below
+        /*
         if (a_type & FITS_PERCENTILE_TRANSFORM)
         {
             if (f > a_max)
@@ -759,28 +854,58 @@ void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size, double a_min, dou
         }
 
         writeBuffer[i] = convertDouble2Grayscale(f, a_min, newRange, stretchFunctionsPtrMap[0].doublePtrFunc); ///
+        */ /// end of original version
     }
 }
 
 
-void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer,
-                            int16_t a_min, int16_t a_max,
+void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer, int16_t a_min, int16_t a_max,
                             double a_bzero, double a_bscale, bool a_zeroScaleFlag, uint32_t a_type)
 {
     // checking for buffer granularity
     if (a_size % sizeof(int16_t) != 0)
         return;
 
-    uint32_t *writeBuffer = reinterpret_cast<uint32_t*>(a_destBuffer);
+    uint32_t stretchIndex = a_type & FITS_PERCENTILE_TRANSFORM_AND_QUATIENT;
 
     zeroScaleShortPtr zeroScaleFunctionPtr = zeroScaleShortDummy;
 
     if (a_zeroScaleFlag)
         zeroScaleFunctionPtr = zeroScaleShortMul;
 
+    uint32_t *writeBuffer = reinterpret_cast<uint32_t*>(a_destBuffer);
+
     int16_t *tmpBuf = (int16_t*)(a_buffer);
 
-    int32_t newRange = std::abs(a_max - a_min);
+    /// stretch is applied to min/max/range
+    int16_t min = a_min;
+    int16_t max = a_max;
+    if (stretchIndex > 0)
+    {
+        if (stretchIndex == 3) /// arcsinh() case
+        {
+            stretchFunctionsPtrMap[stretchIndex].int16PtrFunc(min);
+            stretchFunctionsPtrMap[stretchIndex].int16PtrFunc(max);
+        }
+        else
+        {
+            if (min > 0)
+                stretchFunctionsPtrMap[stretchIndex].int16PtrFunc(min);
+            else
+                min = 0;
+
+            if (max > 0)
+                stretchFunctionsPtrMap[stretchIndex].int16PtrFunc(max);
+            else
+                max = 0;
+        }
+    }
+    int16_t newRange = std::abs(max - min); /// stretch is applied to min/max/range
+    if (newRange == 0)
+        return;
+    ///
+
+    /// int32_t newRange = std::abs(a_max - a_min); /// original version
 
 #if defined(ENABLE_OPENMP)
 ///#pragma omp parallel for
@@ -794,6 +919,24 @@ void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuf
 #endif
         zeroScaleFunctionPtr(f, a_bzero, a_bscale);
 
+        /// stretch is applied to min/max/range
+        if (stretchIndex > 0)
+        {
+            stretchFunctionsPtrMap[stretchIndex].int16PtrFunc(f);
+        }
+        if (a_type & FITS_PERCENTILE_TRANSFORM)
+        {
+            if (f > max)
+                f = max;
+            else if (f < min)
+                f = min;
+        }
+
+        writeBuffer[i] = convertShort2Grayscale(f, min, newRange, stretchFunctionsPtrMap[stretchIndex].int16PtrFunc); ///
+        ///
+
+        /// original version is below
+        /*
         if (a_type & FITS_PERCENTILE_TRANSFORM)
         {
             if (f > a_max)
@@ -803,6 +946,7 @@ void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuf
         }
 
         writeBuffer[i] = convertShort2Grayscale(f, a_min, newRange, stretchFunctionsPtrMap[0].int16PtrFunc);
+        */
     }
 }
 
@@ -1010,10 +1154,11 @@ void convertBufferByte2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuff
     }
 }
 
-void convertBufferByte2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer,
-                           int16_t a_min, int16_t a_max,
+void convertBufferByte2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer, int16_t a_min, int16_t a_max,
                            double a_bzero, double a_bscale, bool a_zeroScaleFlag, uint32_t a_type)
 {
+    uint32_t stretchIndex = a_type & FITS_PERCENTILE_TRANSFORM_AND_QUATIENT;
+
     zeroScaleShortPtr zeroScaleFunctionPtr = zeroScaleShortDummy;
 
     if (a_zeroScaleFlag)
@@ -1021,7 +1166,35 @@ void convertBufferByte2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuff
 
     uint32_t *writeBuffer = reinterpret_cast<uint32_t*>(a_destBuffer);
 
-    int16_t newRange = std::abs(a_max - a_min);
+    /// stretch is applied to min/max/range
+    int16_t min = a_min;
+    int16_t max = a_max;
+    if (stretchIndex > 0)
+    {
+        if (stretchIndex == 3) /// arcsinh() case
+        {
+            stretchFunctionsPtrMap[stretchIndex].int16PtrFunc(min);
+            stretchFunctionsPtrMap[stretchIndex].int16PtrFunc(max);
+        }
+        else
+        {
+            if (min > 0)
+                stretchFunctionsPtrMap[stretchIndex].int16PtrFunc(min);
+            else
+                min = 0;
+
+            if (max > 0)
+                stretchFunctionsPtrMap[stretchIndex].int16PtrFunc(max);
+            else
+                max = 0;
+        }
+    }
+    int16_t newRange = std::abs(max - min); /// stretch is applied to min/max/range
+    if (newRange == 0)
+        return;
+    ///
+
+    /// int16_t newRange = std::abs(a_max - a_min); /// original version
 
 #if defined(ENABLE_OPENMP)
 ///#pragma omp parallel for
@@ -1032,6 +1205,24 @@ void convertBufferByte2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuff
 
         zeroScaleFunctionPtr(f, a_bzero, a_bscale);
 
+        /// stretch is applied to min/max/range
+        if (stretchIndex > 0)
+        {
+            stretchFunctionsPtrMap[stretchIndex].int16PtrFunc(f);
+        }
+        if (a_type & FITS_PERCENTILE_TRANSFORM)
+        {
+            if (f > max)
+                f = max;
+            else if (f < min)
+                f = min;
+        }
+
+        writeBuffer[i] = convertShort2Grayscale(f, min, newRange, stretchFunctionsPtrMap[stretchIndex].int16PtrFunc); ///
+        ///
+
+        /// original version is below
+        /*
         if (a_type & FITS_PERCENTILE_TRANSFORM)
         {
             if (f > a_max)
@@ -1041,6 +1232,7 @@ void convertBufferByte2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuff
         }
 
         writeBuffer[i] = convertShort2Grayscale(f, a_min, newRange, stretchFunctionsPtrMap[0].int16PtrFunc);
+        */ /// end of original version
     }
 }
 
@@ -1187,24 +1379,53 @@ void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size, int32_t a_min, int32
     }
 }
 
-void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer,
-                          int32_t a_min, int32_t a_max,
+void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer, int32_t a_min, int32_t a_max,
                           double a_bzero, double a_bscale, bool a_zeroScaleFlag, uint32_t a_type)
 {
     // checking for buffer granularity
     if (a_size % sizeof(int32_t) != 0)
         return;
 
-    uint32_t *writeBuffer = reinterpret_cast<uint32_t*>(a_destBuffer);
+    uint32_t stretchIndex = a_type & FITS_PERCENTILE_TRANSFORM_AND_QUATIENT;
 
     zeroScaleIntPtr zeroScaleFunctionPtr = zeroScaleIntDummy;
 
     if (a_zeroScaleFlag)
         zeroScaleFunctionPtr = zeroScaleIntMul;
 
+    uint32_t *writeBuffer = reinterpret_cast<uint32_t*>(a_destBuffer);
+
     int32_t *tmpBuf = (int32_t*)(a_buffer);
 
-    int32_t newRange = std::abs(a_max - a_min);
+    /// stretch is applied to min/max/range
+    int32_t min = a_min;
+    int32_t max = a_max;
+    if (stretchIndex > 0)
+    {
+        if (stretchIndex == 3) /// arcsinh() case
+        {
+            stretchFunctionsPtrMap[stretchIndex].int32PtrFunc(min);
+            stretchFunctionsPtrMap[stretchIndex].int32PtrFunc(max);
+        }
+        else
+        {
+            if (min > 0)
+                stretchFunctionsPtrMap[stretchIndex].int32PtrFunc(min);
+            else
+                min = 0;
+
+            if (max > 0)
+                stretchFunctionsPtrMap[stretchIndex].int32PtrFunc(max);
+            else
+                max = 0;
+        }
+    }
+    int32_t newRange = std::abs(max - min); /// stretch is applied to min/max/range
+    if (newRange == 0)
+        return;
+    ///
+
+    /// int32_t newRange = std::abs(a_max - a_min);  /// original version
 
 #if defined(ENABLE_OPENMP)
 ///#pragma omp parallel for
@@ -1218,6 +1439,24 @@ void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffe
 #endif
         zeroScaleFunctionPtr(f, a_bzero, a_bscale);
 
+        /// stretch is applied to min/max/range
+        if (stretchIndex > 0)
+        {
+            stretchFunctionsPtrMap[stretchIndex].int32PtrFunc(f);
+        }
+        if (a_type & FITS_PERCENTILE_TRANSFORM)
+        {
+            if (f > max)
+                f = max;
+            else if (f < min)
+                f = min;
+        }
+
+        writeBuffer[i] = convertInt2Grayscale(f, min, newRange, stretchFunctionsPtrMap[stretchIndex].int32PtrFunc); ///
+        ///
+
+        /// original version is below
+        /*
         if (a_type & FITS_PERCENTILE_TRANSFORM)
         {
             if (f > a_max)
@@ -1227,6 +1466,7 @@ void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffe
         }
 
         writeBuffer[i] = convertInt2Grayscale(f, a_min, newRange, stretchFunctionsPtrMap[0].int32PtrFunc);
+        */ /// end of original version
     }
 }
 
@@ -1360,24 +1600,53 @@ void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size, int64_t a_min, int6
     }
 }
 
-void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer,
-                           int64_t a_min, int64_t a_max,
+void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffer, int64_t a_min, int64_t a_max,
                            double a_bzero, double a_bscale, bool a_zeroScaleFlag, uint32_t a_type)
 {
     // checking for buffer granularity
     if (a_size % sizeof(int64_t) != 0)
         return;
 
-    uint32_t *writeBuffer = reinterpret_cast<uint32_t*>(a_destBuffer);
+    uint32_t stretchIndex = a_type & FITS_PERCENTILE_TRANSFORM_AND_QUATIENT;
 
     zeroScaleLongPtr zeroScaleFunctionPtr = zeroScaleLongDummy;
 
     if (a_zeroScaleFlag)
         zeroScaleFunctionPtr = zeroScaleLongMul;
 
+    uint64_t *writeBuffer = reinterpret_cast<uint64_t*>(a_destBuffer);
+
     int64_t *tmpBuf = (int64_t*)(a_buffer);
 
-    int64_t newRange = std::abs(a_max - a_min);
+    /// stretch is applied to min/max/range
+    int64_t min = a_min;
+    int64_t max = a_max;
+    if (stretchIndex > 0)
+    {
+        if (stretchIndex == 3) /// arcsinh() case
+        {
+            stretchFunctionsPtrMap[stretchIndex].int64PtrFunc(min);
+            stretchFunctionsPtrMap[stretchIndex].int64PtrFunc(max);
+        }
+        else
+        {
+            if (min > 0)
+                stretchFunctionsPtrMap[stretchIndex].int64PtrFunc(min);
+            else
+                min = 0;
+
+            if (max > 0)
+                stretchFunctionsPtrMap[stretchIndex].int64PtrFunc(max);
+            else
+                max = 0;
+        }
+    }
+    int64_t newRange = std::abs(max - min); /// stretch is applied to min/max/range
+    if (newRange == 0)
+        return;
+    ///
+
+    /// int64_t newRange = std::abs(a_max - a_min); /// original version
 
 #if defined(ENABLE_OPENMP)
 ///#pragma omp parallel for
@@ -1391,6 +1660,24 @@ void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuff
 #endif
         zeroScaleFunctionPtr(f, a_bzero, a_bscale);
 
+        /// stretch is applied to min/max/range
+        if (stretchIndex > 0)
+        {
+            stretchFunctionsPtrMap[stretchIndex].int64PtrFunc(f);
+        }
+        if (a_type & FITS_PERCENTILE_TRANSFORM)
+        {
+            if (f > max)
+                f = max;
+            else if (f < min)
+                f = min;
+        }
+
+        writeBuffer[i] = convertLong2Grayscale(f, min, newRange, stretchFunctionsPtrMap[stretchIndex].int64PtrFunc); ///
+        ///
+
+        /// original version is below
+        /*
         if (a_type & FITS_PERCENTILE_TRANSFORM)
         {
             if (f > a_max)
@@ -1399,7 +1686,8 @@ void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuff
                 f = a_min;
         }
 
-        writeBuffer[i] = convertLong2Grayscale(f, a_min, newRange, stretchFunctionsPtrMap[0].int64PtrFunc);
+        writeBuffer[i] = convertLong2Grayscale(f, a_min, newRange, stretchFunctionsPtrMap[0].int64PtrFunc); ///
+        */ /// end of original version
     }
 }
 
@@ -1952,7 +2240,7 @@ void getFloatBufferDistribution(const uint8_t* a_buffer, size_t a_size, float a_
     float rangeF = std::fabs(a_max - a_min);
     float segmentSizeF = rangeF/(float)FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER;
 
-    if (areEqual(segmentSizeF, 0.0))
+    if (areEqual(segmentSizeF, 0.0f))
         return;
 
 #if defined(ENABLE_OPENMP)
@@ -2522,11 +2810,22 @@ template<typename T> void calcPercentileMinMax(libnfits::DistribStats const* a_d
 
     a_newMax = calcPercentile(a_distribStats, a_min, a_max, percentileMax, a_pixelNum);
 
-    /// this is to cover the corner case occurring during very short int32 distrubution range
-    if (areEqual(a_newMin, a_newMax))
+    /// this is to cover the corner case occurring during very short distrubution range, e.g. for some int32 cases
+    if (std::is_same<T, double>::value || std::is_same<T, float>::value)
     {
-        a_newMin = a_min;
-        a_newMax = a_max;
+        if (areEqualFloatDouble(a_newMin, a_newMax))
+        {
+            a_newMin = a_min;
+            a_newMax = a_max;
+        }
+    }
+    else
+    {
+        if (a_newMin == a_newMax)
+        {
+            a_newMin = a_min;
+            a_newMax = a_max;
+        }
     }
 }
 

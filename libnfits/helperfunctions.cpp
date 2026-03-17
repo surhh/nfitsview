@@ -524,7 +524,6 @@ void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size, float a_min, float
             if (stretchIndex != 3) /// not arcsinh() case
             {
                 f = (isGreaterZero(f)) ? f : 0.0f;
-                f = (isGreaterZero(f)) ? f : 0.0f;
             }
             stretchFunctionsPtrMap[stretchIndex].floatPtrFunc(f);
         }
@@ -818,7 +817,6 @@ void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size, double a_min, dou
             if (stretchIndex != 3) /// not arcsinh() case
             {
                 f = (isGreaterZero(f)) ? f : 0.0;
-                f = (isGreaterZero(f)) ? f : 0.0;
             }
             stretchFunctionsPtrMap[stretchIndex].doublePtrFunc(f);
         }
@@ -904,7 +902,6 @@ void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuf
         {
             if (stretchIndex != 3) /// not arcsinh() case
             {
-                f = (f >= 0) ? f : 0;
                 f = (f >= 0) ? f : 0;
             }
             stretchFunctionsPtrMap[stretchIndex].int16PtrFunc(f);
@@ -1186,7 +1183,6 @@ void convertBufferByte2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuff
             if (stretchIndex != 3) /// not arcsinh() case
             {
                 f = (f >= 0) ? f : 0;
-                f = (f >= 0) ? f : 0;
             }
             stretchFunctionsPtrMap[stretchIndex].int16PtrFunc(f);
         }
@@ -1415,7 +1411,6 @@ void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffe
             if (stretchIndex != 3) /// not arcsinh() case
             {
                 f = (f >= 0) ? f : 0;
-                f = (f >= 0) ? f : 0;
             }
             stretchFunctionsPtrMap[stretchIndex].int32PtrFunc(f);
         }
@@ -1630,7 +1625,6 @@ void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuff
         {
             if (stretchIndex != 3) /// not arcsinh() case
             {
-                f = (f >= 0) ? f : 0;
                 f = (f >= 0) ? f : 0;
             }
             stretchFunctionsPtrMap[stretchIndex].int64PtrFunc(f);

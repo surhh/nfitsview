@@ -489,23 +489,13 @@ void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size, float a_min, float
     float max = a_max;
     if (stretchIndex > 0)
     {
-        if (stretchIndex == 3) /// arcsinh() case
+        if (stretchIndex != 3) /// not arcsinh() case
         {
-            stretchFunctionsPtrMap[stretchIndex].floatPtrFunc(min);
-            stretchFunctionsPtrMap[stretchIndex].floatPtrFunc(max);
+            min = (isGreaterZero(min)) ? min : 0.0f;
+            max = (isGreaterZero(max)) ? max : 0.0f;
         }
-        else
-        {
-            if (isGreaterZero(min)) /// performing (min > 0.0f) check
-                stretchFunctionsPtrMap[stretchIndex].floatPtrFunc(min);
-            else
-                min = 0.0f;
-
-            if (isGreaterZero(max)) /// performing (max > 0.0f) check
-                stretchFunctionsPtrMap[stretchIndex].floatPtrFunc(max);
-            else
-                max = 0.0f;
-        }
+        stretchFunctionsPtrMap[stretchIndex].floatPtrFunc(min);
+        stretchFunctionsPtrMap[stretchIndex].floatPtrFunc(max);
     }
     float newRange = std::abs(max - min); /// stretch is applied to min/max/range
     if (areEqual(newRange, 0.0f))
@@ -531,6 +521,11 @@ void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size, float a_min, float
         /// stretch is applied to min/max/range
         if (stretchIndex > 0)
         {
+            if (stretchIndex != 3) /// not arcsinh() case
+            {
+                f = (isGreaterZero(f)) ? f : 0.0f;
+                f = (isGreaterZero(f)) ? f : 0.0f;
+            }
             stretchFunctionsPtrMap[stretchIndex].floatPtrFunc(f);
         }
         if (a_type & FITS_PERCENTILE_TRANSFORM)
@@ -541,7 +536,7 @@ void convertBufferFloat2RGB(uint8_t* a_buffer, size_t a_size, float a_min, float
                 f = min;
         }
 
-        writeBuffer[i] = convertFloat2Grayscale(f, min, newRange, stretchFunctionsPtrMap[stretchIndex].floatPtrFunc); ///
+        writeBuffer[i] = convertFloat2Grayscale(f, min, newRange); ///
         ///
 
         /// original version is below
@@ -788,23 +783,13 @@ void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size, double a_min, dou
     double max = a_max;
     if (stretchIndex > 0)
     {
-        if (stretchIndex == 3) /// arcsinh() case
+        if (stretchIndex != 3) /// not arcsinh() case
         {
-            stretchFunctionsPtrMap[stretchIndex].doublePtrFunc(min);
-            stretchFunctionsPtrMap[stretchIndex].doublePtrFunc(max);
+            min = (isGreaterZero(min)) ? min : 0.0;
+            max = (isGreaterZero(max)) ? max : 0.0;
         }
-        else
-        {
-            if (isGreaterZero(min)) /// performing (min > 0.0f) check
-                stretchFunctionsPtrMap[stretchIndex].doublePtrFunc(min);
-            else
-                min = 0.0;
-
-            if (isGreaterZero(max)) /// performing (max > 0.0f) check
-                stretchFunctionsPtrMap[stretchIndex].doublePtrFunc(max);
-            else
-                max = 0.0;
-        }
+        stretchFunctionsPtrMap[stretchIndex].doublePtrFunc(min);
+        stretchFunctionsPtrMap[stretchIndex].doublePtrFunc(max);
     }
     double newRange = std::abs(max - min); /// stretch is applied to min/max/range
     if (areEqual(newRange, 0.0))
@@ -830,6 +815,11 @@ void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size, double a_min, dou
         /// stretch is applied to min/max/range
         if (stretchIndex > 0)
         {
+            if (stretchIndex != 3) /// not arcsinh() case
+            {
+                f = (isGreaterZero(f)) ? f : 0.0;
+                f = (isGreaterZero(f)) ? f : 0.0;
+            }
             stretchFunctionsPtrMap[stretchIndex].doublePtrFunc(f);
         }
         if (a_type & FITS_PERCENTILE_TRANSFORM)
@@ -840,7 +830,7 @@ void convertBufferDouble2RGB(uint8_t* a_buffer, size_t a_size, double a_min, dou
                 f = min;
         }
 
-        writeBuffer[i] = convertDouble2Grayscale(f, min, newRange, stretchFunctionsPtrMap[stretchIndex].doublePtrFunc); ///
+        writeBuffer[i] = convertDouble2Grayscale(f, min, newRange); ///
         ///
 
         /// original version is below
@@ -882,23 +872,13 @@ void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuf
     int16_t max = a_max;
     if (stretchIndex > 0)
     {
-        if (stretchIndex == 3) /// arcsinh() case
+        if (stretchIndex != 3) /// not arcsinh() case
         {
-            stretchFunctionsPtrMap[stretchIndex].int16PtrFunc(min);
-            stretchFunctionsPtrMap[stretchIndex].int16PtrFunc(max);
+            min = (min >= 0) ? min : 0;
+            max = (max >= 0) ? max : 0;
         }
-        else
-        {
-            if (min > 0)
-                stretchFunctionsPtrMap[stretchIndex].int16PtrFunc(min);
-            else
-                min = 0;
-
-            if (max > 0)
-                stretchFunctionsPtrMap[stretchIndex].int16PtrFunc(max);
-            else
-                max = 0;
-        }
+        stretchFunctionsPtrMap[stretchIndex].int16PtrFunc(min);
+        stretchFunctionsPtrMap[stretchIndex].int16PtrFunc(max);
     }
     int16_t newRange = std::abs(max - min); /// stretch is applied to min/max/range
     if (newRange == 0)
@@ -922,6 +902,11 @@ void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuf
         /// stretch is applied to min/max/range
         if (stretchIndex > 0)
         {
+            if (stretchIndex != 3) /// not arcsinh() case
+            {
+                f = (f >= 0) ? f : 0;
+                f = (f >= 0) ? f : 0;
+            }
             stretchFunctionsPtrMap[stretchIndex].int16PtrFunc(f);
         }
         if (a_type & FITS_PERCENTILE_TRANSFORM)
@@ -932,7 +917,7 @@ void convertBufferShort2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuf
                 f = min;
         }
 
-        writeBuffer[i] = convertShort2Grayscale(f, min, newRange, stretchFunctionsPtrMap[stretchIndex].int16PtrFunc); ///
+        writeBuffer[i] = convertShort2Grayscale(f, min, newRange); ///
         ///
 
         /// original version is below
@@ -1171,23 +1156,13 @@ void convertBufferByte2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuff
     int16_t max = a_max;
     if (stretchIndex > 0)
     {
-        if (stretchIndex == 3) /// arcsinh() case
+        if (stretchIndex != 3) /// not arcsinh() case
         {
-            stretchFunctionsPtrMap[stretchIndex].int16PtrFunc(min);
-            stretchFunctionsPtrMap[stretchIndex].int16PtrFunc(max);
+            min = (min >= 0) ? min : 0;
+            max = (max >= 0) ? max : 0;
         }
-        else
-        {
-            if (min > 0)
-                stretchFunctionsPtrMap[stretchIndex].int16PtrFunc(min);
-            else
-                min = 0;
-
-            if (max > 0)
-                stretchFunctionsPtrMap[stretchIndex].int16PtrFunc(max);
-            else
-                max = 0;
-        }
+        stretchFunctionsPtrMap[stretchIndex].int16PtrFunc(min);
+        stretchFunctionsPtrMap[stretchIndex].int16PtrFunc(max);
     }
     int16_t newRange = std::abs(max - min); /// stretch is applied to min/max/range
     if (newRange == 0)
@@ -1208,6 +1183,11 @@ void convertBufferByte2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuff
         /// stretch is applied to min/max/range
         if (stretchIndex > 0)
         {
+            if (stretchIndex != 3) /// not arcsinh() case
+            {
+                f = (f >= 0) ? f : 0;
+                f = (f >= 0) ? f : 0;
+            }
             stretchFunctionsPtrMap[stretchIndex].int16PtrFunc(f);
         }
         if (a_type & FITS_PERCENTILE_TRANSFORM)
@@ -1218,7 +1198,7 @@ void convertBufferByte2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuff
                 f = min;
         }
 
-        writeBuffer[i] = convertShort2Grayscale(f, min, newRange, stretchFunctionsPtrMap[stretchIndex].int16PtrFunc); ///
+        writeBuffer[i] = convertShort2Grayscale(f, min, newRange); ///
         ///
 
         /// original version is below
@@ -1402,23 +1382,13 @@ void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffe
     int32_t max = a_max;
     if (stretchIndex > 0)
     {
-        if (stretchIndex == 3) /// arcsinh() case
+        if (stretchIndex != 3) /// not arcsinh() case
         {
-            stretchFunctionsPtrMap[stretchIndex].int32PtrFunc(min);
-            stretchFunctionsPtrMap[stretchIndex].int32PtrFunc(max);
+            min = (min >= 0) ? min : 0;
+            max = (max >= 0) ? max : 0;
         }
-        else
-        {
-            if (min > 0)
-                stretchFunctionsPtrMap[stretchIndex].int32PtrFunc(min);
-            else
-                min = 0;
-
-            if (max > 0)
-                stretchFunctionsPtrMap[stretchIndex].int32PtrFunc(max);
-            else
-                max = 0;
-        }
+        stretchFunctionsPtrMap[stretchIndex].int32PtrFunc(min);
+        stretchFunctionsPtrMap[stretchIndex].int32PtrFunc(max);
     }
     int32_t newRange = std::abs(max - min); /// stretch is applied to min/max/range
     if (newRange == 0)
@@ -1442,6 +1412,11 @@ void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffe
         /// stretch is applied to min/max/range
         if (stretchIndex > 0)
         {
+            if (stretchIndex != 3) /// not arcsinh() case
+            {
+                f = (f >= 0) ? f : 0;
+                f = (f >= 0) ? f : 0;
+            }
             stretchFunctionsPtrMap[stretchIndex].int32PtrFunc(f);
         }
         if (a_type & FITS_PERCENTILE_TRANSFORM)
@@ -1452,7 +1427,7 @@ void convertBufferInt2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuffe
                 f = min;
         }
 
-        writeBuffer[i] = convertInt2Grayscale(f, min, newRange, stretchFunctionsPtrMap[stretchIndex].int32PtrFunc); ///
+        writeBuffer[i] = convertInt2Grayscale(f, min, newRange); ///
         ///
 
         /// original version is below
@@ -1623,23 +1598,13 @@ void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuff
     int64_t max = a_max;
     if (stretchIndex > 0)
     {
-        if (stretchIndex == 3) /// arcsinh() case
+        if (stretchIndex != 3) /// not arcsinh() case
         {
-            stretchFunctionsPtrMap[stretchIndex].int64PtrFunc(min);
-            stretchFunctionsPtrMap[stretchIndex].int64PtrFunc(max);
+            min = (min >= 0) ? min : 0;
+            max = (max >= 0) ? max : 0;
         }
-        else
-        {
-            if (min > 0)
-                stretchFunctionsPtrMap[stretchIndex].int64PtrFunc(min);
-            else
-                min = 0;
-
-            if (max > 0)
-                stretchFunctionsPtrMap[stretchIndex].int64PtrFunc(max);
-            else
-                max = 0;
-        }
+        stretchFunctionsPtrMap[stretchIndex].int64PtrFunc(min);
+        stretchFunctionsPtrMap[stretchIndex].int64PtrFunc(max);
     }
     int64_t newRange = std::abs(max - min); /// stretch is applied to min/max/range
     if (newRange == 0)
@@ -1663,6 +1628,11 @@ void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuff
         /// stretch is applied to min/max/range
         if (stretchIndex > 0)
         {
+            if (stretchIndex != 3) /// not arcsinh() case
+            {
+                f = (f >= 0) ? f : 0;
+                f = (f >= 0) ? f : 0;
+            }
             stretchFunctionsPtrMap[stretchIndex].int64PtrFunc(f);
         }
         if (a_type & FITS_PERCENTILE_TRANSFORM)
@@ -1673,7 +1643,7 @@ void convertBufferLong2RGB(uint8_t* a_buffer, size_t a_size, uint8_t* a_destBuff
                 f = min;
         }
 
-        writeBuffer[i] = convertLong2Grayscale(f, min, newRange, stretchFunctionsPtrMap[stretchIndex].int64PtrFunc); ///
+        writeBuffer[i] = convertLong2Grayscale(f, min, newRange); ///
         ///
 
         /// original version is below

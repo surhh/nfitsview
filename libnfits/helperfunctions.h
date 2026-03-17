@@ -501,22 +501,6 @@ inline uint32_t convertFloat2RGBA(float a_value)
 
     uint32_t retVal = 0, tmpVal = 0;
 
-    /// old way
-    /*
-    tmpVal = tmpBuf[0]; //// 0
-    tmpVal = tmpVal << 24;
-    retVal = retVal | tmpVal;
-
-    tmpVal = tmpBuf[1]; //// 1
-    tmpVal = tmpVal << 16;
-    retVal = retVal | tmpVal;
-
-    tmpVal = tmpBuf[2]; //// 2
-    tmpVal = tmpVal << 8;
-    retVal = retVal | tmpVal;
-    */
-    ///
-
     /// new way
     tmpVal = tmpBuf[2]; //// 0
     tmpVal = tmpVal << 16;
@@ -573,13 +557,13 @@ inline void convertFloat2GrayscaleByRange(float a_value, float a_min, float a_ma
 
     /// filtering by threshold
     //if (a_value>0)
-    /*
-        if (a_value < 0.9*a_max)
-        {
-            a_r = a_g = a_b = 0;
-            return;
-        }
-    */
+    //
+    //    if (a_value < 0.9*a_max)
+    //    {
+    //        a_r = a_g = a_b = 0;
+    //        return;
+    //    }
+    //
     ///
 
     a_r = a_g = a_b = std::fabs(value)/a_range * 255;
@@ -785,7 +769,7 @@ typedef     void (*stretchLongPtr)      (int64_t &);
 
 //zeroScaleFloatPtr a_zeroScaleFuncPtr
 
-inline uint32_t convertShort2Grayscale(int16_t a_value, int16_t a_min, int16_t a_range, stretchShortPtr a_stetchFuncPtr)
+inline uint32_t convertShort2Grayscale(int16_t a_value, int16_t a_min, int16_t a_range)
 {
     uint32_t retVal = 0;
 
@@ -804,7 +788,7 @@ inline uint32_t convertShort2Grayscale(int16_t a_value, int16_t a_min, int16_t a
     return retVal;
 }
 
-inline uint32_t convertInt2Grayscale(int32_t a_value, int32_t a_min, int32_t a_range, stretchIntPtr a_stetchFuncPtr)
+inline uint32_t convertInt2Grayscale(int32_t a_value, int32_t a_min, int32_t a_range)
 {
     uint32_t retVal = 0;
 
@@ -823,7 +807,7 @@ inline uint32_t convertInt2Grayscale(int32_t a_value, int32_t a_min, int32_t a_r
     return retVal;
 }
 
-inline uint32_t convertLong2Grayscale(int64_t a_value, int64_t a_min, int64_t a_range, stretchLongPtr a_stetchFuncPtr)
+inline uint32_t convertLong2Grayscale(int64_t a_value, int64_t a_min, int64_t a_range)
 {
     uint32_t retVal = 0;
 
@@ -831,7 +815,6 @@ inline uint32_t convertLong2Grayscale(int64_t a_value, int64_t a_min, int64_t a_
 
     uint32_t tmpVal = static_cast<uint32_t>(((double)(std::abs(a_value - a_min))/a_range) * 255.0);  /// #3 - seems is the best
 
-    ///tmpVal = 0xaa;
     retVal = tmpVal << 16;
 
     retVal = retVal | (tmpVal << 8);
@@ -841,7 +824,7 @@ inline uint32_t convertLong2Grayscale(int64_t a_value, int64_t a_min, int64_t a_
     return retVal;
 }
 
-inline uint32_t convertFloat2Grayscale(float a_value, float a_min, float a_range, stretchFloatPtr a_stetchFuncPtr)
+inline uint32_t convertFloat2Grayscale(float a_value, float a_min, float a_range)
 {
     uint32_t retVal = 0;
 
@@ -860,14 +843,7 @@ inline uint32_t convertFloat2Grayscale(float a_value, float a_min, float a_range
     return retVal;
 }
 
-inline uint32_t convertFloatSZ2Grayscale(float a_value, float a_bscale, float a_bzero, stretchFloatPtr a_stetchFuncPtr)
-{
-    a_stetchFuncPtr(a_value);
-
-    return 10;
-}
-
-inline uint32_t convertDouble2Grayscale(double a_value, double a_min, double a_range, stretchDoublePtr a_stetchFuncPtr)
+inline uint32_t convertDouble2Grayscale(double a_value, double a_min, double a_range)
 {
     uint32_t retVal = 0;
 
@@ -882,6 +858,13 @@ inline uint32_t convertDouble2Grayscale(double a_value, double a_min, double a_r
     retVal = retVal | tmpVal;
 
     return retVal;
+}
+
+inline uint32_t convertFloatSZ2Grayscale(float a_value, float a_bscale, float a_bzero, stretchFloatPtr a_stetchFuncPtr)
+{
+    a_stetchFuncPtr(a_value);
+
+    return 10;
 }
 
 inline uint32_t convertDoubleSZ2Grayscale(double a_value, double a_bscale, double a_bzero, stretchDoublePtr a_stetchFuncPtr)
@@ -1046,8 +1029,8 @@ struct stretchFunctionsPtrBlock
 const stretchFunctionsPtrBlock stretchFunctionsPtrMap[] =
 {
     { stretchLinear, stretchLinear, stretchLinear, stretchLinear, stretchLinear, stretchLinear, stretchLinear },
-    { stretchSquareroot, stretchSquareroot, stretchSquareroot, stretchSquareroot, stretchSquareroot, stretchSquareroot, stretchSquareroot },
     { stretchLogarithmic, stretchLogarithmic, stretchLogarithmic, stretchLogarithmic, stretchLogarithmic, stretchLogarithmic, stretchLogarithmic },
+    { stretchSquareroot, stretchSquareroot, stretchSquareroot, stretchSquareroot, stretchSquareroot, stretchSquareroot, stretchSquareroot },
     { stretchArcsinh, stretchArcsinh, stretchArcsinh, stretchArcsinh, stretchArcsinh, stretchArcsinh, stretchArcsinh },
 };
 

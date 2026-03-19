@@ -35,7 +35,11 @@ public:
         int32_t resFound = findRecordByKeyword(a_strKeyword, record);
 
         if (resFound == FITS_RECORD_NOT_FOUND)
+        {
+            a_successFlag = bSuccess;
+
             return FITS_RECORD_NOT_FOUND;
+        }
 
         retVal = record.getValue<T>(bSuccess);
 

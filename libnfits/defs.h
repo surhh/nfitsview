@@ -27,8 +27,8 @@ static int32_t percentCallbackFunctionSample(int32_t a_percent, void* a_buffer)
 #define LIBNFITS_MAJOR_VERSION                  3
 #define LIBNFITS_MINOR_VERSION                  8
 
-#define	FITS_BSCALE_DEFAULT_VALUE               (1.0)
-#define	FITS_BZERO_DEFAULT_VALUE                (0.0)
+constexpr long double FITS_BSCALE_DEFAULT_VALUE  = 1.0L;
+constexpr long double FITS_BZERO_DEFAULT_VALUE   = 0.0L;
 
 #define FITS_BLOCK_SIZE                         (2880)
 #define FITS_HEADER_RECORD_SIZE                 (80)

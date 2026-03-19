@@ -632,6 +632,16 @@ template<typename T> T WorkspaceTabWidget::getMaxClippedValue() const
     return m_fitsImage->getMaxClippedValue<T>();
 }
 
+long double WorkspaceTabWidget::getBZeroValue() const
+{
+    return m_fitsImage->getBZero();
+}
+
+long double WorkspaceTabWidget::getBScaleValue() const
+{
+    return m_fitsImage->getBScale();
+}
+
 bool WorkspaceTabWidget::isScrollVisibleX() const
 {
     return ui->scrollArea->horizontalScrollBar()->isVisible();

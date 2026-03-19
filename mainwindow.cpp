@@ -1016,6 +1016,16 @@ void MainWindow::populateHDUInfoWidget(int32_t a_hduIndex)
         if (numAxises >= 2)
             ui->labelNAXIS2->setText("NAXIS2: " + QString::number(hdu.getKeywordValue<int32_t>("NAXIS2", bSuccess)));
 
+        long double bzero = hdu.getKeywordValue<long double>("BZERO", bSuccess);
+        if (!bSuccess)
+            bzero = FITS_BZERO_DEFAULT_VALUE;
+        ui->labelBZERO->setText("BZERO: " + QString::asprintf("%.10LE", bzero));
+
+        long double bscale = hdu.getKeywordValue<long double>("BSCALE", bSuccess);
+        if (!bSuccess)
+            bscale = FITS_BSCALE_DEFAULT_VALUE;
+        ui->labelBSCALE->setText("BSCALE: " + QString::asprintf("%.10LE", bscale));
+
         axises.clear();
 
         //updateHDUInfoWidgetMinMax();
@@ -1027,6 +1037,8 @@ void MainWindow::initHDUInfoWidgetValues()
     ui->labelNAXIS->setText("NAXIS:");
     ui->labelNAXIS1->setText("NAXIS1:");
     ui->labelNAXIS2->setText("NAXIS2:");
+    ui->labelBZERO->setText("BZERO:");
+    ui->labelBSCALE->setText("BSCALE:");
 }
 
 void MainWindow::on_actionAbout_triggered()
@@ -1281,8 +1293,8 @@ int32_t MainWindow::setAllWorkspaceImages()
 
                     bool bZSuccess = false, bSSuccess = false;
 
-                    double bzero = hdu.getKeywordValue<double>(FITS_KEYWORD_BZERO, bZSuccess);
-                    double bscale = hdu.getKeywordValue<double>(FITS_KEYWORD_BSCALE, bSSuccess);
+                    long double bzero = hdu.getKeywordValue<long double>(FITS_KEYWORD_BZERO, bZSuccess);
+                    long double bscale = hdu.getKeywordValue<long double>(FITS_KEYWORD_BSCALE, bSSuccess);
 
                     imageParams.bzero = FITS_BZERO_DEFAULT_VALUE;
                     if (bZSuccess)
@@ -1951,6 +1963,12 @@ template<typename T> void MainWindow::onDrawHistogramChart(libnfits::DistribStat
 
     T range = std::abs(a_max - a_min);
 
+    uint64_t range1;
+    if (a_max >= a_min)
+        range1 = static_cast<uint64_t>(a_max - a_min);
+    else
+        range1 = static_cast<uint64_t>(a_min - a_max);
+
     int32_t tickCountX = std::ceil(range / tickQautientX);
     int32_t tmpMaxTickCount = std::ceil(range) + 1;
 
@@ -1979,6 +1997,8 @@ template<typename T> void MainWindow::onDrawHistogramChart(libnfits::DistribStat
     std::cout << "---> in MainWindow::onDrawHistogramChart #4... maxPixelCount = " << maxPixelCount << std::endl;
     std::cout << "---> in MainWindow::onDrawHistogramChart #5... min, max = " << a_min << " , " << a_max << std::endl;
     std::cout << "---> in MainWindow::onDrawHistogramChart #6... range = " << range << std::endl;
+    std::cout << "---> in MainWindow::onDrawHistogramChart #7... range1 = " << range1 << std::endl;
+    std::cout << "---> in MainWindow::onDrawHistogramChart #8... a_max - a_min = " << a_max - a_min << std::endl;
     /// end of useful debug output
 
     double stretchQ = ((double)(range) / (a_size));
@@ -1987,12 +2007,12 @@ template<typename T> void MainWindow::onDrawHistogramChart(libnfits::DistribStat
 
     for (size_t i = 0; i < a_size; ++i)
     {
-        double scaledX = a_min + i*stretchQ;
-
-        double value = a_distribStats[i].count > 0 ? std::log10(a_distribStats[i].count) : 0;
-
         if (i % histShowStep == 0)
         {
+            double scaledX = a_min + i*stretchQ;
+
+            double value = a_distribStats[i].count > 0 ? std::log10(a_distribStats[i].count) : 0;
+
             m_lineSeries->append(scaledX, value);
             m_lineSeriesLow->append(scaledX, 0);
         }

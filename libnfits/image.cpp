@@ -1234,22 +1234,22 @@ size_t Image::getBaseOffset() const
     return m_baseOffset;
 }
 
-void Image::setBZero(double a_bzero)
+void Image::setBZero(long double a_bzero)
 {
     m_bzero = a_bzero;
 }
 
-void Image::setBScale(double a_bscale)
+void Image::setBScale(long double a_bscale)
 {
     m_bscale = a_bscale;
 }
 
-double Image::getBZero() const
+long double Image::getBZero() const
 {
     return m_bzero;
 }
 
-double Image::getBScale() const
+long double Image::getBScale() const
 {
     return m_bscale;
 }
@@ -1731,6 +1731,7 @@ void Image::resetDistribValues()
 
 void Image::convertBufferAllTypes2RGB(uint8_t* tmpRow, size_t tmpBufRowSize, uint8_t* tmpDestRow)
 {
+    ///bool a_zeroScaleFlag = !(areEqualFloatDouble<long double>(m_bzero, FITS_BZERO_DEFAULT_VALUE) && areEqualFloatDouble<long double>(m_bscale, FITS_BSCALE_DEFAULT_VALUE));
     bool a_zeroScaleFlag = !(areEqual(m_bzero, FITS_BZERO_DEFAULT_VALUE) && areEqual(m_bscale, FITS_BSCALE_DEFAULT_VALUE));
 
     switch (m_bitpix)
@@ -1766,7 +1767,8 @@ void Image::convertBufferAllTypes2RGB(uint8_t* tmpRow, size_t tmpBufRowSize, uin
 
 bool Image::isDefaultBZeroBScale() const
 {
-    if (!areEqual(m_bzero, 0.0) || !areEqual(m_bscale, 1.0))
+    ///if (!areEqualFloatDouble<long double>(m_bzero, 0.0) || !areEqualFloatDouble<long double>(m_bscale, 1.0))
+    if (!areEqual(m_bzero, FITS_BZERO_DEFAULT_VALUE) || !areEqual(m_bscale, FITS_BSCALE_DEFAULT_VALUE))
         return false;
     else
         return true;

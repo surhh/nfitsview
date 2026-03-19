@@ -205,7 +205,7 @@
             <bool>false</bool>
            </property>
            <layout class="QGridLayout" name="gridLayout_5">
-            <item row="6" column="0">
+            <item row="8" column="0">
              <layout class="QVBoxLayout" name="verticalLayoutHDUInfo_5">
               <item>
                <widget class="QLabel" name="labelMAXValue">
@@ -235,13 +235,6 @@
               </item>
              </layout>
             </item>
-            <item row="4" column="0">
-             <widget class="Line" name="horizontalLine">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
-            </item>
             <item row="3" column="0">
              <layout class="QVBoxLayout" name="verticalLayoutHDUInfo_3">
               <item>
@@ -253,7 +246,36 @@
               </item>
              </layout>
             </item>
-            <item row="5" column="0">
+            <item row="6" column="0">
+             <widget class="Line" name="horizontalLine">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <layout class="QVBoxLayout" name="verticalLayoutHDUInfo_2">
+              <item>
+               <widget class="QLabel" name="labelNAXIS1">
+                <property name="text">
+                 <string>NAXIS1: </string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="4" column="0">
+             <layout class="QVBoxLayout" name="verticalLayoutHDUInfo_6">
+              <item>
+               <widget class="QLabel" name="labelBZERO">
+                <property name="text">
+                 <string>BZERO:</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="7" column="0">
              <layout class="QVBoxLayout" name="verticalLayoutHDUInfo_4">
               <item>
                <widget class="QLabel" name="labelMINValue">
@@ -272,12 +294,12 @@
               </item>
              </layout>
             </item>
-            <item row="1" column="0">
-             <layout class="QVBoxLayout" name="verticalLayoutHDUInfo_2">
+            <item row="5" column="0">
+             <layout class="QVBoxLayout" name="verticalLayoutHDUInfo_7">
               <item>
-               <widget class="QLabel" name="labelNAXIS1">
+               <widget class="QLabel" name="labelBSCALE">
                 <property name="text">
-                 <string>NAXIS1: </string>
+                 <string>BSCALE:</string>
                 </property>
                </widget>
               </item>

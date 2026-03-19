@@ -105,6 +105,9 @@ public:
     int64_t getDistribMinValueL() const;
     int64_t getDistribMaxValueL() const;
 
+    long double getBZeroValue() const;
+    long double getBScaleValue() const;
+
     bool isScrollVisibleX() const;
     bool isScrollVisibleY() const;
 

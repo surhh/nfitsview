@@ -160,18 +160,18 @@ ssize_t MapFile::loadFileRead(const std::string& a_fileName)
     /// Getting file size
     m_fileSize = lseek(m_fileDesc, 0, SEEK_END);
     if (m_fileSize == FILE_READ_ERROR)
-        returnFileReadError();
+        return returnFileReadError();
 
     m_memoryBuffer = new (std::align_val_t{std::hardware_destructive_interference_size}) uint8_t[m_fileSize];
 
     /// Moving file read pointer to the start
     if (lseek(m_fileDesc, 0, SEEK_SET) == FILE_READ_ERROR)
-        returnFileReadError();
+        return returnFileReadError();
 
     /// Read the complete file into the memory
     size_t bytesRead = read(m_fileDesc, m_memoryBuffer, m_fileSize);
     if (bytesRead != m_fileSize)
-        returnFileReadError();
+        return returnFileReadError();
 
     /// Closing the file
     int32_t res = close(m_fileDesc);

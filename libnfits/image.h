@@ -58,8 +58,8 @@ private:
     uint32_t            m_height;
     uint8_t             m_colorDepth;
     int8_t              m_bitpix;
-    double              m_bzero;
-    double              m_bscale;
+    long double         m_bzero;
+    long double         m_bscale;
     double              m_minValue, m_minDistribValue;
     double              m_maxValue, m_maxDistribValue;
     double              m_finalMinValue, m_finalMaxValue, m_finalClippedMinValue, m_finalClippedMaxValue;
@@ -110,10 +110,10 @@ public:
     void setColorDepth(uint8_t a_colorDepth);
     void setBitPix(int8_t a_bitpix);
     void setCompressed(bool a_isCompressed = false);
-    void setBZero(double a_bzero);
-    void setBScale(double a_bscale);
-    double getBZero() const;
-    double getBScale() const;
+    void setBZero(long double a_bzero);
+    void setBScale(long double a_bscale);
+    long double getBZero() const;
+    long double getBScale() const;
     uint32_t getWidth() const;
     uint32_t getHeight() const;
     uint8_t getColorDepth() const;

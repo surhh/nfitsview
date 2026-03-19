@@ -289,8 +289,8 @@ int32_t FitsFile::exportImageHDU(uint32_t a_hduIndex, int32_t a_transform, bool 
 
     bool bZSuccess = false, bSSuccess = false;
 
-    double bzero = m_HDUs[a_hduIndex].getKeywordValue<double>(FITS_KEYWORD_BZERO, bZSuccess);
-    double bscale = m_HDUs[a_hduIndex].getKeywordValue<double>(FITS_KEYWORD_BSCALE, bSSuccess);
+    long double bzero = m_HDUs[a_hduIndex].getKeywordValue<long double>(FITS_KEYWORD_BZERO, bZSuccess);
+    long double bscale = m_HDUs[a_hduIndex].getKeywordValue<long double>(FITS_KEYWORD_BSCALE, bSSuccess);
 
     image.setParameters(axises[0], axises[1], FITS_PNG_DEFAULT_PIXEL_DEPTH, bitpix);
     image.setData(m_HDUs[a_hduIndex].getPayload());

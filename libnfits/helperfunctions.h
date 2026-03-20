@@ -1302,6 +1302,12 @@ template<typename T> void calcPercentileMinMax(libnfits::DistribStats const* a_d
 template<typename T> T calcPercentile(libnfits::DistribStats const* a_distribStats, T a_min, T a_max,
                                       float a_percentile, size_t a_pixelNum);
 
+template<typename T> long double calcRangeMinMaxBScaleBZero(T a_min, T a_max,
+                                       long double a_bzero, long double a_bscale,
+                                       bool a_zeroScaleFlag, uint32_t a_type,
+                                       long double& a_newMin, long double& a_newMax);
+
+
 //// these functions are for debugging purposes only, they are slow
 int32_t dumpFloatDataBuffer(const uint8_t* a_buffer, size_t a_size, const std::string& a_filename, uint32_t a_rowSize);
 
@@ -1329,50 +1335,6 @@ typedef     void (*zeroScaleBytePtr)        (int8_t&, long double, long double);
 typedef     void (*zeroScaleShortPtr)       (int16_t&, long double, long double);
 typedef     void (*zeroScaleIntPtr)         (int32_t&, long double, long double);
 typedef     void (*zeroScaleLongPtr)        (int64_t&, long double, long double);
-
-template<typename T> inline long double calcRangeMinMaxBScaleBZero(T a_min, T a_max,
-                                              long double a_bzero, long double a_bscale,
-                                              bool a_zeroScaleFlag, uint32_t a_type,
-                                              long double& a_newMin, long double& a_newMax)
-{
-    uint32_t stretchIndex = a_type & FITS_PERCENTILE_TRANSFORM_AND_QUATIENT;
-
-    zeroScaleShortPtr zeroScaleFunctionPtr = libnfits::zeroScaleShortDummy;
-    zeroScaleLongDoublePtr zeroScaleFunctionLongDoublePtr = libnfits::zeroScaleLongDoubleDummy;
-
-    if (a_zeroScaleFlag)
-    {
-        zeroScaleFunctionPtr = libnfits::zeroScaleShortMul;
-        zeroScaleFunctionLongDoublePtr = libnfits::zeroScaleLongDoubleMul;
-    }
-
-    /// stretch is applied to min/max/range
-    a_newMin = a_min, a_newMax = a_max;
-    zeroScaleFunctionLongDoublePtr(a_newMin, a_bzero, a_bscale);
-    zeroScaleFunctionLongDoublePtr(a_newMax, a_bzero, a_bscale);
-    long double oldMin = a_min, oldMax = a_max;
-
-    if (stretchIndex > 0)
-    {
-        if (stretchIndex != 3) /// not arcsinh() case
-        {
-            a_newMin = (libnfits::isGreaterZero(a_newMin)) ? a_newMin : 0.0L;
-            a_newMax = (libnfits::isGreaterZero(a_newMax)) ? a_newMax : 0.0L;
-        }
-        libnfits::stretchFunctionsPtrMap[stretchIndex].longDoublePtrFunc(a_newMin);
-        libnfits::stretchFunctionsPtrMap[stretchIndex].longDoublePtrFunc(a_newMax);
-    }
-    if (libnfits::areEqual(a_newMin, a_newMax))
-    {
-        stretchIndex = 0;
-        a_newMin = oldMin;
-        a_newMax = oldMax;
-    }
-
-    long double newRange = std::abs(a_newMax - a_newMin); /// stretch is applied to min/max/range
-
-    return newRange;
-}
 
 
 #endif // LIBNFITS_HELPERFUNCTIONS_H

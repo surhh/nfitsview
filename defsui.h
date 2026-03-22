@@ -47,10 +47,15 @@
 
 #define LABELS_RIGHT_JUSTIFICATION_VALUE        (8)
 
+#include <QString>
+
 constexpr int32_t minTickCountX = 10, maxTickCountX = 15;
 constexpr int32_t minTickCountY = 3, maxTickCountY = 5;
 constexpr int32_t histChartMaxPointsToShow = 500; /// default is 1000
 constexpr float tickQautientX = 10.0f;
+constexpr int64_t minChartValue = -2147483648; /// supported max is 2^32-1
+constexpr int64_t maxChartValue = 2147483647; /// supported max is 2^32-1
+const QString histogramTitle = "FITS file histogram of pixel values. X-axis: pixel values, Y-axis: log10() of number of pixels. X-values quatient: ";
 
 struct GammaWidgetsStates
 {

@@ -93,7 +93,6 @@ MainWindow::MainWindow(QWidget *parent)
     initGammaWidgetsValues();
     initMappingWidgetsValues();
     initImageExportSettingsWidgetValues();
-    initStretchingWidgetsValues();
 
     ui->toolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 
@@ -133,7 +132,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     initChartDefaultMetrics();
 
-    m_histChart->setTitle("FITS file histogram of pixel values. X-axis: pixel values, Y-axis: log10() of number of pixels");
+    m_histChart->setTitle(histogramTitle + QString::asprintf("%.10LE", 1.0L));
     m_histChart->setMargins(QMargins(0, 0, 0, 0));
     m_histChart->legend()->hide();
 
@@ -150,6 +149,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->horizontalLayoutStretching_2->addWidget(m_histChartView);
     /// End of histogram chart
+
+    initStretchingWidgetsValues();
 
 #if defined(ENABLE_OPENMP)
     int32_t numThreads = omp_get_max_threads();
@@ -1954,23 +1955,46 @@ template<typename T> void MainWindow::onDrawHistogramChart(libnfits::DistribStat
     m_lineSeries->clear();
     m_lineSeriesLow->clear();
 
-    m_axisX->setRange(std::floor(a_min), std::ceil(a_max));
+    long double k1, k2, k;
+
+    if (a_min < minChartValue || a_max > maxChartValue)
+    {
+        k1 = (long double)a_min / minChartValue;
+        k2 = (long double)a_max / maxChartValue;
+
+        if (libnfits::areEqual(k1, 0.0L))
+            k1 = 1;
+
+        if (libnfits::areEqual(k2, 0.0L))
+            k2 = 1;
+
+        if (k1 > k2)
+            k = k1;
+        else
+            k = k2;
+    }
+    else
+    {
+        k = 1.0L;
+    }
+
+
+    m_axisX->setRange(std::floor(a_min) / k, std::ceil(a_max) / k);
+
+    ///m_axisX->setRange(std::floor(a_min), std::ceil(a_max)); /// original way
 
     if (maxPixelCount > 0)
         m_axisY->setRange(0, std::round(std::log10(1 + maxPixelCount))*1.1f); /// 1+ is to avoid invalid log(0) case
     else
         m_axisY->setRange(0, 1);
 
-    T range = std::abs(a_max - a_min);
+    T range = std::abs(a_max - a_min); /// original way
+    long double range1 = (long double)a_max - (long double)a_min;
 
-    uint64_t range1;
-    if (a_max >= a_min)
-        range1 = static_cast<uint64_t>(a_max - a_min);
-    else
-        range1 = static_cast<uint64_t>(a_min - a_max);
-
-    int32_t tickCountX = std::ceil(range / tickQautientX);
-    int32_t tmpMaxTickCount = std::ceil(range) + 1;
+    ///int32_t tickCountX = std::ceil(range / tickQautientX); /// original way
+    long double tickCountX = std::ceil(range1 / tickQautientX);
+    ///int32_t tmpMaxTickCount = std::ceil(range) + 1; /// original way
+    long double tmpMaxTickCount = std::ceil(range1) + 1;
 
     if (tickCountX > maxTickCountX)
     {
@@ -1992,6 +2016,7 @@ template<typename T> void MainWindow::onDrawHistogramChart(libnfits::DistribStat
     m_axisX->setTickCount(tickCountX);
 
     /// useful debug output
+    /*
     std::cout << "---> in MainWindow::onDrawHistogramChart #2... tickCountX = " << tickCountX << std::endl;
     std::cout << "---> in MainWindow::onDrawHistogramChart #3... maxPercent = " << maxPercent << std::endl;
     std::cout << "---> in MainWindow::onDrawHistogramChart #4... maxPixelCount = " << maxPixelCount << std::endl;
@@ -1999,9 +2024,11 @@ template<typename T> void MainWindow::onDrawHistogramChart(libnfits::DistribStat
     std::cout << "---> in MainWindow::onDrawHistogramChart #6... range = " << range << std::endl;
     std::cout << "---> in MainWindow::onDrawHistogramChart #7... range1 = " << range1 << std::endl;
     std::cout << "---> in MainWindow::onDrawHistogramChart #8... a_max - a_min = " << a_max - a_min << std::endl;
+    */
     /// end of useful debug output
 
-    double stretchQ = ((double)(range) / (a_size));
+    ///double stretchQ = ((double)(range) / (a_size)); /// original way
+    long double stretchQ = ((long double)(range1) / (a_size)); /// original way
 
     int32_t histShowStep = FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER / histChartMaxPointsToShow;
 
@@ -2009,7 +2036,9 @@ template<typename T> void MainWindow::onDrawHistogramChart(libnfits::DistribStat
     {
         if (i % histShowStep == 0)
         {
-            double scaledX = a_min + i*stretchQ;
+            ///double scaledX = a_min + i*stretchQ; /// original way
+
+            double scaledX = ((long double)a_min + i*stretchQ) / k;
 
             double value = a_distribStats[i].count > 0 ? std::log10(a_distribStats[i].count) : 0;
 
@@ -2017,6 +2046,8 @@ template<typename T> void MainWindow::onDrawHistogramChart(libnfits::DistribStat
             m_lineSeriesLow->append(scaledX, 0);
         }
     }
+
+    m_histChart->setTitle(histogramTitle + QString::asprintf("%.10LE", k));
 }
 
 void MainWindow::initChartDefaultMetrics()
@@ -2032,6 +2063,8 @@ void MainWindow::initChartDefaultMetrics()
     m_lineSeries->setPointsVisible(false);
     m_lineSeriesLow->setPointsVisible(false);
     m_areaSeries->setPointsVisible(false);
+
+    m_histChart->setTitle(histogramTitle + QString::asprintf("%.10LE", 1.0L));
 }
 
 void MainWindow::onDrawHistogramChartInt(libnfits::DistribStats const* a_distribStats, int64_t a_min, int64_t a_max, size_t a_size)

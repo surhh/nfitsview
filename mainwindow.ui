@@ -66,6 +66,7 @@
     <addaction name="actionZoomIn"/>
     <addaction name="actionZoomOut"/>
     <addaction name="actionFitWindow"/>
+    <addaction name="actionOriginalSize"/>
     <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuTools">
@@ -112,6 +113,7 @@
    <addaction name="separator"/>
    <addaction name="actionZoomOutToolBar"/>
    <addaction name="actionZoomInToolBar"/>
+   <addaction name="actionOriginalSizeToolBar"/>
    <addaction name="actionFitWindowToolBar"/>
    <addaction name="separator"/>
    <addaction name="actionRestoreOriginalToolBar"/>
@@ -1468,7 +1470,7 @@
   <action name="actionZoomOutToolBar">
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/icons/zoom-out-22x22.svg</normaloff>:/icons/zoom-out-22x22.svg</iconset>
+     <normaloff>:/icons/Zoom-Out-32.png</normaloff>:/icons/Zoom-Out-32.png</iconset>
    </property>
    <property name="text">
     <string>Zoom Out</string>
@@ -1480,7 +1482,7 @@
   <action name="actionZoomInToolBar">
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/icons/zoom-in-22x22.svg</normaloff>:/icons/zoom-in-22x22.svg</iconset>
+     <normaloff>:/icons/Zoom-In-32.png</normaloff>:/icons/Zoom-In-32.png</iconset>
    </property>
    <property name="text">
     <string>Zoom In</string>
@@ -1516,7 +1518,7 @@
   <action name="actionZoomIn">
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/icons/zoom-in-16x16.svg</normaloff>:/icons/zoom-in-16x16.svg</iconset>
+     <normaloff>:/icons/Zoom-In-16.png</normaloff>:/icons/Zoom-In-16.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Zoom In</string>
@@ -1525,7 +1527,7 @@
   <action name="actionZoomOut">
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/icons/zoom-out-16x16.svg</normaloff>:/icons/zoom-out-16x16.svg</iconset>
+     <normaloff>:/icons/Zoom-Out-16.png</normaloff>:/icons/Zoom-Out-16.png</iconset>
    </property>
    <property name="text">
     <string>Zoom &amp;Out</string>
@@ -1664,6 +1666,30 @@
    </property>
    <property name="menuRole">
     <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionOriginalSizeToolBar">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/zoom-original-size-24x24.png</normaloff>:/icons/zoom-original-size-24x24.png</iconset>
+   </property>
+   <property name="text">
+    <string>Original size</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionOriginalSize">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/zoom-original-size-16x16.png</normaloff>:/icons/zoom-original-size-16x16.png</iconset>
+   </property>
+   <property name="text">
+    <string>Original size</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
    </property>
   </action>
  </widget>

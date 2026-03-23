@@ -140,6 +140,10 @@ private slots:
 
     void on_comboBoxStretching_currentIndexChanged(int index);
 
+    void on_actionOriginalSizeToolBar_triggered();
+
+    void on_actionOriginalSize_triggered();
+
 private:
     Ui::MainWindow *ui;
 
@@ -203,6 +207,7 @@ private:
     void scrollToCenter();
     void scaleImage();
     void fitToWindow();
+    void fitOriginalSize();
     void backupOriginalImage();
     void restoreOriginalImage();
 

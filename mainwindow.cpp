@@ -773,6 +773,9 @@ void MainWindow::enableZoomWidgets(bool a_flag)
     ui->actionZoomIn->setEnabled(a_flag);
     ui->actionZoomInToolBar->setEnabled(a_flag);
 
+    ui->actionOriginalSize->setEnabled(a_flag);
+    ui->actionOriginalSizeToolBar->setEnabled(a_flag);
+
     ui->actionFitWindow->setEnabled(a_flag);
     ui->actionFitWindowToolBar->setEnabled(a_flag);
 
@@ -818,6 +821,14 @@ void MainWindow::fitToWindow()
 
     if (m_scaleFactor < MIN_IMAGE_SCALE_FACTOR || m_scaleFactor > MAX_IMAGE_SCALE_FACTOR)
         m_scaleFactor = 100;
+
+    ui->workspaceWidget->scaleImage(m_scaleFactor);
+    m_sliderZoom->setValue(m_scaleFactor);
+}
+
+void MainWindow::fitOriginalSize()
+{
+    m_scaleFactor = 100;
 
     ui->workspaceWidget->scaleImage(m_scaleFactor);
     m_sliderZoom->setValue(m_scaleFactor);
@@ -1364,6 +1375,7 @@ WidgetsStates MainWindow::getWidgetsStates() const
     zoomStates.zoomOutEnabled = ui->actionZoomOut->isEnabled();
 
     zoomStates.fitWindowEnabled = ui->actionFitWindow->isEnabled();
+    zoomStates.fitOriginalSizeEnabled = ui->actionOriginalSize->isEnabled();
 
     scrollStates.x = ui->workspaceWidget->getScrollPosX();
     scrollStates.y = ui->workspaceWidget->getScrollPosY();
@@ -1442,10 +1454,13 @@ void MainWindow::setWidgetsStates(const WidgetsStates& a_widgetsStates)
     ui->actionZoomOut->setEnabled(a_widgetsStates.zoomStates.zoomOutEnabled);
     ui->actionZoomOutToolBar->setEnabled(a_widgetsStates.zoomStates.zoomOutEnabled);
 
+    ui->actionOriginalSizeToolBar->setEnabled(a_widgetsStates.zoomStates.fitOriginalSizeEnabled);
+    ui->actionOriginalSizeToolBar->setEnabled(a_widgetsStates.zoomStates.fitOriginalSizeEnabled);
+
     ui->actionFitWindow->setEnabled(a_widgetsStates.zoomStates.fitWindowEnabled);
+    ui->actionFitWindowToolBar->setEnabled(a_widgetsStates.zoomStates.fitWindowEnabled);
 
     m_scaleFactor = a_widgetsStates.zoomStates.factor;
-
 
     ui->workspaceWidget->setScrollPosX(a_widgetsStates.scrollState.x);
     ui->workspaceWidget->setScrollPosY(a_widgetsStates.scrollState.y);
@@ -2131,3 +2146,15 @@ void MainWindow::initStretchingWidgetsValues()
     ui->comboBoxPercentile->setCurrentIndex(0);
     ui->comboBoxStretching->setCurrentIndex(0);
 }
+
+void MainWindow::on_actionOriginalSizeToolBar_triggered()
+{
+    fitOriginalSize();
+}
+
+
+void MainWindow::on_actionOriginalSize_triggered()
+{
+    fitOriginalSize();
+}
+

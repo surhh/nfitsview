@@ -96,6 +96,7 @@ struct ZoomWidgetsStates
     bool        zoomInEnabled;
     bool        zoomOutEnabled;
     bool        fitWindowEnabled;
+    bool        fitOriginalSizeEnabled;
 };
 
 struct StretchingWidgetsStates

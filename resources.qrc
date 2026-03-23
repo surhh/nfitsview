@@ -41,5 +41,14 @@
         <file>icons/nfitsview.png</file>
         <file>icons/no_image_data.png</file>
         <file>icons/system-upgrade-22x22.svg</file>
+        <file>icons/zoom-original-size-16x16.png</file>
+        <file>icons/zoom-original-size-24x24.png</file>
+        <file>icons/zoom-original-size-32x32.png</file>
+        <file>icons/Zoom-In-24.png</file>
+        <file>icons/Zoom-In-32.png</file>
+        <file>icons/Zoom-Out-24.png</file>
+        <file>icons/Zoom-Out-32.png</file>
+        <file>icons/Zoom-In-16.png</file>
+        <file>icons/Zoom-Out-16.png</file>
     </qresource>
 </RCC>

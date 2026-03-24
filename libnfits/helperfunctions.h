@@ -948,7 +948,11 @@ inline void stretchSquareroot(double& a_value)
 
 inline void stretchSquareroot(long double& a_value)
 {
+#if defined(__WIN32__) || defined(__WIN64__)
+    a_value = std::sqrt(a_value);
+#else
     a_value = std::sqrtl(a_value);
+#endif
 }
 
 inline void stretchSquareroot(uint8_t& a_value)

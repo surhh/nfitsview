@@ -162,7 +162,16 @@ ssize_t MapFile::loadFileRead(const std::string& a_fileName)
     if (m_fileSize == FILE_READ_ERROR)
         return returnFileReadError();
 
-    m_memoryBuffer = new (std::align_val_t{std::hardware_destructive_interference_size}) uint8_t[m_fileSize];
+#if defined(__unix__)
+    /// May need to use cache-line size aligment for further performance improvements.
+    /// Currently does not work properly for Windows builds, tested only for Linux
+
+    ///m_memoryBuffer = new (std::align_val_t{std::hardware_destructive_interference_size}) uint8_t[m_fileSize];
+
+    m_memoryBuffer = new uint8_t[m_fileSize];
+#else
+    m_memoryBuffer = new uint8_t[m_fileSize];
+#endif
 
     /// Moving file read pointer to the start
     if (lseek(m_fileDesc, 0, SEEK_SET) == FILE_READ_ERROR)

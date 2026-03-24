@@ -596,14 +596,32 @@ int32_t Image::createRGB32FlatData(uint32_t a_transformType, float a_percent)
 
     if (m_rgb32FlatDataBuffer == nullptr)
     {
-        m_rgb32FlatDataBuffer = new (std::align_val_t{std::hardware_destructive_interference_size}) uint8_t[flatBufSize];
+#if defined(__unix__)
+        /// May need to use cache-line size aligment for further performance improvements.
+        /// Currently does not work properly for Windows builds, tested only for Linux
+
+        ///m_rgb32FlatDataBuffer = new (std::align_val_t{std::hardware_destructive_interference_size}) uint8_t[flatBufSize];
+
+        m_rgb32FlatDataBuffer = new uint8_t[flatBufSize];
+#else
+        m_rgb32FlatDataBuffer = new uint8_t[flatBufSize];
+#endif
         std::memset(m_rgb32FlatDataBuffer, 0, flatBufSize);
     }
 
     if (m_rgb32FlatDataBuffer == nullptr)
         return FITS_GENERAL_ERROR;
 
-    uint8_t* tmpRow = new (std::align_val_t{std::hardware_destructive_interference_size}) uint8_t[tmpBufRowSize];
+#if defined(__unix__)
+    /// May need to use cache-line size aligment for further performance improvements.
+    /// Currently does not work properly for Windows builds, tested only for Linux
+
+    ///uint8_t* tmpRow = new (std::align_val_t{std::hardware_destructive_interference_size}) uint8_t[tmpBufRowSize];
+
+    uint8_t* tmpRow = new uint8_t[tmpBufRowSize];
+#else
+    uint8_t* tmpRow = new uint8_t[tmpBufRowSize];
+#endif
 
     uint8_t* tmpDestRow = nullptr;
 
@@ -613,12 +631,31 @@ int32_t Image::createRGB32FlatData(uint32_t a_transformType, float a_percent)
     if (m_bitpix >= 8 && m_bitpix <= 32)
     {
         //tmpDestRow = new uint8_t[tmpBufRowSize * (bytesNum == 2 ? 2 : 1)];
-        tmpDestRow = new (std::align_val_t{std::hardware_destructive_interference_size}) uint8_t[tmpBufRowSize * (32/m_bitpix)]; /// original version
+#if defined(__unix__)
+        /// May need to use cache-line size aligment for further performance improvements.
+        /// Currently does not work properly for Windows builds, tested only for Linux
+
+        ///tmpDestRow = new (std::align_val_t{std::hardware_destructive_interference_size}) uint8_t[tmpBufRowSize * (32/m_bitpix)]; /// original version
+
+        tmpDestRow = new uint8_t[tmpBufRowSize * (32/m_bitpix)]; /// original version
+#else
+        tmpDestRow = new uint8_t[tmpBufRowSize * (32/m_bitpix)]; /// original version
+#endif
         tmpFinalRow = tmpDestRow;
+
     }
     else if (m_bitpix == 64)  /// new fixed version for 64-bit HDUs
     {
-        tmpDestRow = new (std::align_val_t{std::hardware_destructive_interference_size}) uint8_t[tmpBufRowSize]; /// new fixed version for 64-bit HDUs
+#if defined(__unix__)
+        /// May need to use cache-line size aligment for further performance improvements.
+        /// Currently does not work properly for Windows builds, tested only for Linux
+
+        ///tmpDestRow = new (std::align_val_t{std::hardware_destructive_interference_size}) uint8_t[tmpBufRowSize]; /// new fixed version for 64-bit HDUs
+
+        tmpDestRow = new uint8_t[tmpBufRowSize]; /// new fixed version for 64-bit HDUs
+#else
+        tmpDestRow = new uint8_t[tmpBufRowSize]; /// new fixed version for 64-bit HDUs
+#endif
         tmpFinalRow = tmpDestRow;
     }
 

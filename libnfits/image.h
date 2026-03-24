@@ -57,7 +57,7 @@ private:
     uint32_t            m_width;
     uint32_t            m_height;
     uint8_t             m_colorDepth;
-    int8_t              m_bitpix;
+    int32_t             m_bitpix;
     long double         m_bzero;
     long double         m_bscale;
     double              m_minValue, m_minDistribValue;

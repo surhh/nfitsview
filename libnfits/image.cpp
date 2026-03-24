@@ -3,7 +3,7 @@
 
 #include "image.h"
 #include "pngfile.h"
-//#include "helperfunctions.h"
+
 
 namespace libnfits
 {

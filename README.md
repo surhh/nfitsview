@@ -39,7 +39,7 @@ libboost-iostreams1.88.0 (>= 1.88.0), libc6 (>= 2.34), libgcc-s1 (>= 3.0), libpn
 libqt6charts6 (>= 6.6.1), libqt6core6t64 (>= 6.9.1), libqt6gui6 (>= 6.1.2), libqt6network6 (>= 6.1.2), 
 libqt6widgets6 (>= 6.1.2), libstdc++6 (>= 14)
 
-[nfitsview3_7-x64.deb](https://github.com/surhh/nfitsview/releases/download/v3.7/nfitsview3_7-x64.deb)
+[nfitsview3_8-x64.deb](https://github.com/surhh/nfitsview/releases/download/v3.8/nfitsview3_8-x64.deb)
 
 
 # How to build under Windows
@@ -50,7 +50,7 @@ corresponding pathes for the libraries in the CMakeLists.txt file and then build
 
 The latest version (3.8) of nFITSview for Windows 64-bit to download (starting from version 3.6 Windows 10 or later is required):
 
-[nfitsview3_7-setup-x64.exe](https://github.com/surhh/nfitsview/releases/download/v3.7/nfitsview3_7-setup-x64.exe)
+[nfitsview3_8-setup-x64.exe](https://github.com/surhh/nfitsview/releases/download/v3.8/nfitsview3_8-setup-x64.exe)
 
 # Experimental (portable) version for macOS
 
@@ -58,14 +58,9 @@ The latest version (3.8) of nFITSview for Windows 64-bit to download (starting f
 
 # Screenshots
 
-![nfitsview3_5_screenshot_8](https://github.com/user-attachments/assets/facb330e-2467-4ee2-b6b6-91521380a172)
-![nfitsview3_5_screenshot_7](https://github.com/user-attachments/assets/0766be56-2d17-4322-803d-2e02e2a173ab)
-![nfitsview3_5_screenshot_6](https://github.com/user-attachments/assets/95d16127-3969-46b5-94bd-6400373cf4c7)
-![nfitsview3_5_screenshot_5](https://github.com/user-attachments/assets/749fb80c-3da2-4eef-8062-5166777707a3)
-![nfitsview3_5_screenshot_4](https://github.com/user-attachments/assets/e3c0f9d2-d47a-4d2b-9371-82b245dbf973)
-![nfitsview3_5_screenshot_3](https://github.com/user-attachments/assets/7fc4a99e-8534-4321-901f-a4a5c08d7a3a)
-![nfitsview3_5_screenshot_2](https://github.com/user-attachments/assets/85fdfd7c-5ec1-44ab-afb8-163ce9b5b2e2)
-![nfitsview3_5_screenshot_1](https://github.com/user-attachments/assets/f5869e9c-58cb-449b-af56-d5db981c8eaf)
+<img width="2050" height="1174" alt="nfitsview3_8_screenshot_1" src="https://github.com/user-attachments/assets/317185a5-6c1d-4022-b7ec-417640985f8f" />
+<img width="2050" height="1174" alt="nfitsview3_8_screenshot_2" src="https://github.com/user-attachments/assets/7aaada6d-f81d-417f-9f90-309cb1634a7c" />
+<img width="2050" height="1174" alt="nfitsview3_8_screenshot_3" src="https://github.com/user-attachments/assets/1f576240-0b32-4637-9263-f3aace5a9f43" />
 
 
 # About FITS format

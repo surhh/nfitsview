@@ -55,7 +55,7 @@ The latest version (3.8) of nFITSview for Windows 64-bit to download (starting f
 
 
 
-***Experimental (portable) version 3.8 for macOS will be available soon***
+***Experimental (portable) version for macOS will be available soon***
 
 
 

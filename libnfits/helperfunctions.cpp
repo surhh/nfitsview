@@ -2161,10 +2161,10 @@ void getFloatBufferDistribution(const uint8_t* a_buffer, size_t a_size, float a_
 
     size_t pixelCount = a_size / sizeof(float);
 
-    float rangeF = std::fabs(a_max - a_min);
-    float segmentSizeF = rangeF/(float)FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER;
+    double rangeF = std::fabs(a_max - a_min);
+    double segmentSizeF = rangeF/(double)FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER;
 
-    if (areEqual(segmentSizeF, 0.0f))
+    if (areEqual(segmentSizeF, 0.0))
         return;
 
 #if defined(ENABLE_OPENMP)
@@ -2199,10 +2199,10 @@ void getDoubleBufferDistribution(const uint8_t* a_buffer, size_t a_size, double 
 
     size_t pixelCount = a_size / sizeof(double);
 
-    double rangeF = std::fabs(a_max - a_min);
-    double segmentSizeF = rangeF/(double)FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER;
+    long double rangeF = std::fabs(a_max - a_min);
+    long double segmentSizeF = rangeF/(long double)FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER;
 
-    if (areEqual(segmentSizeF, 0.0))
+    if (areEqual(segmentSizeF, 0.0L))
         return;
 
 #if defined(ENABLE_OPENMP)
@@ -2427,10 +2427,10 @@ void getIntBufferDistribution(const uint8_t* a_buffer, size_t a_size, int32_t a_
 
     size_t pixelCount = a_size / sizeof(int32_t);
 
-    double rangeF = std::fabs(a_max - a_min);
-    double segmentSizeF = rangeF/(double)FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER;
+    long double rangeF = std::fabs(a_max - a_min);
+    long double segmentSizeF = rangeF/(long double)FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER;
 
-    if (areEqual(segmentSizeF, 0.0))
+    if (areEqual(segmentSizeF, 0.0L))
         return;
 
 #if defined(ENABLE_OPENMP)
@@ -2502,10 +2502,10 @@ void getLongBufferDistribution(const uint8_t* a_buffer, size_t a_size, int64_t a
 
     size_t pixelCount = a_size / sizeof(int64_t);
 
-    double rangeF = std::fabs(a_max - a_min);
-    double segmentSizeF = rangeF/(double)FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER;
+    long double rangeF = std::fabs(a_max - a_min);
+    long double segmentSizeF = rangeF/(long double)FITS_VALUE_DISTRIBUTION_SEGMENTS_NUMBER;
 
-    if (areEqual(segmentSizeF, 0.0))
+    if (areEqual(segmentSizeF, 0.0L))
         return;
 
 #if defined(ENABLE_OPENMP)
@@ -2624,8 +2624,8 @@ template<typename T> void getBufferDistributionMinMax(const uint8_t* a_buffer, s
         a_stats[i].percent = (double)a_stats[i].count / totalCount;
         a_stats[i].cdf = a_stats[i-1].cdf + a_stats[i].count; /// CDF (cumulative distribution function) value
 
-        ////std::cout << "[INFO]: (F/D) index = " << i << " , a_stats[i].count = " << a_stats[i].count <<
-        ////             " , percent = " << a_stats[i].percent << std::endl;
+        ///std::cout << "[INFO]: (F/D) index = " << i << " , a_stats[i].count = " << a_stats[i].count <<
+        ///             " , percent = " << a_stats[i].percent << " , a_stats[i].cdf = " << a_stats[i].cdf << std::endl;
     }
 
     int32_t startSegment = 0, endSegment = 0;
@@ -2633,8 +2633,8 @@ template<typename T> void getBufferDistributionMinMax(const uint8_t* a_buffer, s
 
     getMaxDistribPercentRange(a_stats, startSegment, endSegment, startPercent, endPercent, a_percent);
 
-    ////std::cout << "[INFO]: (F/D) startSegment = " << startSegment << " , endSegment = " << endSegment <<
-    ////             " , startPercent = " << startPercent << " , endPercent = " << endPercent << std::endl;
+    ///std::cout << "[INFO]: (F/D) startSegment = " << startSegment << " , endSegment = " << endSegment <<
+    ///             " , startPercent = " << startPercent << " , endPercent = " << endPercent << std::endl;
 
     a_minNew = a_min + startSegment*segmentSizeF;
     a_maxNew = a_minNew + (endSegment - startSegment + 1)*segmentSizeF;
@@ -2712,7 +2712,11 @@ template<typename T> T calcPercentile(libnfits::DistribStats const* a_distribSta
 
     size_t cdfPrev = binPos > 0 ? a_distribStats[binPos - 1].cdf : 0;
 
-    long double fraction = static_cast<long double>((percentilePos - cdfPrev)) / a_distribStats[binPos].count;
+    long double fraction;
+    if (a_distribStats[binPos].count == 0)
+        fraction = 0.0L;
+    else
+        fraction = static_cast<long double>((percentilePos - cdfPrev)) / a_distribStats[binPos].count;
 
     long double percentileVal = binStartVal + fraction * step;
 
@@ -2730,9 +2734,9 @@ template<typename T> void calcPercentileMinMax(libnfits::DistribStats const* a_d
 
     float percentileMax = a_percentile + percentileDelta;
 
-    a_newMin = calcPercentile(a_distribStats, a_min, a_max, percentileMin, a_pixelNum);
+    a_newMin = calcPercentile<T>(a_distribStats, a_min, a_max, percentileMin, a_pixelNum);
 
-    a_newMax = calcPercentile(a_distribStats, a_min, a_max, percentileMax, a_pixelNum);
+    a_newMax = calcPercentile<T>(a_distribStats, a_min, a_max, percentileMax, a_pixelNum);
 
     /// this is to cover the corner case occurring during very short distrubution range, e.g. for some int32 cases
     if (std::is_same<T, double>::value || std::is_same<T, float>::value)

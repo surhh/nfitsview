@@ -691,10 +691,8 @@ int32_t Image::createRGB32FlatData(uint32_t a_transformType, float a_percent)
             }
             else if (m_bitpix == -32)
             {
-                calcPercentileMinMax<float>(m_distribStats, m_finalMinValue, m_finalMaxValue, m_percentThreshold,
-                                            minF, maxF, m_width * m_height);
-                min = minF;
-                max = maxF;
+                calcPercentileMinMax<double>(m_distribStats, m_finalMinValue, m_finalMaxValue, m_percentThreshold,
+                                             min, max, m_width * m_height);
             }
             else if (m_bitpix == 32)
             {

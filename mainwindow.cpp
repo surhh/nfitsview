@@ -330,7 +330,7 @@ void MainWindow::om_m_sliderZoom_valueChanged(int a_value)
 void MainWindow::populateHDUsWidget()
 {
     uint32_t            numberOfHDUs = 0;
-    int32_t             resTemp = FITS_GENERAL_ERROR;
+    int32_t             resTemp = FITS_GENERAL_ERROR, curHDU = 0;
     libnfits::HDU       hdu;
 
     m_fitsFile.setOffset(0);
@@ -356,10 +356,16 @@ void MainWindow::populateHDUsWidget()
             QString HDUtypeStr = "";
 
             if (hdu.isPrimary())
+            {
+                curHDU = i;
                 HDUtypeStr = "P";
+            }
 
             if (HDUtype & FITS_HDU_TYPE_IMAGE_XTENSION)
+            {
+                curHDU = i;
                 HDUtypeStr += "I";
+            }
 
             if (HDUtype & FITS_HDU_TYPE_ASCII_TABLE_XTENSION)
                 HDUtypeStr += "T(A)";
@@ -408,7 +414,8 @@ void MainWindow::populateHDUsWidget()
     int32_t rowCount = ui->tableWidgetHDUs->rowCount();
 
     if (rowCount > 0)
-        ui->tableWidgetHDUs->selectRow(rowCount - 1);
+        ///ui->tableWidgetHDUs->selectRow(rowCount - 1); /// original way
+        ui->tableWidgetHDUs->selectRow(curHDU);
 }
 
 void MainWindow::populateHeaderWidget(int32_t a_hduIndex)

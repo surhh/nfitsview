@@ -2739,7 +2739,7 @@ template<typename T> void calcPercentileMinMax(libnfits::DistribStats const* a_d
     a_newMax = calcPercentile<T>(a_distribStats, a_min, a_max, percentileMax, a_pixelNum);
 
     /// this is to cover the corner case occurring during very short distrubution range, e.g. for some int32 cases
-    if (std::is_same<T, double>::value || std::is_same<T, float>::value)
+    if (std::is_same<T, double>::value || std::is_same<T, long double>::value || std::is_same<T, float>::value)
     {
         if (areEqualFloatDouble(a_newMin, a_newMax))
         {

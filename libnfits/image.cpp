@@ -677,7 +677,7 @@ int32_t Image::createRGB32FlatData(uint32_t a_transformType, float a_percent)
         if (!areEqual(m_percentThreshold, 100.0f))
         {
             double min, max;
-            float minF, maxF;
+            ///float minF, maxF;
             int64_t minL, maxL;
             int32_t min32, max32;
             int16_t min16, max16;

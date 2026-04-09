@@ -53,9 +53,9 @@ The latest version (3.9) of nFITSview for Windows 64-bit to download (starting f
 [nfitsview3_9-setup-x64.exe](https://github.com/surhh/nfitsview/releases/download/v3.9/nfitsview3_9-setup-x64.exe)
 
 
+# Experimental version for macOS
 
-
-***Experimental (portable) version for macOS will be available soon***
+[nfitsview3_9.dmg](https://github.com/surhh/nfitsview/releases/download/v3.9/nfitsview3_9.dmg)
 
 
 

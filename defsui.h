@@ -11,7 +11,7 @@
 #define MIN_IMAGE_SCALE_FACTOR              (1)
 #define MAX_IMAGE_SCALE_FACTOR              (400)
 
-#define IMAGE_EXPORT_DEFAULT_QUALITY        (75)
+#define IMAGE_EXPORT_DEFAULT_QUALITY        (100)
 
 #define IMAGE_EXPORT_MESSAGE_SUCCESS        "The current HDU has been successfully exported as an image."
 #define IMAGE_EXPORT_MESSAGE_ERROR          "Error exporting the current HDU as an image."

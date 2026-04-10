@@ -178,7 +178,7 @@ ssize_t MapFile::loadFileRead(const std::string& a_fileName)
         return returnFileReadError();
 
     /// Read the complete file into the memory
-    size_t bytesRead = read(m_fileDesc, m_memoryBuffer, m_fileSize);
+    ssize_t bytesRead = read(m_fileDesc, m_memoryBuffer, m_fileSize);
     if (bytesRead != m_fileSize)
         return returnFileReadError();
 

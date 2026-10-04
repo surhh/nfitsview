@@ -16,6 +16,11 @@
 #include <QtCharts/QValueAxis>
 ///
 
+/// FITS File Explorer related
+#include <QSortFilterProxyModel>
+#include <QFileSystemModel>
+///
+
 #include "defsui.h"
 #include "libnfits/fitsfile.h"
 #include "updatemanager/filedownloader.h"
@@ -23,6 +28,46 @@
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
+
+/// Custom filter to accept folders and files ending with  *.fit *.fts *.fits *.fz
+class ExtensionFilterProxy : public QSortFilterProxyModel
+{
+public:
+    /// Constructor allows passing a parent pointer to properly manage memory lifecycles
+    explicit ExtensionFilterProxy(QObject* parent = nullptr)
+        : QSortFilterProxyModel(parent)
+    {
+
+    }
+
+protected:
+    bool filterAcceptsRow(int source_row, const QModelIndex& source_parent) const override
+    {
+        QFileSystemModel *fsModel = qobject_cast<QFileSystemModel*>(sourceModel());
+
+        if (!fsModel)
+        {
+            return true;
+        }
+
+        QModelIndex index = fsModel->index(source_row, 0, source_parent);
+        QFileInfo fileInfo = fsModel->fileInfo(index);
+
+        /// Always show directories so users can navigate down to their files
+        if (fileInfo.isDir())
+        {
+            return true;
+        }
+
+        /// Exact match check: Must end with *.fit *.fts *.fits *.fz (case-insensitive)
+        QString fileName = fileInfo.fileName();
+
+        return fileName.endsWith(".fit", Qt::CaseInsensitive) ||
+               fileName.endsWith(".fts", Qt::CaseInsensitive) ||
+               fileName.endsWith(".fits", Qt::CaseInsensitive) ||
+               fileName.endsWith(".fz", Qt::CaseInsensitive);
+    }
+};
 
 class MainWindow : public QMainWindow
 {
@@ -144,6 +189,12 @@ private slots:
 
     void on_actionOriginalSize_triggered();
 
+    void on_dirLocationCombo_currentIndexChanged(int index);
+
+    void on_refreshDirsButton_clicked();
+
+    void on_treeViewFITSFiles_clicked(const QModelIndex &index);
+
 private:
     Ui::MainWindow *ui;
 
@@ -184,6 +235,11 @@ private:
     QChartView*         m_histChartView;
     QValueAxis*         m_axisX;
     QValueAxis*         m_axisY;
+    ///////
+
+    /////// FITS File explorer vars
+    QFileSystemModel*           m_modelFS;
+    ExtensionFilterProxy*       m_proxyModel;
     ///////
 
 private:

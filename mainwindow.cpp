@@ -156,7 +156,31 @@ MainWindow::MainWindow(QWidget *parent)
     int32_t numThreads = omp_get_max_threads();
     numThreads = numThreads > 2 ? numThreads - OPENMP_THREADS_DISABLE_NUMBER : numThreads;
     omp_set_num_threads(numThreads);
-#endif    
+#endif
+
+    /// Setup File System Model
+    m_modelFS = new QFileSystemModel(this);
+    m_modelFS->setRootPath("");
+
+    /// Setup Custom Filter Proxy Model
+    m_proxyModel = new ExtensionFilterProxy(this);
+    m_proxyModel->setSourceModel(m_modelFS);
+
+#if defined(Q_OS_WIN)
+    QFileInfoList drives = QDir::drives();
+    for (const QFileInfo &drive : drives)
+    {
+        ui->dirLocationCombo->addItem(drive.absoluteFilePath(), drive.absoluteFilePath());
+    }
+#else
+    ui->dirLocationCombo->addItem("/", "/");
+    ui->dirLocationCombo->addItem("Home Directory", QDir::homePath());
+#endif
+
+    /// Create Tree View Browser and connect it to the Proxy Model
+    ui->treeViewFITSFiles->setModel(m_proxyModel);
+
+    emit ui->dirLocationCombo->currentIndexChanged(0);
 }
 
 MainWindow::~MainWindow()
@@ -182,6 +206,11 @@ MainWindow::~MainWindow()
 
     delete m_histChart;
     ////////////////
+
+    //// delete FITS file explorer related stuff
+    delete m_modelFS;
+    delete m_proxyModel;
+    ////
 
     delete ui;
 }
@@ -2163,5 +2192,81 @@ void MainWindow::on_actionOriginalSizeToolBar_triggered()
 void MainWindow::on_actionOriginalSize_triggered()
 {
     fitOriginalSize();
+}
+
+
+void MainWindow::on_dirLocationCombo_currentIndexChanged(int index)
+{
+    if (index < 0)
+    {
+        return; /// checking valid index range
+    }
+
+    QString selectedPath = ui->dirLocationCombo->itemData(index).toString();
+    QModelIndex baseRootIndex = m_modelFS->index(selectedPath);
+
+    /// Convert the base model index to a proxy model index
+    QModelIndex proxyRootIndex = m_proxyModel->mapFromSource(baseRootIndex);
+    ui->treeViewFITSFiles->setRootIndex(proxyRootIndex);
+}
+
+
+void MainWindow::on_refreshDirsButton_clicked()
+{
+    /// Saving currentactive drive selection before deleting combo box items
+    int32_t currentIndex = ui->dirLocationCombo->currentIndex();
+    QString currentPath = (currentIndex != -1) ? ui->dirLocationCombo->itemData(currentIndex).toString() : "";
+
+    /// Completely deleting the old dropdown list to clean up unmounted devices
+    ui->dirLocationCombo->clear();
+
+    /// Querying OS state to catch newly inserted USB drive paths
+#if defined(Q_OS_WIN)
+    QFileInfoList drives = QDir::drives();
+    for (const QFileInfo &drive : drives)
+    {
+        ui->dirLocationCombo->addItem(drive.absoluteFilePath(), drive.absoluteFilePath());
+    }
+#else
+    ui->dirLocationCombo->addItem("/", "/");
+    ui->dirLocationCombo->addItem("Home Directory", QDir::homePath());
+#endif
+
+    /// Checkinging if the previous drive is still plugged in
+    int32_t nextIndex = ui->dirLocationCombo->findData(currentPath);
+
+    if (nextIndex != -1)
+    {
+        /// Block signals temporarily for smoother UI processing
+        ui->dirLocationCombo->blockSignals(true);
+        ui->dirLocationCombo->setCurrentIndex(nextIndex);
+        ui->dirLocationCombo->blockSignals(false);
+    }
+    else
+    {
+        /// Back to the first item in combobox
+        //ui->dirLocationCombo->setCurrentIndex(0);
+        //emit ui->dirLocationCombo->currentIndexChanged(0);
+    }
+
+    /// Force QFileSystemModel to re-read the data
+    m_modelFS->setRootPath("");
+    m_modelFS->setRootPath(ui->dirLocationCombo->itemData(ui->dirLocationCombo->currentIndex()).toString());
+
+    //emit ui->dirLocationCombo->currentIndexChanged(0);
+    ui->dirLocationCombo->setCurrentIndex(0);
+}
+
+
+void MainWindow::on_treeViewFITSFiles_clicked(const QModelIndex &index)
+{
+    QModelIndex baseIndex = m_proxyModel->mapToSource(index);
+
+    if (!m_modelFS->isDir(baseIndex))
+    {
+        QString fileName = m_modelFS->filePath(baseIndex);
+
+        openFITSFileByName(fileName);
+    }
 }
 

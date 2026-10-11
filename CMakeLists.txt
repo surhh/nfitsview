@@ -30,24 +30,27 @@ set(Boost_USE_MULTITHREADED ON)     # added for libnfits
 # windows build specific (MinGW)
 if(WIN32)
     include_directories("c:/projects/nfitsview_deps/build-lpng1637-Desktop-Release")
+    include_directories("c:/projects/nfitsview_deps/lpng1637")
 
     set(ZLIB_INCLUDE_DIR "c:/projects/nfitsview_deps/zlib-1.2.12")
     set(ZLIB_LIBRARY "c:/projects/nfitsview_deps/build-zlib-1.2.12-Desktop-Release/libzlibstatic.a")
 
+    set(ZLIB_ROOT "c:/projects/nfitsview_deps/zlib-1.2.12")
+    list(APPEND CMAKE_PREFIX_PATH "c:/projects/nfitsview_deps/build-zlib-1.2.12-Desktop-Release")
     set(Boost_INCLUDE_DIR "c:/projects/nfitsview_deps/boost/include/boost-1_79")
     set(Boost_LIBRARY_DIR "c:/projects/nfitsview_deps/boost/lib")
+    set(ZLIB_USE_STATIC_LIBS ON)
+    find_package(ZLIB REQUIRED)
 
-    # these two lines below are for the newer version of MinGW 14.2 as Boost was built by the older one
-    set(BOOST_ROOT "c:/projects/nfitsview_deps/boost")
-    set(Boost_COMPILER ${Boost_COMPILER} "-mgw7")
-    # end of the MinGW 14.2 support directives block
+    set(Boost_INCLUDE_DIR "c:/projects/nfitsview_deps/boost_1_91_0")
+    set(Boost_LIBRARY_DIR "c:/projects/nfitsview_deps/boost_1_91_0/stage/lib")
+
+    set(BOOST_ROOT "c:/projects/nfitsview_deps/boost_1_91_0")
+    set(Boost_COMPILER ${Boost_COMPILER} "-mgw13") # boost build naming syntax flag
 
     set(Boost_USE_STATIC_LIBS ON)
     set(Boost_MULTITHREADED ON)
     #set(Boost_USE_STATIC_RUNTIME OFF)
-
-    # find_package(Boost REQUIRED ifostreams) # no need here
-
     include_directories(${Boost_INCLUDE_DIR})
 
 if(NOT DEFINED ${ENABLE_OPENMP_BUILD})
@@ -60,7 +63,8 @@ endif()
 # end of windows build specific (MinGW)
 
 # added for libnfits
-find_package(Boost REQUIRED iostreams) # this may be deprecated in the future
+set(Boost_ARCHITECTURE "-x64")
+find_package(Boost REQUIRED iostreams)
 find_package(PNG REQUIRED)
 
 include_directories(${PNG_INCLUDE_DIR})
@@ -151,6 +155,9 @@ target_link_libraries(nfitsview PRIVATE Qt${QT_VERSION_MAJOR}::Widgets ${Boost_L
 target_link_libraries(nfitsview PRIVATE Qt${QT_VERSION_MAJOR}::Network) # Added for network support
 target_link_libraries(nfitsview PRIVATE Qt${QT_VERSION_MAJOR}::Charts) # Added for charts
 
+if(WIN32)
+target_link_libraries(nfitsview PRIVATE Boost::iostreams ZLIB::ZLIB)
+endif()
 
 if(ENABLE_OPENMP_BUILD)
 find_package(OpenMP REQUIRED)

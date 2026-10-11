@@ -34,23 +34,23 @@ class ExtensionFilterProxy : public QSortFilterProxyModel
 {
 public:
     /// Constructor allows passing a parent pointer to properly manage memory lifecycles
-    explicit ExtensionFilterProxy(QObject* parent = nullptr)
-        : QSortFilterProxyModel(parent)
+    explicit ExtensionFilterProxy(QObject* a_parent = nullptr)
+        : QSortFilterProxyModel(a_parent)
     {
 
     }
 
 protected:
-    bool filterAcceptsRow(int source_row, const QModelIndex& source_parent) const override
+    bool filterAcceptsRow(int a_sourceRow, const QModelIndex& a_sourceParent) const override
     {
-        QFileSystemModel *fsModel = qobject_cast<QFileSystemModel*>(sourceModel());
+        QFileSystemModel* fsModel = qobject_cast<QFileSystemModel*>(sourceModel());
 
         if (!fsModel)
         {
             return true;
         }
 
-        QModelIndex index = fsModel->index(source_row, 0, source_parent);
+        QModelIndex index = fsModel->index(a_sourceRow, 0, a_sourceParent);
         QFileInfo fileInfo = fsModel->fileInfo(index);
 
         /// Always show directories so users can navigate down to their files
@@ -66,6 +66,30 @@ protected:
                fileName.endsWith(".fts", Qt::CaseInsensitive) ||
                fileName.endsWith(".fits", Qt::CaseInsensitive) ||
                fileName.endsWith(".fz", Qt::CaseInsensitive);
+    }
+};
+
+class EscBlocker : public QObject
+{
+public:
+    explicit EscBlocker(QObject* a_parent = nullptr) : QObject(a_parent)
+    {
+
+    }
+
+protected:
+    bool eventFilter(QObject* a_obj, QEvent* a_event) override
+    {
+        if (a_event->type() == QEvent::KeyPress)
+        {
+            QKeyEvent* keyEvent = static_cast<QKeyEvent*>(a_event);
+            if (keyEvent->key() == Qt::Key_Escape)
+            {
+                return true; /// processes ESC button
+            }
+        }
+
+        return QObject::eventFilter(a_obj, a_event);
     }
 };
 
@@ -310,6 +334,8 @@ private:
     void initChartDefaultMetrics();
 
     void transformPercentileStretching();
+
+    void openFITSFileFromTree(const QModelIndex &index);
 
 signals:
     void sendProgressChanged(qint32 a_value);

@@ -125,6 +125,8 @@
    <addaction name="separator"/>
    <addaction name="separator"/>
    <addaction name="actionAboutToolBar"/>
+   <addaction name="separator"/>
+   <addaction name="separator"/>
   </widget>
   <widget class="QDockWidget" name="dockWidgetHDUs">
    <property name="minimumSize">
@@ -1370,7 +1372,7 @@
     <enum>Qt::LayoutDirection::LeftToRight</enum>
    </property>
    <property name="features">
-    <set>QDockWidget::DockWidgetFeature::DockWidgetFloatable|QDockWidget::DockWidgetFeature::DockWidgetMovable</set>
+    <set>QDockWidget::DockWidgetFeature::DockWidgetClosable|QDockWidget::DockWidgetFeature::DockWidgetFloatable|QDockWidget::DockWidgetFeature::DockWidgetMovable</set>
    </property>
    <property name="allowedAreas">
     <set>Qt::DockWidgetArea::RightDockWidgetArea</set>
@@ -1421,7 +1423,14 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayoutFITSExplorer_2">
          <item>
-          <widget class="QTreeView" name="treeViewFITSFiles"/>
+          <widget class="QTreeView" name="treeViewFITSFiles">
+           <attribute name="headerMinimumSectionSize">
+            <number>100</number>
+           </attribute>
+           <attribute name="headerDefaultSectionSize">
+            <number>100</number>
+           </attribute>
+          </widget>
          </item>
         </layout>
        </item>

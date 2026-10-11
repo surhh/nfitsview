@@ -6,6 +6,7 @@
 #include <QMessageBox>
 #include <QStandardItemModel>
 #include <QDesktopServices>
+#include <QProgressDialog>
 
 #if defined(ENABLE_OPENMP)
 #include <omp.h>
@@ -22,9 +23,9 @@
 
 #define FITS_FILE_EXTENSIONS    "FITS Files (*.fit *.fts *.fits *.fz)"
 
-// This function acts as a wrapper over the callback method of signal/slot.
-// "this" pointer of MainWindow is passed to callback function and then it
-// is used in order to emit the signal from MainWindow class.
+/// This function acts as a wrapper over the callback method of signal/slot.
+/// "this" pointer of MainWindow is passed to callback function and then it
+/// is used in order to emit the signal from MainWindow class.
 qint32 progressCallbackFunction(qint32 a_value, void* a_buffer)
 {
     MainWindow* mainWnd = static_cast<MainWindow*>(a_buffer);
@@ -164,6 +165,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     /// Setup Custom Filter Proxy Model
     m_proxyModel = new ExtensionFilterProxy(this);
+
+    /// Connecting Tree View Browser and Proxy Model
+    ui->treeViewFITSFiles->setModel(m_proxyModel);
+
     m_proxyModel->setSourceModel(m_modelFS);
 
 #if defined(Q_OS_WIN)
@@ -177,8 +182,15 @@ MainWindow::MainWindow(QWidget *parent)
     ui->dirLocationCombo->addItem("Home Directory", QDir::homePath());
 #endif
 
-    /// Create Tree View Browser and connect it to the Proxy Model
-    ui->treeViewFITSFiles->setModel(m_proxyModel);
+    /// Toggling show/hide for FITS file explorer
+    ui->toolBar->addAction(ui->dockWidgetFITSExplorer->toggleViewAction());
+    ui->treeViewFITSFiles->setColumnWidth(0, 250);
+
+    connect(ui->treeViewFITSFiles->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, [this](const QModelIndex &a_current, const QModelIndex &a_previous)
+            {
+                openFITSFileFromTree(a_current);
+            });
 
     emit ui->dirLocationCombo->currentIndexChanged(0);
 }
@@ -220,7 +232,8 @@ void MainWindow::createStatusBarWidgets()
     setStatus(STATUS_MESSAGE_READY);
 
     m_progressBar = new QProgressBar(this);
-    m_progressBar->setVisible(true);
+    ///m_progressBar->setVisible(true);
+    m_progressBar->setVisible(false); /// replaced this with "LOADING..." pop-up window
     statusBar()->addPermanentWidget(m_progressBar);
 
     m_labelZoomLeft = new QLabel(this);
@@ -488,19 +501,22 @@ int32_t MainWindow::openFITSFileByName(const QString& a_fileName, bool a_bShowMs
 {
     int32_t result = FITS_GENERAL_ERROR;
 
+    if (m_fitsFile.isOpen() && (closeFITSFile() == result))
+        return result;
+
     if (!a_fileName.isEmpty())
     {
         m_fitsFileName = a_fileName;
 
-        result = FITS_GENERAL_SUCCESS;
+        ///result = FITS_GENERAL_SUCCESS;
     }
     else
         return result;
 
     int32_t resTemp = FITS_GENERAL_ERROR;
 
-    if (m_fitsFile.isOpen() && (closeFITSFile() == FITS_GENERAL_ERROR))
-        return result;
+    ///if (m_fitsFile.isOpen() && (closeFITSFile() == FITS_GENERAL_ERROR))
+    ///        return result;
 
     setStatus(STATUS_MESSAGE_IMAGE_LOAD);
 
@@ -508,19 +524,73 @@ int32_t MainWindow::openFITSFileByName(const QString& a_fileName, bool a_bShowMs
 
     setProgress(25);
 
+    QProgressDialog* loadingDialog = new QProgressDialog("\nL O A D I N G . . .", nullptr, 0, 0, this);
+
+    loadingDialog->setStyleSheet(
+        "QDialog "
+        "{"
+        "   background-color: #ffffff;"
+        "   border: 1px solid #dcdcdc;"
+        "}"
+        "QLabel"
+        "{"
+        "   color: #000000;"
+        "   font-weight: bold;"
+        "}"
+        "QProgressBar"
+        "{"
+        "   border: 1px solid #e0e0e0;"
+        "   border-radius: 3px;"
+        "   background-color: #f3f3f3;"
+        "   max-height: 10px;"
+        "   min-height: 10px;"
+        "   text-align: center;"
+        "}"
+        "QProgressBar::chunk"
+        "{"
+        "   background-color: #0078d4;"
+        "   border-radius: 3px;"
+        "}"
+        );
+
+    QProgressBar* progressBar = loadingDialog->findChild<QProgressBar*>();
+    if (progressBar)
+    {
+        progressBar->hide();
+    }
+
+    QLabel* label = loadingDialog->findChild<QLabel*>();
+    if (label)
+    {
+        label->setAlignment(Qt::AlignCenter);
+    }
+
+    loadingDialog->installEventFilter(new EscBlocker(loadingDialog));
+    loadingDialog->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::FramelessWindowHint);
+    loadingDialog->setFixedSize(loadingDialog->sizeHint());
+    loadingDialog->setWindowModality(Qt::WindowModal);
+    loadingDialog->setCancelButton(nullptr);
+    ///loadingDialog->setBar(nullptr); /// this approach didn't work, that's I used findChild<QLabel*>() above
+    loadingDialog->installEventFilter(new EscBlocker);
+
+    loadingDialog->show();
+    QCoreApplication::processEvents();
+
 #if defined(PROFILING_MODE)
     libnfits::debugStartProfiling();
 #endif
+
     resTemp = m_fitsFile.loadFile(m_fitsFileName.toStdString());
+
 #if defined(PROFILING_MODE)
     libnfits::debugEndProfiling("m_fitsFile.loadFile()");
 #endif
 
     if (resTemp == FITS_GENERAL_SUCCESS)
     {
-        m_fitsFile.setCallbackFunction(progressCallbackFunction, (void *)this);
+        m_fitsFile.setCallbackFunction(progressCallbackFunction, (void*)this);
 
-        // this function loads all the image HDUs into the corresponding Image objects
+        /// this function loads all the image HDUs into the corresponding Image objects
 #if defined(PROFILING_MODE)
         libnfits::debugStartProfiling();
 #endif
@@ -540,9 +610,13 @@ int32_t MainWindow::openFITSFileByName(const QString& a_fileName, bool a_bShowMs
 
         setWindowTitle(QString(NFITSVIEW_APP_NAME) + " - " + getFileName());
 
-        setProgress(100);
+        setProgress(100);            
     }
-    else if (a_bShowMsg)
+
+    loadingDialog->accept();
+    loadingDialog->deleteLater();
+
+    if (resTemp != FITS_GENERAL_SUCCESS && a_bShowMsg)
     {
         QMessageBox messageBox;
         messageBox.critical(this, FITS_MSG_ERROR_TYPE, FITS_MSG_ERROR_OPENING_FILE);
@@ -574,6 +648,8 @@ int32_t MainWindow::closeFITSFile()
     m_scaleFactor = 100;
 
     m_bImageChanged = false;
+
+    m_fitsFileName.clear();
 
     m_exportFormat = ui->comboBoxFormat->currentText().toLower();
     m_exportQuality = ui->horizontalSliderQuality->value();
@@ -2257,8 +2333,7 @@ void MainWindow::on_refreshDirsButton_clicked()
     ui->dirLocationCombo->setCurrentIndex(0);
 }
 
-
-void MainWindow::on_treeViewFITSFiles_clicked(const QModelIndex &index)
+void MainWindow::openFITSFileFromTree(const QModelIndex &index)
 {
     QModelIndex baseIndex = m_proxyModel->mapToSource(index);
 
@@ -2266,7 +2341,14 @@ void MainWindow::on_treeViewFITSFiles_clicked(const QModelIndex &index)
     {
         QString fileName = m_modelFS->filePath(baseIndex);
 
-        openFITSFileByName(fileName);
+        if (m_fitsFileName != fileName)  /// if file is aready opened - do not open it again
+        {
+            openFITSFileByName(fileName);
+        }
     }
 }
 
+void MainWindow::on_treeViewFITSFiles_clicked(const QModelIndex &index)
+{
+    openFITSFileFromTree(index);
+}

@@ -10,6 +10,7 @@ Currently nFITSview supports the following formats and features:
 -    Bulk exporting of all image HDUs as PNG files
 -    Percentile and stretching support
 -    Image zoom in/out
+-    FITS file explorer
 -    HDU header syntax view
 -    Raw data hex preview
 -    Both regular and compressed (.fz) FITS files are supported
@@ -32,14 +33,14 @@ The original development of nFITSview is done under Linux, so the easiest and th
   The nfitsview execuatble will be located in the build directory.
 
 
-The latest version (3.9) of nFITSview install package for Linux 64-bit (Debian-based) is available for download too. 
+The latest version (4.0) of nFITSview install package for Linux 64-bit (Debian-based) is available for download too. 
 
 The dependencies for installing are: 
-libboost-iostreams1.88.0 (>= 1.88.0), libc6 (>= 2.34), libgcc-s1 (>= 3.0), libpng16-16t64 (>= 1.6.46), 
-libqt6charts6 (>= 6.6.1), libqt6core6t64 (>= 6.9.1), libqt6gui6 (>= 6.1.2), libqt6network6 (>= 6.1.2), 
-libqt6widgets6 (>= 6.1.2), libstdc++6 (>= 14)
+libboost-iostreams1.90.0 (>= 1.90.0), libc6 (>= 2.43), libgcc-s1 (>= 3.0), libpng16-16t64 (>= 1.6.46), 
+libqt6charts6 (>= 6.6.1), libqt6core6t64 (>= 6.10.2), libqt6gui6 (>= 6.1.2), libqt6network6 (>= 6.1.2), 
+libqt6widgets6 (>= 6.9.1), libstdc++6 (>= 14)
 
-[nfitsview3_9-x64.deb](https://github.com/surhh/nfitsview/releases/download/v3.9/nfitsview3_9-x64.deb)
+[nfitsview4_0-x64.deb](https://github.com/surhh/nfitsview/releases/download/v4.0/nfitsview4_0-x64.deb)
 
 
 # How to build under Windows
@@ -48,9 +49,9 @@ Normally there is no need to build under Windows as the install package is provi
 Anyway, for building under Windows one would need to download/install/build all the dependencies (boost, zlib, libpng), then fix the
 corresponding pathes for the libraries in the CMakeLists.txt file and then build the project using Qt Creator.
 
-The latest version (3.9) of nFITSview for Windows 64-bit to download (starting from version 3.6 Windows 10 or later is required):
+The latest version (4.0) of nFITSview for Windows 64-bit to download (starting from version 3.6 Windows 10 or later is required):
 
-[nfitsview3_9-setup-x64.exe](https://github.com/surhh/nfitsview/releases/download/v3.9/nfitsview3_9-setup-x64.exe)
+[nfitsview4_0-setup-x64.exe](https://github.com/surhh/nfitsview/releases/download/v4.0/nfitsview4_0-setup-x64.exe)
 
 
 # Experimental version for macOS

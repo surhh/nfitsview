@@ -62,9 +62,7 @@ The latest version (4.0) of nFITSview for Windows 64-bit to download (starting f
 
 # Screenshots
 
-<img width="2050" height="1174" alt="nfitsview3_8_screenshot_1" src="https://github.com/user-attachments/assets/317185a5-6c1d-4022-b7ec-417640985f8f" />
-<img width="2050" height="1174" alt="nfitsview3_8_screenshot_2" src="https://github.com/user-attachments/assets/7aaada6d-f81d-417f-9f90-309cb1634a7c" />
-<img width="2050" height="1174" alt="nfitsview3_8_screenshot_3" src="https://github.com/user-attachments/assets/1f576240-0b32-4637-9263-f3aace5a9f43" />
+<img width="2050" height="1174" alt="nfitsview4_0_screenshot_1" src="https://github.com/user-attachments/assets/584fb8c4-5553-4a9e-b075-ec8d6fb06360" />
 
 
 # About FITS format

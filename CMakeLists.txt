@@ -37,8 +37,6 @@ if(WIN32)
 
     set(ZLIB_ROOT "c:/projects/nfitsview_deps/zlib-1.2.12")
     list(APPEND CMAKE_PREFIX_PATH "c:/projects/nfitsview_deps/build-zlib-1.2.12-Desktop-Release")
-    set(Boost_INCLUDE_DIR "c:/projects/nfitsview_deps/boost/include/boost-1_79")
-    set(Boost_LIBRARY_DIR "c:/projects/nfitsview_deps/boost/lib")
     set(ZLIB_USE_STATIC_LIBS ON)
     find_package(ZLIB REQUIRED)
 

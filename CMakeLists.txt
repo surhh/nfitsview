@@ -48,7 +48,6 @@ if(WIN32)
 
     set(Boost_USE_STATIC_LIBS ON)
     set(Boost_MULTITHREADED ON)
-    #set(Boost_USE_STATIC_RUNTIME OFF)
     include_directories(${Boost_INCLUDE_DIR})
 
 if(NOT DEFINED ${ENABLE_OPENMP_BUILD})
